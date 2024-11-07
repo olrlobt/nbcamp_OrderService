@@ -6,9 +6,14 @@ import java.util.UUID;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 
+import com.nbcamp.orderservice.domain.product.entity.Product;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -27,7 +32,12 @@ import lombok.NoArgsConstructor;
 public class AIRequestLog {
 
 	@Id
+	@Column(name = "id", columnDefinition = "uuid comment 'AI 기록 고유 번호'")
 	private UUID id = UUID.randomUUID();
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "product_id", nullable = false, columnDefinition = "uuid comment '상품 고유 번호'")
+	private Product product;
 
 	@Column(name = "request", nullable = false, columnDefinition = "varchar comment '요청문'")
 	private String request;
@@ -40,6 +50,7 @@ public class AIRequestLog {
 	private LocalDateTime createdAt;
 
 	@CreatedBy
+	@Column(name = "created_by", updatable = false, columnDefinition = "uuid comment '생성자'")
 	private UUID createdBy;
 
 }
