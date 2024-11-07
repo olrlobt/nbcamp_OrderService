@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(
-	name = "ai_request_log"
+	name = "p_ai_request_log"
 )
 public class AIRequestLog {
 

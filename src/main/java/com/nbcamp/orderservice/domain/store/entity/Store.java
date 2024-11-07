@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(
-	name = "store"
+	name = "p_store"
 )
 public class Store extends BaseTimeEntity {
 

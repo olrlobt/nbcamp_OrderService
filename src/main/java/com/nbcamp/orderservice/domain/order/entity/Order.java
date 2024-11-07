@@ -29,7 +29,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(
-	name = "order"
+	name = "p_order"
 )
 public class Order extends BaseTimeEntity {
 
