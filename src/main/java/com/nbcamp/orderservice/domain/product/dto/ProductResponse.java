@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import com.nbcamp.orderservice.domain.common.DisplayStatus;
 
-public record CreateProductResponse(
+public record ProductResponse(
 	UUID productId,
 	UUID storeId,
 	String name,
