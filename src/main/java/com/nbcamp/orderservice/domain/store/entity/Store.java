@@ -4,12 +4,16 @@ import java.util.UUID;
 
 import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
 import com.nbcamp.orderservice.domain.common.StoreCategory;
+import com.nbcamp.orderservice.domain.user.entity.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -30,6 +34,10 @@ public class Store extends BaseTimeEntity {
 	@Id
 	@Column(name = "id", columnDefinition = "uuid comment '매장 고유 번호'")
 	private UUID id = UUID.randomUUID();
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false, columnDefinition = "uuid comment '회원 고유 번호'")
+	private User user;
 
 	@Column(name = "name", nullable = false, columnDefinition = "varchar comment '매장이름'")
 	private String name;
