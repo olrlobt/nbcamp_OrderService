@@ -44,7 +44,7 @@ public class ProductService {
 	public ProductResponse getProduct(String storeId, String productId) {
 		Store store = getStoreById(storeId);
 		Product product = productJpaRepository.findById(UUID.fromString(productId))
-			.orElseThrow(() -> new IllegalArgumentException(String.valueOf(ErrorCode.NOT_FOUND_PRODUCT)));
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_PRODUCT.getMessage()));
 
 		return new ProductResponse(
 			product.getId(),
@@ -65,7 +65,7 @@ public class ProductService {
 
 	private Store getStoreById(String storeId) {
 		return storeJpaRepository.findById(UUID.fromString(storeId))
-			.orElseThrow(() -> new IllegalArgumentException(String.valueOf(ErrorCode.NOT_FOUND_STORE)));
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_STORE.getMessage()));
 	}
 
 }
