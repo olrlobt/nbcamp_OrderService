@@ -2,6 +2,9 @@ package com.nbcamp.orderservice.domain.product.service;
 
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.nbcamp.orderservice.domain.product.dto.CreateProductRequest;
@@ -51,6 +54,13 @@ public class ProductService {
 			product.getPrice(),
 			product.getDisplayStatus()
 		);
+	}
+
+	public Page<ProductResponse> getAllProduct(String storeId, int page, int size) {
+		UUID storeUuid = getStoreById(storeId).getId();
+		Pageable pageable = PageRequest.of(page, size);
+
+		return productQueryRepository.findAllProductResponsesByStoreId(storeUuid, pageable);
 	}
 
 	private Store getStoreById(String storeId) {
