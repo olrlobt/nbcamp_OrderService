@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.nbcamp.orderservice.domain.product.dto.CreateProductRequest;
-import com.nbcamp.orderservice.domain.product.dto.CreateProductResponse;
+import com.nbcamp.orderservice.domain.product.dto.ProductResponse;
 import com.nbcamp.orderservice.domain.product.entity.Product;
 import com.nbcamp.orderservice.domain.product.repository.ProductJpaRepository;
 import com.nbcamp.orderservice.domain.product.repository.ProductQueryRepository;
@@ -23,14 +23,12 @@ public class ProductService {
 	private final ProductQueryRepository productQueryRepository;
 	private final StoreJpaRepository storeJpaRepository;
 
-	public CreateProductResponse createProduct(String storeId, CreateProductRequest request) {
-		Store store = storeJpaRepository.findById(UUID.fromString(storeId))
-			.orElseThrow(() -> new IllegalArgumentException(String.valueOf(ErrorCode.NOT_FOUND_STORE)));
-
+	public ProductResponse createProduct(String storeId, CreateProductRequest request) {
+		Store store = getStoreById(storeId);
 		Product product = Product.create(request, store);
 		productJpaRepository.save(product);
 
-		return new CreateProductResponse(
+		return new ProductResponse(
 			product.getId(),
 			store.getId(),
 			product.getName(),
@@ -39,4 +37,25 @@ public class ProductService {
 			product.getDisplayStatus()
 		);
 	}
+
+	public ProductResponse getProduct(String storeId, String productId) {
+		Store store = getStoreById(storeId);
+		Product product = productJpaRepository.findById(UUID.fromString(productId))
+			.orElseThrow(() -> new IllegalArgumentException(String.valueOf(ErrorCode.NOT_FOUND_PRODUCT)));
+
+		return new ProductResponse(
+			product.getId(),
+			store.getId(),
+			product.getName(),
+			product.getDescription(),
+			product.getPrice(),
+			product.getDisplayStatus()
+		);
+	}
+
+	private Store getStoreById(String storeId) {
+		return storeJpaRepository.findById(UUID.fromString(storeId))
+			.orElseThrow(() -> new IllegalArgumentException(String.valueOf(ErrorCode.NOT_FOUND_STORE)));
+	}
+
 }
