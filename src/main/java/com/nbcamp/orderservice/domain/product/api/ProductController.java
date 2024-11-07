@@ -2,6 +2,7 @@ package com.nbcamp.orderservice.domain.product.api;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,6 +64,16 @@ public class ProductController {
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS_INSERT,
 			productService.updateProduct(storeId, productId, request));
+	}
+
+	@DeleteMapping("/stores/{storeId}/products/{productId}")
+	public ResponseEntity<CommonResponse<Void>> deleteProduct(
+		@PathVariable("storeId") String storeId,
+		@PathVariable("productId") String productId
+		// + 유저 인증
+	) {
+		productService.deleteProduct(storeId, productId);
+		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
 	}
 
 }

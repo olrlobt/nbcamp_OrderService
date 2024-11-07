@@ -1,5 +1,6 @@
 package com.nbcamp.orderservice.domain.product.entity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
@@ -68,5 +69,9 @@ public class Product extends BaseTimeEntity {
 		this.description = request.description();
 		this.price = request.price();
 		this.displayStatus = request.status();
+	}
+
+	public void delete() {
+		this.setDeletedAt(LocalDateTime.now());
 	}
 }

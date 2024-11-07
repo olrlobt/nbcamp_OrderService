@@ -29,6 +29,7 @@ public class ProductService {
 
 	@Transactional
 	public ProductResponse createProduct(String storeId, ProductRequest request) {
+		// TODO : 권한 검증
 		Store store = getStoreById(storeId);
 		Product product = Product.create(request, store);
 		productJpaRepository.save(product);
@@ -68,6 +69,7 @@ public class ProductService {
 
 	@Transactional
 	public ProductResponse updateProduct(String storeId, String productId, ProductRequest request) {
+		// TODO : 권한 검증
 		Store store = getStoreById(storeId);
 		Product product = getProductById(productId);
 		product.update(request);
@@ -80,6 +82,14 @@ public class ProductService {
 			product.getPrice(),
 			product.getDisplayStatus()
 		);
+	}
+
+	@Transactional
+	public void deleteProduct(String storeId, String productId) {
+		// TODO : 권한 검증
+		getStoreById(storeId);
+		Product product = getProductById(productId);
+		product.delete();
 	}
 
 	private Product getProductById(String productId) {
