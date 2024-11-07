@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
 import com.nbcamp.orderservice.domain.common.DisplayStatus;
+import com.nbcamp.orderservice.domain.product.dto.CreateProductRequest;
 import com.nbcamp.orderservice.domain.store.entity.Store;
 
 import jakarta.persistence.Column;
@@ -51,5 +52,15 @@ public class Product extends BaseTimeEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "display_status", nullable = false, columnDefinition = "varchar comment '노출상태'")
 	private DisplayStatus displayStatus;
+
+	public static Product create(CreateProductRequest request, Store store) {
+		return Product.builder()
+			.store(store)
+			.name(request.name())
+			.description(request.description())
+			.price(request.price())
+			.displayStatus(request.status())
+			.build();
+	}
 
 }
