@@ -47,12 +47,10 @@ public class ProductController {
 	public ResponseEntity<CommonResponse<Page<ProductResponse>>> getAllProduct(
 		@RequestParam("page") int page,
 		@RequestParam("size") int size,
-		@RequestParam("isAsc") boolean isLatest,
 		@PathVariable("storeId") String storeId
 		// + 유저 인증
 	) {
-		return CommonResponse.success(SuccessCode.SUCCESS,
-			productService.getAllProduct(storeId, page - 1, size));
+		return CommonResponse.success(SuccessCode.SUCCESS, productService.getAllProduct(storeId, page - 1, size));
 	}
 
 }
