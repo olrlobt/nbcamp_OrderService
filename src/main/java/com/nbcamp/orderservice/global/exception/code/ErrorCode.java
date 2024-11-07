@@ -64,7 +64,12 @@ public enum ErrorCode {
 	/**
 	 * Category
 	 */
-	NOT_FOUND_CATEGORY(HttpStatus.BAD_REQUEST, "카테고리를 찾을 수 없습니다.");
+	NOT_FOUND_CATEGORY(HttpStatus.BAD_REQUEST, "카테고리를 찾을 수 없습니다."),
+
+	/**
+	 * STORE
+	 */
+	NOT_FOUND_STORE(HttpStatus.BAD_REQUEST, "매장을 찾을 수 없습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String message;
