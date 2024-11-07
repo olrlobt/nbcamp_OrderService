@@ -2,6 +2,7 @@ package com.nbcamp.orderservice.domain.user.entity;
 
 import java.util.UUID;
 
+import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
 import com.nbcamp.orderservice.domain.common.UserRole;
 
 import jakarta.persistence.Column;
@@ -24,7 +25,7 @@ import lombok.NoArgsConstructor;
 @Table(
 	name = "user"
 )
-public class User {
+public class User extends BaseTimeEntity {
 
 	@Id
 	@Column(name = "id", columnDefinition = "uuid comment '회원 고유 번호'")
