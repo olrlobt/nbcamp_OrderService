@@ -33,4 +33,9 @@ public record CommonResponse<T>(boolean success, String message, T result) {
 			.body(new CommonResponse<>(false, exception.getMessage(), null));
 	}
 
+	public static <T> ResponseEntity<CommonResponse<T>> fail(ErrorCode errorCode, String message) {
+		return ResponseEntity.status(errorCode.getHttpStatus())
+			.body(new CommonResponse<>(false, message, null));
+	}
+
 }
