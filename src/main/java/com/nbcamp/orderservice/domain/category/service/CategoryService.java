@@ -22,28 +22,30 @@ public class CategoryService {
 	private final CategoryJpaRepository categoryJpaRepository;
 
 	@Transactional
-	public CategoryResponse createCategory(CategoryRequest request){
+	public CategoryResponse createCategory(CategoryRequest request) {
+		checkCategoryDuplicate(request.category());
 		Category category = Category.create(request);
 		categoryJpaRepository.save(category);
 		return new CategoryResponse(category.getId(), category.getCategory());
 	}
 
 	@Transactional(readOnly = true)
-	public CategoryResponse getCategory(String categoryId){
+	public CategoryResponse getCategory(String categoryId) {
 		Category category = findById(categoryId);
 		return new CategoryResponse(category.getId(), category.getCategory());
 	}
 
 	@Transactional(readOnly = true)
-	public List<CategoryResponse> getAllCategory(){
-		List<Category> categories = categoryJpaRepository.findAll();
+	public List<CategoryResponse> getAllCategory() {
+		List<Category> categories = categoryJpaRepository.findAllByOrderByCategoryAsc();
 		return categories.stream()
 			.map(category -> new CategoryResponse(category.getId(), category.getCategory()))
 			.collect(Collectors.toList());
 	}
 
 	@Transactional
-	public CategoryResponse updateCategory(String categoryId, CategoryRequest request){
+	public CategoryResponse updateCategory(String categoryId, CategoryRequest request) {
+		checkCategoryDuplicate(request.category());
 		Category category = findById(categoryId);
 		category.update(request);
 		categoryJpaRepository.save(category);
@@ -51,21 +53,21 @@ public class CategoryService {
 	}
 
 	@Transactional
-	public void deleteCategory(String categoryId){
+	public void deleteCategory(String categoryId) {
 		Category category = findById(categoryId);
 		category.delete();
 	}
 
+	public void checkCategoryDuplicate(String category) {
+		if (categoryJpaRepository.findByCategory(category).isPresent()) {
+			throw new IllegalArgumentException(ErrorCode.EXIST_CATEGORY.getMessage());
+		}
+	}
 
-	public Category findById(String uuid){
+	public Category findById(String uuid) {
 		return categoryJpaRepository.findById(UUID.fromString(uuid))
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_CATEGORY.getMessage()));
 	}
-
-
-
-
-
 
 }
 
