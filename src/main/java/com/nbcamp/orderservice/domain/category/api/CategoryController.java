@@ -27,5 +27,11 @@ public class CategoryController {
 
 	private final CategoryService categoryService;
 
+	@PostMapping("/category")
+	public ResponseEntity<CommonResponse<CategoryResponse>> createCategory(
+		@RequestBody CategoryRequest categoryRequest
+	){
+		return CommonResponse.success(SuccessCode.SUCCESS_INSERT,categoryService.createCategory(categoryRequest));
+	}
 
 }

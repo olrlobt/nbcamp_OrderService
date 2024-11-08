@@ -21,6 +21,12 @@ public class CategoryService {
 
 	private final CategoryJpaRepository categoryJpaRepository;
 
+	@Transactional
+	public CategoryResponse createCategory(CategoryRequest request){
+		Category category = Category.create(request);
+		categoryJpaRepository.save(category);
+		return new CategoryResponse(category.getId(), category.getCategory());
+	}
 
 
 }

@@ -33,5 +33,10 @@ public class Category extends BaseTimeEntity {
 	@Column(name = "category", nullable = false, columnDefinition = "varchar comment '카테고리'")
 	private String category;
 
+	public static Category create(CategoryRequest categoryRequest){
+		return Category.builder()
+			.category(categoryRequest.category())
+			.build();
+	}
 
 }
