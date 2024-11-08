@@ -44,5 +44,13 @@ public class CategoryController {
 		return CommonResponse.success(SuccessCode.SUCCESS,categoryService.getAllCategory());
 	}
 
+	@PutMapping("/category/{categoryId}")
+	public ResponseEntity<CommonResponse<CategoryResponse>> updateCategory(
+		@PathVariable String categoryId,
+		@RequestBody CategoryRequest categoryRequest){
+		return CommonResponse
+			.success(SuccessCode.SUCCESS_UPDATE, categoryService.updateCategory(categoryId, categoryRequest));
+	}
+
 
 }

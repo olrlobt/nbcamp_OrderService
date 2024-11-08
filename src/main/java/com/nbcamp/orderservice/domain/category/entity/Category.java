@@ -39,4 +39,8 @@ public class Category extends BaseTimeEntity {
 			.build();
 	}
 
+	public void update(CategoryRequest categoryRequest){
+		this.category = categoryRequest.category();
+	}
+
 }

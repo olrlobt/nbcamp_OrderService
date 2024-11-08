@@ -42,6 +42,14 @@ public class CategoryService {
 			.collect(Collectors.toList());
 	}
 
+	@Transactional
+	public CategoryResponse updateCategory(String categoryId, CategoryRequest request){
+		Category category = findById(categoryId);
+		category.update(request);
+		categoryJpaRepository.save(category);
+		return new CategoryResponse(category.getId(), category.getCategory());
+	}
+
 	public Category findById(String uuid){
 		return categoryJpaRepository.findById(UUID.fromString(uuid))
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_CATEGORY.getMessage()));
