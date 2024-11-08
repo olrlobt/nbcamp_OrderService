@@ -1,7 +1,12 @@
 package com.nbcamp.orderservice.domain.store.entity;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
+import com.nbcamp.orderservice.domain.category.entity.Category;
 import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
 import com.nbcamp.orderservice.domain.common.StoreCategory;
 import com.nbcamp.orderservice.domain.user.entity.User;
@@ -14,6 +19,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -42,9 +48,8 @@ public class Store extends BaseTimeEntity {
 	@Column(name = "name", nullable = false)
 	private String name;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "store_category", nullable = false)
-	private StoreCategory storeCategory;
+	@OneToMany(fetch = FetchType.LAZY)
+	private List<Category> categories = new ArrayList<>();
 
 	@Column(name = "area", nullable = false)
 	private String area;
