@@ -2,8 +2,11 @@ package com.nbcamp.orderservice.domain.user.entity;
 
 import java.util.UUID;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
 import com.nbcamp.orderservice.domain.common.UserRole;
+import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,4 +44,23 @@ public class User extends BaseTimeEntity {
 	@Column(name = "user_role", nullable = false, columnDefinition = "varchar comment '회원 권한'")
 	private UserRole userRole;
 
+	@Column(length = 1000)
+	private String refreshToken;
+
+	public static User create(SignupRequest request, PasswordEncoder passwordEncoder) {
+		return User.builder()
+			.id(UUID.randomUUID())
+			.username(request.username())
+			.password(passwordEncoder.encode(request.password()))
+			.userRole(request.userRole())
+			.build();
+	}
+
+	public void updateRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
+	}
+
+	public void destroyRefreshToken() {
+		this.refreshToken = null;
+	}
 }
