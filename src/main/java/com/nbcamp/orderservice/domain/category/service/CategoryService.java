@@ -1,0 +1,27 @@
+package com.nbcamp.orderservice.domain.category.service;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.nbcamp.orderservice.domain.category.dto.CategoryRequest;
+import com.nbcamp.orderservice.domain.category.dto.CategoryResponse;
+import com.nbcamp.orderservice.domain.category.entity.Category;
+import com.nbcamp.orderservice.domain.category.repository.CategoryJpaRepository;
+import com.nbcamp.orderservice.global.exception.code.ErrorCode;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class CategoryService {
+
+	private final CategoryJpaRepository categoryJpaRepository;
+
+
+
+}
+
