@@ -1,16 +1,21 @@
 package com.nbcamp.orderservice.domain.user.service;
 
+import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.user.dto.AllUserResponse;
 import com.nbcamp.orderservice.domain.user.dto.LoginRequest;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
 import com.nbcamp.orderservice.domain.user.dto.UserResponse;
+import com.nbcamp.orderservice.domain.user.dto.UserUpdateRequest;
 import com.nbcamp.orderservice.domain.user.entity.User;
 import com.nbcamp.orderservice.domain.user.repository.UserRepository;
+import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,11 +24,11 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
 	private final JwtService jwtService;
-	private final UserRepository usersRepository ;
+	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 
 	public String login(LoginRequest loginRequest) {
-		User user = usersRepository.findByUsername(loginRequest.username())
+		User user = userRepository.findByUsername(loginRequest.username())
 			.orElseThrow(() -> new RuntimeException("Invalid username or password"));
 
 		if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
@@ -32,21 +37,38 @@ public class UserService {
 		return jwtService.createAccessToken(user.getUsername());
 	}
 
+	@Transactional
 	public void signup(SignupRequest signupRequest) {
 		User user = User.create(signupRequest, passwordEncoder);
-		usersRepository.save(user);
+		userRepository.save(user);
 	}
 
 	public void logout(String username) {
 		jwtService.destroyRefreshToken(username);
 	}
 
+	@Transactional(readOnly = true)
 	public UserResponse getUserDetail(String userId) {
 		//todo. 에러 상세화
-		return usersRepository.findUserResponseByUserId(UUID.fromString(userId)).orElseThrow(IllegalArgumentException::new);
+		return userRepository.findUserResponseByUserId(UUID.fromString(userId)).orElseThrow(IllegalArgumentException::new);
 	}
 
+	@Transactional(readOnly = true)
 	public AllUserResponse getAllUsers() {
-		return usersRepository.findAllUserResponse();
+		return userRepository.findAllUserResponse();
+	}
+
+	@Transactional
+	public void updateUser(UserDetailsImpl userDetails, String userId, UserUpdateRequest request) {
+		//todo. 에러 상세화
+		UserRole userRole = userDetails.getUserRole();
+		if((userRole == UserRole.CUSTOMER || userRole == UserRole.OWNER)
+			&& !Objects.equals(userDetails.getUserId(), userId)){
+			throw new IllegalArgumentException();
+		}
+
+		User user = userRepository.findById(UUID.fromString(userId))
+			.orElseThrow(IllegalArgumentException::new);
+		user.update(request);
 	}
 }

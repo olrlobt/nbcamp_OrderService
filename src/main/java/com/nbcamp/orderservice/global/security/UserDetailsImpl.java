@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.user.entity.User;
 
 public class UserDetailsImpl implements UserDetails {
@@ -19,6 +20,14 @@ public class UserDetailsImpl implements UserDetails {
 
 	public User getUser() {
 		return user;
+	}
+
+	public String getUserId(){
+		return user.getId().toString();
+	}
+
+	public UserRole getUserRole(){
+		return user.getUserRole();
 	}
 
 	@Override

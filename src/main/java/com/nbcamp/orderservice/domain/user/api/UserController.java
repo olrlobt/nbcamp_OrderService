@@ -17,9 +17,11 @@ import com.nbcamp.orderservice.domain.user.dto.AllUserResponse;
 import com.nbcamp.orderservice.domain.user.dto.LoginRequest;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
 import com.nbcamp.orderservice.domain.user.dto.UserResponse;
+import com.nbcamp.orderservice.domain.user.dto.UserUpdateRequest;
 import com.nbcamp.orderservice.domain.user.service.UserService;
 import com.nbcamp.orderservice.global.exception.code.SuccessCode;
 import com.nbcamp.orderservice.global.response.CommonResponse;
+import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +58,7 @@ public class UserController {
 		return CommonResponse.success(SuccessCode.SUCCESS, userDetail);
 	}
 
-	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER')")
+	@PreAuthorize("hasAnyRole('MASTER', 'MANAGER')")
 	@GetMapping("/users")
 	public ResponseEntity<CommonResponse<AllUserResponse>> getAllUsers(){
 		AllUserResponse allUsers = userService.getAllUsers();
@@ -64,8 +66,12 @@ public class UserController {
 	}
 
 	@PutMapping("/users/{userId}")
-	public void updateUser(@PathVariable String userId){
-
+	public ResponseEntity<CommonResponse<Object>> updateUser(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
+		@PathVariable String userId,
+		@RequestBody UserUpdateRequest request) {
+		userService.updateUser(userDetails, userId, request);
+		return CommonResponse.success(SuccessCode.SUCCESS_UPDATE);
 	}
 
 	@DeleteMapping("/users/{userId}")

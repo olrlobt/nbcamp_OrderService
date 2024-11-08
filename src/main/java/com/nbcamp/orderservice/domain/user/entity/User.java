@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
 import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
+import com.nbcamp.orderservice.domain.user.dto.UserUpdateRequest;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -54,6 +55,10 @@ public class User extends BaseTimeEntity {
 			.password(passwordEncoder.encode(request.password()))
 			.userRole(request.userRole())
 			.build();
+	}
+
+	public void update(UserUpdateRequest request){
+
 	}
 
 	public void updateRefreshToken(String refreshToken) {
