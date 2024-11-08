@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nbcamp.orderservice.domain.user.dto.AllUserResponse;
 import com.nbcamp.orderservice.domain.user.dto.LoginRequest;
+import com.nbcamp.orderservice.domain.user.dto.LoginResponse;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
 import com.nbcamp.orderservice.domain.user.dto.UserResponse;
 import com.nbcamp.orderservice.domain.user.dto.UserUpdateRequest;
@@ -35,19 +36,19 @@ public class UserController {
 	private final UserService userService;
 
 	@PostMapping("/users/signup")
-	public ResponseEntity<CommonResponse<Object>> signup(@RequestBody SignupRequest signupRequest){
-		userService.signup(signupRequest);
-		return CommonResponse.success(SuccessCode.SUCCESS_INSERT);
+	public ResponseEntity<CommonResponse<UserResponse>> signup(@RequestBody SignupRequest signupRequest) {
+		UserResponse signup = userService.signup(signupRequest);
+		return CommonResponse.success(SuccessCode.SUCCESS_INSERT, signup);
 	}
 
 	@PostMapping("/users/login")
-	public ResponseEntity<CommonResponse<String>> login(@RequestBody LoginRequest loginRequest){
-		String accessToken = userService.login(loginRequest);
-		return CommonResponse.success(SuccessCode.SUCCESS, accessToken);
+	public ResponseEntity<CommonResponse<LoginResponse>> login(@RequestBody LoginRequest loginRequest) {
+		LoginResponse login = userService.login(loginRequest);
+		return CommonResponse.success(SuccessCode.SUCCESS, login);
 	}
 
 	@PostMapping("/users/logout")
-	public ResponseEntity<CommonResponse<Object>> logout(@AuthenticationPrincipal UserDetails userDetails){
+	public ResponseEntity<CommonResponse<Void>> logout(@AuthenticationPrincipal UserDetails userDetails) {
 		userService.logout(userDetails.getUsername());
 		return CommonResponse.success(SuccessCode.SUCCESS);
 	}
@@ -66,12 +67,12 @@ public class UserController {
 	}
 
 	@PutMapping("/users/{userId}")
-	public ResponseEntity<CommonResponse<Object>> updateUser(
+	public ResponseEntity<CommonResponse<UserResponse>> updateUser(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@PathVariable String userId,
 		@RequestBody UserUpdateRequest request) {
-		userService.updateUser(userDetails, userId, request);
-		return CommonResponse.success(SuccessCode.SUCCESS_UPDATE);
+		UserResponse userResponse = userService.updateUser(userDetails, userId, request);
+		return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, userResponse);
 	}
 
 	@DeleteMapping("/users/{userId}")

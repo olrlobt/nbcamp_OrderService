@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.user.dto.AllUserResponse;
 import com.nbcamp.orderservice.domain.user.dto.LoginRequest;
+import com.nbcamp.orderservice.domain.user.dto.LoginResponse;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
 import com.nbcamp.orderservice.domain.user.dto.UserResponse;
 import com.nbcamp.orderservice.domain.user.dto.UserUpdateRequest;
@@ -27,20 +28,23 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 
-	public String login(LoginRequest loginRequest) {
+	public LoginResponse login(LoginRequest loginRequest) {
 		User user = userRepository.findByUsername(loginRequest.username())
 			.orElseThrow(() -> new RuntimeException("Invalid username or password"));
 
 		if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
 			throw new RuntimeException("Invalid username or password");
 		}
-		return jwtService.createAccessToken(user.getUsername());
+
+		return new LoginResponse(user.getUsername(),
+			jwtService.createAccessToken(user.getUsername()));
 	}
 
 	@Transactional
-	public void signup(SignupRequest signupRequest) {
+	public UserResponse signup(SignupRequest signupRequest) {
 		User user = User.create(signupRequest, passwordEncoder);
 		userRepository.save(user);
+		return UserResponse.of(user);
 	}
 
 	public void logout(String username) {
@@ -59,13 +63,14 @@ public class UserService {
 	}
 
 	@Transactional
-	public void updateUser(UserDetailsImpl userDetails, String userId, UserUpdateRequest request) {
+	public UserResponse updateUser(UserDetailsImpl userDetails, String userId, UserUpdateRequest request) {
 		//todo. 에러 상세화
 		ignoreAuth(userDetails, userId);
 
 		User user = userRepository.findById(UUID.fromString(userId))
 			.orElseThrow(IllegalArgumentException::new);
 		user.update(request);
+		return UserResponse.of(user);
 	}
 
 	@Transactional
