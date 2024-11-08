@@ -3,6 +3,8 @@ package com.nbcamp.orderservice.domain.category.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.Comment;
+
 import com.nbcamp.orderservice.domain.category.dto.CategoryRequest;
 import com.nbcamp.orderservice.domain.category.dto.CategoryResponse;
 import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
@@ -27,10 +29,12 @@ import lombok.NoArgsConstructor;
 )
 public class Category extends BaseTimeEntity {
 	@Id
-	@Column(name = "id", columnDefinition = "uuid category '카테고리 고유 번호'")
+	@Column(name = "id")
+	@Comment("uuid category 카테고리 고유 번호")
 	private UUID id = UUID.randomUUID();
 
-	@Column(name = "category", nullable = false, columnDefinition = "varchar comment '카테고리'")
+	@Column(name = "category", nullable = false)
+	@Comment("varchar comment 카테고리")
 	private String category;
 
 	public static Category create(CategoryRequest categoryRequest){

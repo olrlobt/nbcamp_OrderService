@@ -2,6 +2,8 @@ package com.nbcamp.orderservice.domain.review.entity;
 
 import java.util.UUID;
 
+import org.hibernate.annotations.Comment;
+
 import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
 import com.nbcamp.orderservice.domain.order.entity.Order;
 import com.nbcamp.orderservice.domain.user.entity.User;
@@ -31,20 +33,25 @@ import lombok.NoArgsConstructor;
 public class Review extends BaseTimeEntity {
 
 	@Id
-	@Column(name = "id", columnDefinition = "uuid comment '리뷰 고유 번호'")
+	@Column(name = "id")
+	@Comment("uuid comment 리뷰 고유 번호")
 	private UUID id = UUID.randomUUID();
 
+	@Comment("uuid comment 회원 고유 번호")
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id", nullable = false, columnDefinition = "uuid comment '회원 고유 번호'")
+	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
+	@Comment("uuid comment 주문 고유 번호")
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "order_id", nullable = false, columnDefinition = "uuid comment '주문 고유 번호'")
+	@JoinColumn(name = "order_id", nullable = false)
 	private Order order;
 
-	@Column(name = "content", nullable = false, columnDefinition = "varchar comment '리뷰 내용'")
+	@Comment("varchar comment 리뷰 내용")
+	@Column(name = "content", nullable = false)
 	private String content;
 
-	@Column(name = "grade", nullable = false, columnDefinition = "int comment '평점'")
+	@Comment("int comment 평점")
+	@Column(name = "grade", nullable = false)
 	private int grade;
 }
