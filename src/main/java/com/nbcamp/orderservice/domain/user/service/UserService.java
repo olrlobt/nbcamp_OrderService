@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.nbcamp.orderservice.domain.user.dto.AllUserResponse;
 import com.nbcamp.orderservice.domain.user.dto.LoginRequest;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
 import com.nbcamp.orderservice.domain.user.dto.UserResponse;
@@ -43,5 +44,9 @@ public class UserService {
 	public UserResponse getUserDetail(String userId) {
 		//todo. 에러 상세화
 		return usersRepository.findUserResponseByUserId(UUID.fromString(userId)).orElseThrow(IllegalArgumentException::new);
+	}
+
+	public AllUserResponse getAllUsers() {
+		return usersRepository.findAllUserResponse();
 	}
 }

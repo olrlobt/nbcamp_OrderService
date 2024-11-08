@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nbcamp.orderservice.domain.user.dto.AllUserResponse;
 import com.nbcamp.orderservice.domain.user.dto.LoginRequest;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
 import com.nbcamp.orderservice.domain.user.dto.UserResponse;
@@ -57,10 +58,9 @@ public class UserController {
 
 	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER')")
 	@GetMapping("/users")
-	public void getAllUsers(){
-		log.info("users");
-		//todo. 조건 검색 기능, 필터 기능
-
+	public ResponseEntity<CommonResponse<AllUserResponse>> getAllUsers(){
+		AllUserResponse allUsers = userService.getAllUsers();
+		return CommonResponse.success(SuccessCode.SUCCESS, allUsers);
 	}
 
 	@PutMapping("/users/{userId}")

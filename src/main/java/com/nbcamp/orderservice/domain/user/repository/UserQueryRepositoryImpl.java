@@ -1,12 +1,15 @@
 package com.nbcamp.orderservice.domain.user.repository;
 
+import static com.nbcamp.orderservice.domain.user.entity.QUser.*;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
 
+import com.nbcamp.orderservice.domain.user.dto.AllUserResponse;
 import com.nbcamp.orderservice.domain.user.dto.UserResponse;
-import com.nbcamp.orderservice.domain.user.entity.QUser;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -23,10 +26,27 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
 		return Optional.ofNullable(jpaQueryFactory.select(
 				Projections.constructor(
 					UserResponse.class,
-					QUser.user
+					user.username
 				)
-			).from(QUser.user)
-			.where(QUser.user.deletedBy.isNull())
+			)
+			.from(user)
+			.where(user.deletedBy.isNull())
 			.fetchOne());
+	}
+
+	@Override
+	public AllUserResponse findAllUserResponse() {
+		List<UserResponse> userResponses = jpaQueryFactory
+			.select(
+				Projections.constructor(
+					UserResponse.class,
+					user.username,
+					user.userRole
+				)
+			)
+			.from(user)
+			.fetch();
+
+		return new AllUserResponse(userResponses);
 	}
 }
