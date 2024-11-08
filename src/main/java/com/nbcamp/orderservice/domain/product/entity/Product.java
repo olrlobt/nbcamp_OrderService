@@ -3,8 +3,6 @@ package com.nbcamp.orderservice.domain.product.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.hibernate.annotations.Comment;
-
 import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
 import com.nbcamp.orderservice.domain.common.DisplayStatus;
 import com.nbcamp.orderservice.domain.product.dto.ProductRequest;
@@ -36,30 +34,24 @@ import lombok.NoArgsConstructor;
 public class Product extends BaseTimeEntity {
 
 	@Id
-	@Column(name = "id")
-	@Comment("uuid comment 상품 고유 번호")
+	@Column(name = "id", columnDefinition = "uuid comment '상품 고유 번호'")
 	private UUID id = UUID.randomUUID();
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "store_id", nullable = false)
-	@Comment("uuid comment 매장 고유 번호")
+	@JoinColumn(name = "store_id", nullable = false, columnDefinition = "uuid comment '매장 고유 번호'")
 	private Store store;
 
-	@Column(name = "name", nullable = false)
-	@Comment("varchar comment 상품명")
+	@Column(name = "name", nullable = false, columnDefinition = "varchar comment '상품명'")
 	private String name;
 
-	@Column(name = "description", nullable = false)
-	@Comment("varchar comment 상품설명")
+	@Column(name = "description", nullable = false, columnDefinition = "varchar comment '상품설명'")
 	private String description;
 
-	@Column(name = "price", nullable = false)
-	@Comment("int comment 가격")
+	@Column(name = "price", nullable = false, columnDefinition = "int comment '가격'")
 	private int price;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "display_status", nullable = false)
-	@Comment("varchar comment 노출상태")
+	@Column(name = "display_status", nullable = false, columnDefinition = "varchar comment '노출상태'")
 	private DisplayStatus displayStatus;
 
 	public static Product create(ProductRequest request, Store store) {
