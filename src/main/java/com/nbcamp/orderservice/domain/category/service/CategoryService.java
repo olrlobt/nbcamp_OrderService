@@ -28,6 +28,25 @@ public class CategoryService {
 		return new CategoryResponse(category.getId(), category.getCategory());
 	}
 
+	@Transactional(readOnly = true)
+	public CategoryResponse getCategory(String categoryId){
+		Category category = findById(categoryId);
+		return new CategoryResponse(category.getId(), category.getCategory());
+	}
+
+	@Transactional(readOnly = true)
+	public List<CategoryResponse> getAllCategory(){
+		List<Category> categories = categoryJpaRepository.findAll();
+		return categories.stream()
+			.map(category -> new CategoryResponse(category.getId(), category.getCategory()))
+			.collect(Collectors.toList());
+	}
+
+	public Category findById(String uuid){
+		return categoryJpaRepository.findById(UUID.fromString(uuid))
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_CATEGORY.getMessage()));
+	}
+
 
 }
 

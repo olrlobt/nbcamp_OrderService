@@ -34,4 +34,15 @@ public class CategoryController {
 		return CommonResponse.success(SuccessCode.SUCCESS_INSERT,categoryService.createCategory(categoryRequest));
 	}
 
+	@GetMapping("/category/{categoryId}")
+	public ResponseEntity<CommonResponse<CategoryResponse>> getCategory(@PathVariable String categoryId){
+		return CommonResponse.success(SuccessCode.SUCCESS,categoryService.getCategory(categoryId));
+	}
+
+	@GetMapping("/category")
+	public ResponseEntity<CommonResponse<List<CategoryResponse>>> getAllCategory(){
+		return CommonResponse.success(SuccessCode.SUCCESS,categoryService.getAllCategory());
+	}
+
+
 }
