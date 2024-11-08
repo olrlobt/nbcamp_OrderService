@@ -50,10 +50,21 @@ public class CategoryService {
 		return new CategoryResponse(category.getId(), category.getCategory());
 	}
 
+	@Transactional
+	public void deleteCategory(String categoryId){
+		Category category = findById(categoryId);
+		category.delete();
+	}
+
+
 	public Category findById(String uuid){
 		return categoryJpaRepository.findById(UUID.fromString(uuid))
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_CATEGORY.getMessage()));
 	}
+
+
+
+
 
 
 }
