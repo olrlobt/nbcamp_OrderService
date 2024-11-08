@@ -2,6 +2,8 @@ package com.nbcamp.orderservice.domain.user.api;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,9 +43,9 @@ public class UserController {
 	}
 
 	@PostMapping("/users/logout")
-	public void logout(){
-		log.info("logout");
-
+	public ResponseEntity<CommonResponse<Object>> logout(@AuthenticationPrincipal UserDetails userDetails){
+		userService.logout(userDetails.getUsername());
+		return CommonResponse.success(SuccessCode.SUCCESS);
 	}
 
 	@GetMapping("/users/{userId}")

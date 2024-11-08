@@ -25,7 +25,7 @@ public class LoginSuccessJWTProvideHandler extends SimpleUrlAuthenticationSucces
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 		Authentication authentication) throws IOException, ServletException {
-		String username = extractEmail(authentication);
+		String username = extractUsername(authentication);
 		String accessToken = jwtService.createAccessToken(username);
 		String refreshToken = jwtService.createRefreshToken();
 
@@ -41,7 +41,7 @@ public class LoginSuccessJWTProvideHandler extends SimpleUrlAuthenticationSucces
 		response.getWriter().write("success");
 	}
 
-	private String extractEmail(Authentication authentication) {
+	private String extractUsername(Authentication authentication) {
 		UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 		return userDetails.getUsername();
 	}

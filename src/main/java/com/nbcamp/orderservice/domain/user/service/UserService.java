@@ -20,10 +20,10 @@ public class UserService {
 
 	public String login(LoginRequest loginRequest) {
 		User user = usersRepository.findByUsername(loginRequest.username())
-			.orElseThrow(() -> new RuntimeException("Invalid email or password"));
+			.orElseThrow(() -> new RuntimeException("Invalid username or password"));
 
 		if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
-			throw new RuntimeException("Invalid email or password");
+			throw new RuntimeException("Invalid username or password");
 		}
 		return jwtService.createAccessToken(user.getUsername());
 	}
@@ -31,5 +31,9 @@ public class UserService {
 	public void signup(SignupRequest signupRequest) {
 		User user = User.create(signupRequest, passwordEncoder);
 		usersRepository.save(user);
+	}
+
+	public void logout(String username) {
+		jwtService.destroyRefreshToken(username);
 	}
 }

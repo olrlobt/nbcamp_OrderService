@@ -77,8 +77,8 @@ public class JwtServiceImpl implements JwtService {
 	}
 
 	@Override
-	public void destroyRefreshToken(String email) {
-		usersRepository.findByUsername(email)
+	public void destroyRefreshToken(String username) {
+		usersRepository.findByUsername(username)
 			.ifPresentOrElse(
 				User::destroyRefreshToken,
 				() -> new Exception("회원 조회 실패")
