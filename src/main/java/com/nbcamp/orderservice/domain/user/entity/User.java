@@ -28,17 +28,17 @@ import lombok.NoArgsConstructor;
 public class User extends BaseTimeEntity {
 
 	@Id
-	@Column(name = "id", columnDefinition = "uuid comment '회원 고유 번호'")
+	@Column(name = "id")
 	private UUID id = UUID.randomUUID();
 
-	@Column(name = "username", nullable = false, columnDefinition = "varchar comment '회원 아이디'")
+	@Column(name = "username", nullable = false)
 	private String username;
 
-	@Column(name = "password", nullable = false, columnDefinition = "varchar comment '비밀번호'")
+	@Column(name = "password", nullable = false)
 	private String password;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "user_role", nullable = false, columnDefinition = "varchar comment '회원 권한'")
+	@Column(name = "user_role", nullable = false)
 	private UserRole userRole;
 
 }

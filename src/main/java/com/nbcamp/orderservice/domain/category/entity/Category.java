@@ -27,10 +27,10 @@ import lombok.NoArgsConstructor;
 )
 public class Category extends BaseTimeEntity {
 	@Id
-	@Column(name = "id", columnDefinition = "uuid category '카테고리 고유 번호'")
+	@Column(name = "id")
 	private UUID id = UUID.randomUUID();
 
-	@Column(name = "category", nullable = false, columnDefinition = "varchar comment '카테고리'")
+	@Column(name = "category", nullable = false)
 	private String category;
 
 	public static Category create(CategoryRequest categoryRequest){
