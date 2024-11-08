@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.nbcamp.orderservice.domain.user.entity.User;
 
-public interface UsersRepository extends JpaRepository<User, UUID>{
+public interface UserRepository extends JpaRepository<User, UUID>, UserQueryRepository{
 	Optional<User> findByRefreshToken(String refreshToken);
 	Optional<User> findByUsername(String username);
 }

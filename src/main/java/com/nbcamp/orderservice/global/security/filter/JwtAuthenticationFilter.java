@@ -11,7 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.nbcamp.orderservice.domain.user.entity.User;
-import com.nbcamp.orderservice.domain.user.repository.UsersRepository;
+import com.nbcamp.orderservice.domain.user.repository.UserRepository;
 import com.nbcamp.orderservice.domain.user.service.JwtService;
 import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 
@@ -25,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtService jwtService;
-	private final UsersRepository usersRepository;
+	private final UserRepository usersRepository;
 	private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
 	/**

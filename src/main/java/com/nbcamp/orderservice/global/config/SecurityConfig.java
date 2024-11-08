@@ -15,7 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nbcamp.orderservice.domain.user.repository.UsersRepository;
+import com.nbcamp.orderservice.domain.user.repository.UserRepository;
 import com.nbcamp.orderservice.domain.user.service.JwtService;
 import com.nbcamp.orderservice.global.security.filter.JsonUserAuthenticationFilter;
 import com.nbcamp.orderservice.global.security.filter.JwtAuthenticationFilter;
@@ -33,7 +33,7 @@ public class SecurityConfig {
 
 	private final UserDetailsServiceImpl userDetailsService;
 	private final ObjectMapper objectMapper;
-	private final UsersRepository usersRepository;
+	private final UserRepository usersRepository;
 	private final JwtService jwtService;
 
 	@Bean

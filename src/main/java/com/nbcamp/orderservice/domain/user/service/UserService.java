@@ -1,12 +1,15 @@
 package com.nbcamp.orderservice.domain.user.service;
 
+import java.util.UUID;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.nbcamp.orderservice.domain.user.dto.LoginRequest;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
+import com.nbcamp.orderservice.domain.user.dto.UserResponse;
 import com.nbcamp.orderservice.domain.user.entity.User;
-import com.nbcamp.orderservice.domain.user.repository.UsersRepository;
+import com.nbcamp.orderservice.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
 	private final JwtService jwtService;
-	private final UsersRepository usersRepository ;
+	private final UserRepository usersRepository ;
 	private final PasswordEncoder passwordEncoder;
 
 	public String login(LoginRequest loginRequest) {
@@ -35,5 +38,10 @@ public class UserService {
 
 	public void logout(String username) {
 		jwtService.destroyRefreshToken(username);
+	}
+
+	public UserResponse getUserDetail(String userId) {
+		//todo. 에러 상세화
+		return usersRepository.findUserResponseByUserId(UUID.fromString(userId)).orElseThrow(IllegalArgumentException::new);
 	}
 }

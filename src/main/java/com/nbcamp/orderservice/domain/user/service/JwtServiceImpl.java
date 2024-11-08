@@ -15,7 +15,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nbcamp.orderservice.domain.user.entity.User;
-import com.nbcamp.orderservice.domain.user.repository.UsersRepository;
+import com.nbcamp.orderservice.domain.user.repository.UserRepository;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -47,7 +47,7 @@ public class JwtServiceImpl implements JwtService {
 	private static final String USERNAME_CLAIM = "username";
 	private static final String BEARER = "Bearer ";
 
-	private final UsersRepository usersRepository;
+	private final UserRepository usersRepository;
 	private final ObjectMapper objectMapper;
 
 	@Override

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nbcamp.orderservice.domain.user.dto.LoginRequest;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
+import com.nbcamp.orderservice.domain.user.dto.UserResponse;
 import com.nbcamp.orderservice.domain.user.service.UserService;
 import com.nbcamp.orderservice.global.exception.code.SuccessCode;
 import com.nbcamp.orderservice.global.response.CommonResponse;
@@ -49,9 +50,9 @@ public class UserController {
 	}
 
 	@GetMapping("/users/{userId}")
-	public void getUser(@PathVariable String userId){
-		//todo. 개인별 상세 조회
-
+	public ResponseEntity<CommonResponse<UserResponse>> getUserDetail(@PathVariable String userId){
+		UserResponse userDetail = userService.getUserDetail(userId);
+		return CommonResponse.success(SuccessCode.SUCCESS, userDetail);
 	}
 
 	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER')")

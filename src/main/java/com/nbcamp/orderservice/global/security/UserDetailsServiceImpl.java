@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.nbcamp.orderservice.domain.user.entity.User;
-import com.nbcamp.orderservice.domain.user.repository.UsersRepository;
+import com.nbcamp.orderservice.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-	private final UsersRepository usersRepository;
+	private final UserRepository usersRepository;
 
 	@Override
 	public UserDetails loadUserByUsername(String uuid) throws UsernameNotFoundException {

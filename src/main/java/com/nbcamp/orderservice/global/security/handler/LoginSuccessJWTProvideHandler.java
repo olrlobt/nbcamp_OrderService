@@ -6,7 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 
-import com.nbcamp.orderservice.domain.user.repository.UsersRepository;
+import com.nbcamp.orderservice.domain.user.repository.UserRepository;
 import com.nbcamp.orderservice.domain.user.service.JwtService;
 
 import jakarta.servlet.ServletException;
@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class LoginSuccessJWTProvideHandler extends SimpleUrlAuthenticationSuccessHandler {
 
 	private final JwtService jwtService;
-	private final UsersRepository usersRepository;
+	private final UserRepository usersRepository;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
