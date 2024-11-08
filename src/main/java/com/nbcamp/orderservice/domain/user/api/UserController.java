@@ -75,8 +75,10 @@ public class UserController {
 	}
 
 	@DeleteMapping("/users/{userId}")
-	public void deleteUser(@PathVariable String userId){
-
+	public ResponseEntity<CommonResponse<Void>> deleteUser(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
+		@PathVariable String userId){
+		userService.deleteUser(userDetails, userId);
+		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
 	}
-
 }

@@ -61,14 +61,26 @@ public class UserService {
 	@Transactional
 	public void updateUser(UserDetailsImpl userDetails, String userId, UserUpdateRequest request) {
 		//todo. 에러 상세화
+		ignoreAuth(userDetails, userId);
+
+		User user = userRepository.findById(UUID.fromString(userId))
+			.orElseThrow(IllegalArgumentException::new);
+		user.update(request);
+	}
+
+	@Transactional
+	public void deleteUser(UserDetailsImpl userDetails, String userId) {
+		ignoreAuth(userDetails, userId);
+		User user = userRepository.findById(UUID.fromString(userId))
+			.orElseThrow(IllegalArgumentException::new);
+		user.delete();
+	}
+
+	private void ignoreAuth(UserDetailsImpl userDetails, String userId) {
 		UserRole userRole = userDetails.getUserRole();
 		if((userRole == UserRole.CUSTOMER || userRole == UserRole.OWNER)
 			&& !Objects.equals(userDetails.getUserId(), userId)){
 			throw new IllegalArgumentException();
 		}
-
-		User user = userRepository.findById(UUID.fromString(userId))
-			.orElseThrow(IllegalArgumentException::new);
-		user.update(request);
 	}
 }

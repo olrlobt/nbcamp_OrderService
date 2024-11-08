@@ -13,6 +13,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @MappedSuperclass
@@ -27,6 +28,7 @@ public class BaseTimeEntity {
 	@Column(name = "updated_at", columnDefinition = "timestamp comment '수정일'")
 	private LocalDateTime updatedAt;
 
+	@Setter
 	@Column(name = "deleted_at", columnDefinition = "timestamp comment '삭제일'")
 	private LocalDateTime deletedAt;
 

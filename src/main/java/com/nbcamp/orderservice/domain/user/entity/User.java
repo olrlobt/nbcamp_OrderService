@@ -1,5 +1,6 @@
 package com.nbcamp.orderservice.domain.user.entity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -58,7 +59,13 @@ public class User extends BaseTimeEntity {
 	}
 
 	public void update(UserUpdateRequest request){
+		//todo. 사람 추가
+		//todo. 데이터 추가
+	}
 
+	public void delete() {
+		//todo. 사람 추가
+		this.setDeletedAt(LocalDateTime.now());
 	}
 
 	public void updateRefreshToken(String refreshToken) {
