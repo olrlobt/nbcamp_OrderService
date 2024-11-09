@@ -16,6 +16,7 @@ import com.nbcamp.orderservice.domain.user.dto.UserResponse;
 import com.nbcamp.orderservice.domain.user.dto.UserUpdateRequest;
 import com.nbcamp.orderservice.domain.user.entity.User;
 import com.nbcamp.orderservice.domain.user.repository.UserRepository;
+import com.nbcamp.orderservice.global.exception.code.ErrorCode;
 import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 
 import lombok.RequiredArgsConstructor;
@@ -30,10 +31,10 @@ public class UserService {
 
 	public LoginResponse login(LoginRequest loginRequest) {
 		User user = userRepository.findByUsername(loginRequest.username())
-			.orElseThrow(() -> new RuntimeException("Invalid username or password"));
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
 
 		if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
-			throw new RuntimeException("Invalid username or password");
+			throw new IllegalArgumentException(ErrorCode.FAIL_LOGIN.getMessage());
 		}
 
 		return new LoginResponse(user.getUsername(),
@@ -53,8 +54,8 @@ public class UserService {
 
 	@Transactional(readOnly = true)
 	public UserResponse getUserDetail(String userId) {
-		//todo. 에러 상세화
-		return userRepository.findUserResponseByUserId(UUID.fromString(userId)).orElseThrow(IllegalArgumentException::new);
+		return userRepository.findUserResponseByUserId(UUID.fromString(userId))
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
 	}
 
 	@Transactional(readOnly = true)
@@ -64,11 +65,10 @@ public class UserService {
 
 	@Transactional
 	public UserResponse updateUser(UserDetailsImpl userDetails, String userId, UserUpdateRequest request) {
-		//todo. 에러 상세화
 		ignoreAuth(userDetails, userId);
 
 		User user = userRepository.findById(UUID.fromString(userId))
-			.orElseThrow(IllegalArgumentException::new);
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
 		user.update(request);
 		return UserResponse.of(user);
 	}
@@ -77,7 +77,7 @@ public class UserService {
 	public void deleteUser(UserDetailsImpl userDetails, String userId) {
 		ignoreAuth(userDetails, userId);
 		User user = userRepository.findById(UUID.fromString(userId))
-			.orElseThrow(IllegalArgumentException::new);
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
 		user.delete();
 	}
 
@@ -85,7 +85,7 @@ public class UserService {
 		UserRole userRole = userDetails.getUserRole();
 		if((userRole == UserRole.CUSTOMER || userRole == UserRole.OWNER)
 			&& !Objects.equals(userDetails.getUserId(), userId)){
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(ErrorCode.INSUFFICIENT_PERMISSION.getMessage());
 		}
 	}
 }

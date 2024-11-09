@@ -43,6 +43,7 @@ public enum ErrorCode {
 	NON_LOCKED_ACCOUNT(HttpStatus.BAD_REQUEST, "사용자 계정이 정지되었습니다."),
 	DISABLE_ACCOUNT(HttpStatus.BAD_REQUEST, "사용자 계정은 비활성화 상태입니다."),
 	EXPIRED_CREDENTIAL(HttpStatus.BAD_REQUEST, "사용자 인증 정보가 만료되었습니다."),
+	INSUFFICIENT_PERMISSION(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
 
 	/**
 	 * Admin, Member
