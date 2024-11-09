@@ -16,6 +16,7 @@ public enum ErrorCode {
 	CONSTRAINT_VIOLATION(HttpStatus.CONFLICT, "제약 조건 위반"),
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부 서버 오류가 발생하였습니다."),
 	S3_UPLOADER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S3 업로드 중 오류가 발생하였습니다."),
+	UNSUPPORTED_CONTENT_TYPE(HttpStatus.BAD_REQUEST, "지원되지 않는 Content-Type입니다."),
 
 	/**
 	 * Common
@@ -61,6 +62,7 @@ public enum ErrorCode {
 	CAN_NOT_BLOCK(HttpStatus.BAD_REQUEST, "해당 계정은 차단할 수 없습니다."),
 	ALREADY_BLOCK(HttpStatus.BAD_REQUEST, "해당 계정은 이미 차단되어 있습니다."),
 	ALREADY_UNBLOCK(HttpStatus.BAD_REQUEST, "해당 계정은 차단되어 있지 않습니다."),
+	INVALID_UUID_FORMAT(HttpStatus.BAD_REQUEST, "잘못된 UUID 형식입니다."),
 
 	/**
 	 * Category

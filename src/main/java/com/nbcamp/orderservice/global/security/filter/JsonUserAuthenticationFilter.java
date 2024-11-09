@@ -13,6 +13,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.StreamUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nbcamp.orderservice.global.exception.code.ErrorCode;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,8 +35,7 @@ public class JsonUserAuthenticationFilter extends AbstractAuthenticationProcessi
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws
 		IOException, ServletException {
 		if (request.getContentType() == null || !request.getContentType().equals("application/json")) {
-			throw new AuthenticationServiceException(
-				"Authentication Content-Type not supported: " + request.getContentType());
+			throw new AuthenticationServiceException(ErrorCode.UNSUPPORTED_CONTENT_TYPE.getMessage());
 		}
 
 		String messageBody = StreamUtils.copyToString(request.getInputStream(), UTF_8);

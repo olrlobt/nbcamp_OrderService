@@ -16,6 +16,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nbcamp.orderservice.domain.user.entity.User;
 import com.nbcamp.orderservice.domain.user.repository.UserRepository;
+import com.nbcamp.orderservice.global.exception.code.ErrorCode;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -72,7 +73,9 @@ public class JwtServiceImpl implements JwtService {
 		usersRepository.findByUsername(username)
 			.ifPresentOrElse(
 				users -> users.updateRefreshToken(refreshToken),
-				() -> new Exception("회원 조회 실패")
+				() -> {
+					throw new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage());
+				}
 			);
 	}
 
@@ -81,7 +84,9 @@ public class JwtServiceImpl implements JwtService {
 		usersRepository.findByUsername(username)
 			.ifPresentOrElse(
 				User::destroyRefreshToken,
-				() -> new Exception("회원 조회 실패")
+				() -> {
+					throw new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage());
+				}
 			);
 	}
 
