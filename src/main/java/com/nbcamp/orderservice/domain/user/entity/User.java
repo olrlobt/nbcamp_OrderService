@@ -1,9 +1,14 @@
 package com.nbcamp.orderservice.domain.user.entity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
 import com.nbcamp.orderservice.domain.common.UserRole;
+import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
+import com.nbcamp.orderservice.domain.user.dto.UserUpdateRequest;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,4 +46,33 @@ public class User extends BaseTimeEntity {
 	@Column(name = "user_role", nullable = false)
 	private UserRole userRole;
 
+	@Column(length = 1000)
+	private String refreshToken;
+
+	public static User create(SignupRequest request, PasswordEncoder passwordEncoder) {
+		return User.builder()
+			.id(UUID.randomUUID())
+			.username(request.username())
+			.password(passwordEncoder.encode(request.password()))
+			.userRole(request.userRole())
+			.build();
+	}
+
+	public void update(UserUpdateRequest request){
+		//todo. 사람 추가
+		//todo. 데이터 추가
+	}
+
+	public void delete() {
+		//todo. 사람 추가
+		this.setDeletedAt(LocalDateTime.now());
+	}
+
+	public void updateRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
+	}
+
+	public void destroyRefreshToken() {
+		this.refreshToken = null;
+	}
 }

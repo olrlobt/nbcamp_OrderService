@@ -30,6 +30,7 @@ public class BaseTimeEntity {
 
 	@Setter
 	@Column(name = "deleted_at")
+
 	private LocalDateTime deletedAt;
 
 	@CreatedBy
