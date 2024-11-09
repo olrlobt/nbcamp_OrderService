@@ -32,25 +32,25 @@ import lombok.NoArgsConstructor;
 public class AIRequestLog {
 
 	@Id
-	@Column(name = "id", columnDefinition = "uuid comment 'AI 기록 고유 번호'")
+	@Column(name = "id")
 	private UUID id = UUID.randomUUID();
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "product_id", nullable = false, columnDefinition = "uuid comment '상품 고유 번호'")
+	@JoinColumn(name = "product_id", nullable = false)
 	private Product product;
 
-	@Column(name = "request", nullable = false, columnDefinition = "varchar comment '요청문'")
+	@Column(name = "request", nullable = false)
 	private String request;
 
-	@Column(name = "response", nullable = false, columnDefinition = "varchar comment '답변'")
+	@Column(name = "response", nullable = false)
 	private String response;
 
 	@CreatedDate
-	@Column(name = "created_at", updatable = false, columnDefinition = "timestamp comment '생성일'")
+	@Column(name = "created_at", updatable = false)
 	private LocalDateTime createdAt;
 
 	@CreatedBy
-	@Column(name = "created_by", updatable = false, columnDefinition = "uuid comment '생성자'")
+	@Column(name = "created_by", updatable = false)
 	private UUID createdBy;
 
 }

@@ -34,24 +34,24 @@ import lombok.NoArgsConstructor;
 public class Product extends BaseTimeEntity {
 
 	@Id
-	@Column(name = "id", columnDefinition = "uuid comment '상품 고유 번호'")
+	@Column(name = "id")
 	private UUID id = UUID.randomUUID();
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "store_id", nullable = false, columnDefinition = "uuid comment '매장 고유 번호'")
+	@JoinColumn(name = "store_id", nullable = false)
 	private Store store;
 
-	@Column(name = "name", nullable = false, columnDefinition = "varchar comment '상품명'")
+	@Column(name = "name", nullable = false)
 	private String name;
 
-	@Column(name = "description", nullable = false, columnDefinition = "varchar comment '상품설명'")
+	@Column(name = "description", nullable = false)
 	private String description;
 
-	@Column(name = "price", nullable = false, columnDefinition = "int comment '가격'")
+	@Column(name = "price", nullable = false)
 	private int price;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "display_status", nullable = false, columnDefinition = "varchar comment '노출상태'")
+	@Column(name = "display_status", nullable = false)
 	private DisplayStatus displayStatus;
 
 	public static Product create(ProductRequest request, Store store) {

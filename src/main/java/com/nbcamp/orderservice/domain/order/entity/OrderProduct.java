@@ -29,21 +29,21 @@ import lombok.NoArgsConstructor;
 public class OrderProduct extends BaseTimeEntity {
 
 	@Id
-	@Column(name = "id", columnDefinition = "uuid comment '주문-상품 고유 번호'")
+	@Column(name = "id")
 	private UUID id = UUID.randomUUID();
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "order_id", nullable = false, columnDefinition = "uuid comment '주문 고유 번호'")
+	@JoinColumn(name = "order_id", nullable = false)
 	private Order order;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "product_id", nullable = false, columnDefinition = "uuid comment '상품 고유 번호'")
+	@JoinColumn(name = "product_id", nullable = false)
 	private Product product;
 
-	@Column(name = "quantity", nullable = false, columnDefinition = "int comment '주문한 수량'")
+	@Column(name = "quantity", nullable = false)
 	private int quantity;
 
-	@Column(name = "total_price", nullable = false, columnDefinition = "int comment '주문 총 금액'")
+	@Column(name = "total_price", nullable = false)
 	private int totalPrice;
 }
 

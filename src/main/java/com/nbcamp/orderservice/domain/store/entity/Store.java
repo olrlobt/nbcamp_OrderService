@@ -1,19 +1,22 @@
 package com.nbcamp.orderservice.domain.store.entity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import com.nbcamp.orderservice.domain.category.entity.Category;
 import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
-import com.nbcamp.orderservice.domain.common.StoreCategory;
 import com.nbcamp.orderservice.domain.user.entity.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -32,30 +35,30 @@ import lombok.NoArgsConstructor;
 public class Store extends BaseTimeEntity {
 
 	@Id
-	@Column(name = "id", columnDefinition = "uuid comment '매장 고유 번호'")
+	@GeneratedValue(strategy = GenerationType.UUID)
+	@Column(name = "id")
 	private UUID id = UUID.randomUUID();
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id", nullable = false, columnDefinition = "uuid comment '회원 고유 번호'")
+	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	@Column(name = "name", nullable = false, columnDefinition = "varchar comment '매장이름'")
+	@Column(name = "name", nullable = false)
 	private String name;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "store_category", nullable = false, columnDefinition = "varchar comment '매장 카테고리'")
-	private StoreCategory storeCategory;
+	@OneToMany(fetch = FetchType.LAZY)
+	private List<Category> categories = new ArrayList<>();
 
-	@Column(name = "area", nullable = false, columnDefinition = "varchar comment '지역'")
+	@Column(name = "area", nullable = false)
 	private String area;
 
-	@Column(name = "address", nullable = false, columnDefinition = "varchar comment '주소'")
+	@Column(name = "address", nullable = false)
 	private String address;
 
-	@Column(name = "call_number", nullable = false, columnDefinition = "varchar comment '전화번호'")
+	@Column(name = "call_number", nullable = false)
 	private String callNumber;
 
-	@Column(name = "store_grade", nullable = false, columnDefinition = "double precision comment '매장 평점'")
+	@Column(name = "store_grade", nullable = false)
 	private double storeGrade;
 
 }

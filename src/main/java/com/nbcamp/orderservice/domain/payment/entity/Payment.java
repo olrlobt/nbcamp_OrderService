@@ -34,26 +34,26 @@ import lombok.NoArgsConstructor;
 public class Payment extends BaseTimeEntity {
 
 	@Id
-	@Column(name = "id", columnDefinition = "uuid comment '결제 고유 번호'")
+	@Column(name = "id")
 	private UUID id = UUID.randomUUID();
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "order_id", nullable = false, columnDefinition = "uuid comment '주문 고유 번호'")
+	@JoinColumn(name = "order_id", nullable = false)
 	private Order order;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id", nullable = false, columnDefinition = "uuid comment '회원 고유 번호'")
+	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "payment_status", nullable = false, columnDefinition = "varchar comment '결제 상태'")
+	@Column(name = "payment_status", nullable = false)
 	private PaymentStatus paymentStatus;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "payment_method", nullable = false, columnDefinition = "varchar comment '결제 수단'")
+	@Column(name = "payment_method", nullable = false)
 	private PaymentMethod paymentMethod;
 
-	@Column(name = "amount", nullable = false, columnDefinition = "int comment '결제 금액'")
+	@Column(name = "amount", nullable = false)
 	private int amount;
 
 }
