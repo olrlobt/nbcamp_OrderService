@@ -21,26 +21,27 @@ import lombok.Setter;
 public class BaseTimeEntity {
 
 	@CreatedDate
-	@Column(name = "created_at", updatable = false, columnDefinition = "timestamp comment '생성일'")
+	@Column(name = "created_at", updatable = false)
 	private LocalDateTime createdAt;
 
 	@LastModifiedDate
-	@Column(name = "updated_at", columnDefinition = "timestamp comment '수정일'")
+	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
 	@Setter
-	@Column(name = "deleted_at", columnDefinition = "timestamp comment '삭제일'")
+	@Column(name = "deleted_at")
+
 	private LocalDateTime deletedAt;
 
 	@CreatedBy
-	@Column(name = "created_by", updatable = false, columnDefinition = "uuid comment '생성자'")
+	@Column(name = "created_by", updatable = false)
 	private UUID createdBy;
 
 	@LastModifiedBy
-	@Column(name = "updated_by", columnDefinition = "uuid comment '수정자'")
+	@Column(name = "updated_by")
 	private UUID updatedBy;
 
-	@Column(name = "deleted_by", columnDefinition = "uuid comment '삭제자'")
+	@Column(name = "deleted_by")
 	private UUID deletedBy;
 
 }
