@@ -25,7 +25,7 @@ public class CategoryService {
 
 	@Transactional
 	public CategoryResponse createCategory(CategoryRequest request, User user) {
-		checkCategoryCreateAndUpdateAndDeleteCheckUserRoll(user);
+		checkMasterUserRole(user);
 		checkCategoryDuplicate(request.category());
 		Category category = Category.create(request);
 		categoryJpaRepository.save(category);
@@ -48,7 +48,7 @@ public class CategoryService {
 
 	@Transactional
 	public CategoryResponse updateCategory(String categoryId, CategoryRequest request, User user) {
-		checkCategoryCreateAndUpdateAndDeleteCheckUserRoll(user);
+		checkMasterUserRole(user);
 		checkCategoryDuplicate(request.category());
 		Category category = findById(categoryId);
 		category.update(request);
@@ -58,7 +58,7 @@ public class CategoryService {
 
 	@Transactional
 	public void deleteCategory(String categoryId, User user) {
-		checkCategoryCreateAndUpdateAndDeleteCheckUserRoll(user);
+		checkMasterUserRole(user);
 		Category category = findById(categoryId);
 		category.delete();
 	}
@@ -74,7 +74,7 @@ public class CategoryService {
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_CATEGORY.getMessage()));
 	}
 
-	private void checkCategoryCreateAndUpdateAndDeleteCheckUserRoll(User user) {
+	private void checkMasterUserRole(User user) {
 		if (user.getUserRole().equals(UserRole.CUSTOMER)
 			|| user.getUserRole().equals(UserRole.OWNER)
 			|| user.getUserRole().equals(UserRole.MANAGER)) {
