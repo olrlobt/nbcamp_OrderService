@@ -1,6 +1,7 @@
 package com.nbcamp.orderservice.domain.store.service;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nbcamp.orderservice.domain.category.entity.Category;
 import com.nbcamp.orderservice.domain.category.service.CategoryService;
 import com.nbcamp.orderservice.domain.common.UserRole;
+import com.nbcamp.orderservice.domain.store.dto.StoreDetailsResponse;
 import com.nbcamp.orderservice.domain.store.dto.StoreRequest;
 import com.nbcamp.orderservice.domain.store.dto.StoreResponse;
 import com.nbcamp.orderservice.domain.store.entity.Store;
@@ -47,6 +49,21 @@ public class StoreService {
 			store.getCallNumber());
 	}
 
+	@Transactional(readOnly = true)
+	public StoreDetailsResponse getDetailsStore(String uuid){
+		Store store = findById(uuid);
+		return new StoreDetailsResponse(
+			store.getId(),
+			store.getUser().getUsername(),
+			store.getName(),
+			store.getAddress(),
+			store.getCallNumber()
+			);
+	}
+
+
+
+
 
 
 	private List<Category> findCategoryList(List<String> categoryList){
@@ -59,6 +76,11 @@ public class StoreService {
 			|| user.getUserRole().equals(UserRole.MANAGER)) {
 			throw new IllegalArgumentException(ErrorCode.INSUFFICIENT_PERMISSIONS.getMessage());
 		}
+	}
+
+	public Store findById(String uuid){
+		return storeJpaRepository.findById(UUID.fromString(uuid))
+			.orElseThrow(()-> new IllegalArgumentException(ErrorCode.NOT_FOUND_STORE.getMessage()));
 	}
 
 }
