@@ -16,6 +16,7 @@ import com.nbcamp.orderservice.domain.user.dto.UserResponse;
 import com.nbcamp.orderservice.domain.user.dto.UserUpdateRequest;
 import com.nbcamp.orderservice.domain.user.entity.User;
 import com.nbcamp.orderservice.domain.user.repository.UserRepository;
+import com.nbcamp.orderservice.global.exception.code.ErrorCode;
 import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 
 import lombok.RequiredArgsConstructor;
@@ -87,5 +88,10 @@ public class UserService {
 			&& !Objects.equals(userDetails.getUserId(), userId)){
 			throw new IllegalArgumentException();
 		}
+	}
+
+	public User findById(String userId){
+		return userRepository.findById(UUID.fromString(userId))
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
 	}
 }

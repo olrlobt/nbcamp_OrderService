@@ -11,6 +11,7 @@ import com.nbcamp.orderservice.domain.category.dto.CategoryRequest;
 import com.nbcamp.orderservice.domain.category.dto.CategoryResponse;
 import com.nbcamp.orderservice.domain.category.entity.Category;
 import com.nbcamp.orderservice.domain.category.repository.CategoryJpaRepository;
+import com.nbcamp.orderservice.domain.category.repository.CategoryQueryRepository;
 import com.nbcamp.orderservice.global.exception.code.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class CategoryService {
 
 	private final CategoryJpaRepository categoryJpaRepository;
+	private final CategoryQueryRepository categoryQueryRepository;
 
 	@Transactional
 	public CategoryResponse createCategory(CategoryRequest request) {
@@ -67,6 +69,11 @@ public class CategoryService {
 	public Category findById(String uuid) {
 		return categoryJpaRepository.findById(UUID.fromString(uuid))
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_CATEGORY.getMessage()));
+	}
+
+	public List<Category> findCategoriesByNames(List<String> categoryList){
+		return categoryQueryRepository.findAllCategoryByCategoryId(categoryList)
+			.orElseThrow(()-> new IllegalArgumentException(ErrorCode.NOT_FOUND_CATEGORY.getMessage()));
 	}
 
 }

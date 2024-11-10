@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.nbcamp.orderservice.domain.category.entity.Category;
 import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
+import com.nbcamp.orderservice.domain.store.dto.StoreRequest;
 import com.nbcamp.orderservice.domain.user.entity.User;
 
 import jakarta.persistence.Column;
@@ -60,6 +61,18 @@ public class Store extends BaseTimeEntity {
 
 	@Column(name = "store_grade", nullable = false)
 	private double storeGrade;
+
+	public static Store create(StoreRequest request, User owner, List<Category> categories){
+		return Store.builder()
+			.user(owner)
+			.name(request.name())
+			.area(request.area())
+			.address(request.address())
+			.callNumber(request.callNumber())
+			.categories(categories)
+			.storeGrade(0)
+			.build();
+	}
 
 }
 

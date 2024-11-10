@@ -60,7 +60,7 @@ public enum ErrorCode {
 	CAN_NOT_BLOCK(HttpStatus.BAD_REQUEST, "해당 계정은 차단할 수 없습니다."),
 	ALREADY_BLOCK(HttpStatus.BAD_REQUEST, "해당 계정은 이미 차단되어 있습니다."),
 	ALREADY_UNBLOCK(HttpStatus.BAD_REQUEST, "해당 계정은 차단되어 있지 않습니다."),
-
+	INSUFFICIENT_PERMISSIONS(HttpStatus.FORBIDDEN, "해당 요청은 권한이 부족하여 수행할 수 없습니다."),
 	/**
 	 * Category
 	 */
