@@ -60,7 +60,7 @@ public class CategoryService {
 	public void deleteCategory(String categoryId, User user) {
 		checkMasterUserRole(user);
 		Category category = findById(categoryId);
-		category.delete();
+		category.delete(user.getId());
 	}
 
 	public void checkCategoryDuplicate(String category) {

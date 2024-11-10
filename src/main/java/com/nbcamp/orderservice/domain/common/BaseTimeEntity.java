@@ -30,7 +30,6 @@ public class BaseTimeEntity {
 
 	@Setter
 	@Column(name = "deleted_at")
-
 	private LocalDateTime deletedAt;
 
 	@CreatedBy
@@ -41,6 +40,7 @@ public class BaseTimeEntity {
 	@Column(name = "updated_by")
 	private UUID updatedBy;
 
+	@Setter
 	@Column(name = "deleted_by")
 	private UUID deletedBy;
 
