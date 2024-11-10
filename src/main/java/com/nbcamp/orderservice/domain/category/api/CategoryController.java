@@ -3,6 +3,7 @@ package com.nbcamp.orderservice.domain.category.api;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,7 @@ import com.nbcamp.orderservice.domain.category.dto.CategoryResponse;
 import com.nbcamp.orderservice.domain.category.service.CategoryService;
 import com.nbcamp.orderservice.global.exception.code.SuccessCode;
 import com.nbcamp.orderservice.global.response.CommonResponse;
+import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,34 +31,43 @@ public class CategoryController {
 
 	@PostMapping("/category")
 	public ResponseEntity<CommonResponse<CategoryResponse>> createCategory(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@RequestBody CategoryRequest categoryRequest
-	){
-		return CommonResponse.success(SuccessCode.SUCCESS_INSERT,categoryService.createCategory(categoryRequest));
+	) {
+		return CommonResponse.success(
+			SuccessCode.SUCCESS_INSERT, categoryService
+				.createCategory(categoryRequest, userDetails.getUser()));
 	}
 
 	@GetMapping("/category/{categoryId}")
-	public ResponseEntity<CommonResponse<CategoryResponse>> getCategory(@PathVariable String categoryId){
-		return CommonResponse.success(SuccessCode.SUCCESS,categoryService.getCategory(categoryId));
+	public ResponseEntity<CommonResponse<CategoryResponse>> getCategory(
+		@PathVariable String categoryId) {
+		return CommonResponse.success(SuccessCode.SUCCESS, categoryService.getCategory(categoryId));
 	}
 
 	@GetMapping("/category")
-	public ResponseEntity<CommonResponse<List<CategoryResponse>>> getAllCategory(){
-		return CommonResponse.success(SuccessCode.SUCCESS,categoryService.getAllCategory());
+	public ResponseEntity<CommonResponse<List<CategoryResponse>>> getAllCategory(
+	) {
+		return CommonResponse.success(SuccessCode.SUCCESS, categoryService.getAllCategory());
 	}
 
 	@PutMapping("/category/{categoryId}")
 	public ResponseEntity<CommonResponse<CategoryResponse>> updateCategory(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@PathVariable String categoryId,
-		@RequestBody CategoryRequest categoryRequest){
+		@RequestBody CategoryRequest categoryRequest) {
 		return CommonResponse
-			.success(SuccessCode.SUCCESS_UPDATE, categoryService.updateCategory(categoryId, categoryRequest));
+			.success(SuccessCode.SUCCESS_UPDATE, categoryService
+				.updateCategory(categoryId, categoryRequest, userDetails.getUser()));
 	}
 
 	@DeleteMapping("/category/{categoryId}")
-	public ResponseEntity<CommonResponse<Void>> delete(@PathVariable String categoryId){
-		categoryService.deleteCategory(categoryId);
+	public ResponseEntity<CommonResponse<Void>> delete
+		(@AuthenticationPrincipal UserDetailsImpl userDetails,
+			@PathVariable String categoryId
+		) {
+		categoryService.deleteCategory(categoryId, userDetails.getUser());
 		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
 	}
-
 
 }

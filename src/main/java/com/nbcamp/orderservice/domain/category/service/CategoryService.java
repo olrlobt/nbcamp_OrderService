@@ -11,6 +11,8 @@ import com.nbcamp.orderservice.domain.category.dto.CategoryRequest;
 import com.nbcamp.orderservice.domain.category.dto.CategoryResponse;
 import com.nbcamp.orderservice.domain.category.entity.Category;
 import com.nbcamp.orderservice.domain.category.repository.CategoryJpaRepository;
+import com.nbcamp.orderservice.domain.common.UserRole;
+import com.nbcamp.orderservice.domain.user.entity.User;
 import com.nbcamp.orderservice.global.exception.code.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
@@ -22,7 +24,8 @@ public class CategoryService {
 	private final CategoryJpaRepository categoryJpaRepository;
 
 	@Transactional
-	public CategoryResponse createCategory(CategoryRequest request) {
+	public CategoryResponse createCategory(CategoryRequest request, User user) {
+		checkCategoryCreateAndUpdateAndDeleteCheckUserRoll(user);
 		checkCategoryDuplicate(request.category());
 		Category category = Category.create(request);
 		categoryJpaRepository.save(category);
@@ -44,7 +47,8 @@ public class CategoryService {
 	}
 
 	@Transactional
-	public CategoryResponse updateCategory(String categoryId, CategoryRequest request) {
+	public CategoryResponse updateCategory(String categoryId, CategoryRequest request, User user) {
+		checkCategoryCreateAndUpdateAndDeleteCheckUserRoll(user);
 		checkCategoryDuplicate(request.category());
 		Category category = findById(categoryId);
 		category.update(request);
@@ -53,7 +57,8 @@ public class CategoryService {
 	}
 
 	@Transactional
-	public void deleteCategory(String categoryId) {
+	public void deleteCategory(String categoryId, User user) {
+		checkCategoryCreateAndUpdateAndDeleteCheckUserRoll(user);
 		Category category = findById(categoryId);
 		category.delete();
 	}
@@ -67,6 +72,14 @@ public class CategoryService {
 	public Category findById(String uuid) {
 		return categoryJpaRepository.findById(UUID.fromString(uuid))
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_CATEGORY.getMessage()));
+	}
+
+	private void checkCategoryCreateAndUpdateAndDeleteCheckUserRoll(User user) {
+		if (user.getUserRole().equals(UserRole.CUSTOMER)
+			|| user.getUserRole().equals(UserRole.OWNER)
+			|| user.getUserRole().equals(UserRole.MANAGER)) {
+			throw new IllegalArgumentException(ErrorCode.INSUFFICIENT_PERMISSIONS.getMessage());
+		}
 	}
 
 }
