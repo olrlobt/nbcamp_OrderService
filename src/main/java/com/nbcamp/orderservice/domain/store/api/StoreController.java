@@ -69,7 +69,7 @@ public class StoreController {
 	}
 
 	@DeleteMapping("/stores/{storesId}")
-	public ResponseEntity<CommonResponse<StoreResponse>> deleteStore(
+	public ResponseEntity<CommonResponse<Void>> deleteStore(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@PathVariable String storesId
 	){
