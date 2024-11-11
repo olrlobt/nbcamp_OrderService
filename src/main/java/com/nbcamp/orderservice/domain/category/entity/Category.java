@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.nbcamp.orderservice.domain.category.dto.CategoryRequest;
-import com.nbcamp.orderservice.domain.category.dto.CategoryResponse;
 import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
 
 import jakarta.persistence.Column;
@@ -46,7 +45,8 @@ public class Category extends BaseTimeEntity {
 		this.category = categoryRequest.category();
 	}
 
-	public void delete() {
+	public void delete(UUID uuid) {
+		this.setDeletedBy(uuid);
 		this.setDeletedAt(LocalDateTime.now());
 	}
 
