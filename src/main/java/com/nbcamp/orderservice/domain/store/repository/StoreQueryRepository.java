@@ -53,7 +53,8 @@ public class StoreQueryRepository {
 			.from(qStore)
 			.where(
 				cursorFilter,
-				qStore.address.contains(address)
+				qStore.address.contains(address),
+				qStore.deletedAt.isNotNull().and(qStore.deletedBy.isNotNull())
 				)
 			.orderBy(
 				qStore.storeGrade.desc(),
