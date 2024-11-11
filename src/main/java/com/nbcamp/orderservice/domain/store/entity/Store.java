@@ -62,6 +62,9 @@ public class Store extends BaseTimeEntity {
 	@Column(name = "store_grade", nullable = false)
 	private double storeGrade;
 
+	@Column(name = "store_grade_reviews", nullable = false)
+	private int storeGradeReviews;
+
 	public static Store create(StoreRequest request, User owner, List<Category> categories){
 		return Store.builder()
 			.user(owner)
@@ -71,6 +74,7 @@ public class Store extends BaseTimeEntity {
 			.callNumber(request.callNumber())
 			.categories(categories)
 			.storeGrade(0)
+			.storeGradeReviews(0)
 			.build();
 	}
 
