@@ -22,7 +22,7 @@ public class StoreCategoryService {
 	private final StoreCategoryJpaRepository storeCategoryJpaRepository;
 
 	@Transactional
-	public List<StoreCategory> storeCategoryCreate(Store store, List<Category> categoryList){
+	public List<StoreCategory> createStoreCategory(Store store, List<Category> categoryList){
 		List<StoreCategory> storeCategories = new ArrayList<>();
 		for (Category category: categoryList) {
 			storeCategories.add(StoreCategory.create(store,category));
@@ -31,7 +31,7 @@ public class StoreCategoryService {
 	}
 	
 	@Transactional
-	public List<StoreCategory> storeCategoryUpdate(Store store, List<Category> categoryList){
+	public List<StoreCategory> updateStoreCategory(Store store, List<Category> categoryList){
 		List<StoreCategory> categories = findAllByStoreCategory(String.valueOf(store.getId()));
 
 		categories.removeIf(storeCategory ->
@@ -46,8 +46,7 @@ public class StoreCategoryService {
 			}
 		}
 		return categories;
-	} 
-
+	}
 
 
 	

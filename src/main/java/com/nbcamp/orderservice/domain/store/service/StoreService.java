@@ -45,7 +45,7 @@ public class StoreService {
 		Store store = Store.create(request, owner);
 
 		List<Category> categories = findCategoryList(request.category());
-		List<StoreCategory> storeCategories = storeCategoryService.storeCategoryCreate(store, categories);
+		List<StoreCategory> storeCategories = storeCategoryService.createStoreCategory(store, categories);
 		store.addStoreCategory(storeCategories);
 		storeJpaRepository.save(store);
 
@@ -63,8 +63,8 @@ public class StoreService {
 	}
 
 	@Transactional(readOnly = true)
-	public StoreDetailsResponse getDetailsStore(String uuid) {
-		Store store = findById(uuid);
+	public StoreDetailsResponse getDetailsStore(String storesId) {
+		Store store = findById(storesId);
 		return new StoreDetailsResponse(
 			store.getId(),
 			store.getUser().getUsername(),
@@ -81,13 +81,13 @@ public class StoreService {
 	}
 
 	@Transactional
-	public StoreResponse updateStore(User user, String storeId, StoreRequest request) {
+	public StoreResponse updateStore(User user, String storesId, StoreRequest request) {
 		checkMasterUserRoll(user);
 		validateAddressPattern(request.address());
-		Store store = findById(storeId);
+		Store store = findById(storesId);
 
 		List<StoreCategory> storeCategories =
-			storeCategoryService.storeCategoryUpdate(store, findCategoryList(request.category()));
+			storeCategoryService.updateStoreCategory(store, findCategoryList(request.category()));
 
 		store.update(request, storeCategories);
 
