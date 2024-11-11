@@ -50,9 +50,6 @@ public class Store extends BaseTimeEntity {
 	@OneToMany(fetch = FetchType.LAZY)
 	private List<Category> categories = new ArrayList<>();
 
-	@Column(name = "area", nullable = false)
-	private String area;
-
 	@Column(name = "address", nullable = false)
 	private String address;
 
@@ -69,7 +66,6 @@ public class Store extends BaseTimeEntity {
 		return Store.builder()
 			.user(owner)
 			.name(request.name())
-			.area(request.area())
 			.address(request.address())
 			.callNumber(request.callNumber())
 			.categories(categories)
