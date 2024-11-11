@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.nbcamp.orderservice.domain.category.entity.Category;
 import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
 import com.nbcamp.orderservice.domain.store.dto.StoreRequest;
 import com.nbcamp.orderservice.domain.user.entity.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -38,7 +38,7 @@ public class Store extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	@Column(name = "id")
-	private UUID id = UUID.randomUUID();
+	private UUID id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
@@ -47,8 +47,8 @@ public class Store extends BaseTimeEntity {
 	@Column(name = "name", nullable = false)
 	private String name;
 
-	@OneToMany(fetch = FetchType.LAZY)
-	private List<Category> categories = new ArrayList<>();
+	@OneToMany(mappedBy = "store",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private List<StoreCategory> storeCategory = new ArrayList<>();
 
 	@Column(name = "address", nullable = false)
 	private String address;
@@ -62,16 +62,19 @@ public class Store extends BaseTimeEntity {
 	@Column(name = "store_grade_reviews", nullable = false)
 	private int storeGradeReviews;
 
-	public static Store create(StoreRequest request, User owner, List<Category> categories){
+	public static Store create(StoreRequest request, User owner){
 		return Store.builder()
 			.user(owner)
 			.name(request.name())
 			.address(request.address())
 			.callNumber(request.callNumber())
-			.categories(categories)
 			.storeGrade(0)
 			.storeGradeReviews(0)
 			.build();
+	}
+
+	public void addStoreCategory(List<StoreCategory> storeCategories){
+		this.storeCategory = storeCategories;
 	}
 
 }
