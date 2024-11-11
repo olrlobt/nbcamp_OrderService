@@ -2,6 +2,7 @@ package com.nbcamp.orderservice.global.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -17,11 +18,11 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nbcamp.orderservice.domain.user.repository.UserRepository;
 import com.nbcamp.orderservice.domain.user.service.JwtService;
+import com.nbcamp.orderservice.global.security.UserDetailsServiceImpl;
 import com.nbcamp.orderservice.global.security.filter.JsonUserAuthenticationFilter;
 import com.nbcamp.orderservice.global.security.filter.JwtAuthenticationFilter;
 import com.nbcamp.orderservice.global.security.handler.LoginFailureHandler;
 import com.nbcamp.orderservice.global.security.handler.LoginSuccessJWTProvideHandler;
-import com.nbcamp.orderservice.global.security.UserDetailsServiceImpl;
 
 import lombok.RequiredArgsConstructor;
 
@@ -42,6 +43,7 @@ public class SecurityConfig {
 			.httpBasic(AbstractHttpConfigurer::disable)
 			.formLogin(AbstractHttpConfigurer::disable)
 			.authorizeHttpRequests((authorize) -> authorize
+				.requestMatchers(HttpMethod.GET, "/api/v1/category/**").permitAll()
 				.requestMatchers("/api/v1/users/login", "/api/v1/users/signup").permitAll()
 				.anyRequest().authenticated())
 			.logout((logout) -> logout
