@@ -42,8 +42,12 @@ dependencies {
     implementation 'com.h2database:h2'
     //security
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    // jwt
+    //jwt
     implementation 'com.auth0:java-jwt:3.19.2'
+    //validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation:3.3.5'
+
+
 }
 
 tasks.named('test') {

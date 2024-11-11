@@ -24,6 +24,7 @@ import com.nbcamp.orderservice.global.exception.code.SuccessCode;
 import com.nbcamp.orderservice.global.response.CommonResponse;
 import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,7 +37,7 @@ public class UserController {
 	private final UserService userService;
 
 	@PostMapping("/users/signup")
-	public ResponseEntity<CommonResponse<UserResponse>> signup(@RequestBody SignupRequest signupRequest) {
+	public ResponseEntity<CommonResponse<UserResponse>> signup(@Valid @RequestBody SignupRequest signupRequest) {
 		UserResponse signup = userService.signup(signupRequest);
 		return CommonResponse.success(SuccessCode.SUCCESS_INSERT, signup);
 	}
