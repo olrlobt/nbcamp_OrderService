@@ -68,12 +68,6 @@ public class StoreQueryRepository {
 			storeList.remove(storeList.size() - 1);
 		}
 
-		UUID lastCursorId;
-		if(storeList.isEmpty()){
-			lastCursorId = null;
-		} else {
-			lastCursorId = storeList.get(storeList.size() - 1).storeId();
-		}
 		return new SliceImpl<>(storeList, pageable, hasNext);
 	}
 
