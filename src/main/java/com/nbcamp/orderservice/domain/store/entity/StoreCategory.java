@@ -1,5 +1,6 @@
 package com.nbcamp.orderservice.domain.store.entity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.nbcamp.orderservice.domain.category.entity.Category;
@@ -47,6 +48,11 @@ public class StoreCategory extends BaseTimeEntity {
 			.store(store)
 			.category(category)
 			.build();
+	}
+
+	public void delete(UUID uuid){
+		this.setDeletedBy(uuid);
+		this.setDeletedAt(LocalDateTime.now());
 	}
 
 

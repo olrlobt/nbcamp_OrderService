@@ -1,5 +1,6 @@
 package com.nbcamp.orderservice.domain.store.entity;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -78,6 +79,11 @@ public class Store extends BaseTimeEntity {
 		this.storeCategory = storeCategories;
 		this.address = storeRequest.address();
 		this.callNumber = storeRequest.callNumber();
+	}
+
+	public void delete(UUID storesId){
+		this.setDeletedBy(storesId);
+		this.setDeletedAt(LocalDateTime.now());
 	}
 
 	public void addStoreCategory(List<StoreCategory> storeCategories){

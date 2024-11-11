@@ -104,6 +104,15 @@ public class StoreService {
 			store.getCallNumber());
 	}
 
+	@Transactional
+	public void deletedStore(User user, String storesId){
+		checkMasterUserRoll(user);
+		Store store = findById(storesId);
+		storeCategoryService.deleteStoreCategory(store);
+		store.delete(store.getId());
+	}
+
+
 	private List<Category> findCategoryList(List<String> categoryList) {
 		return categoryService.findCategoriesByNames(categoryList);
 	}

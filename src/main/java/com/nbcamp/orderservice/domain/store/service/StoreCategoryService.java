@@ -32,7 +32,7 @@ public class StoreCategoryService {
 	
 	@Transactional
 	public List<StoreCategory> updateStoreCategory(Store store, List<Category> categoryList){
-		List<StoreCategory> categories = findAllByStoreCategory(String.valueOf(store.getId()));
+		List<StoreCategory> categories = findAllByStoreCategory(store.getId());
 
 		categories.removeIf(storeCategory ->
 			categoryList.stream().noneMatch(category -> category.getId().equals(storeCategory.getCategory().getId()))
@@ -48,10 +48,18 @@ public class StoreCategoryService {
 		return categories;
 	}
 
+	@Transactional
+	public void deleteStoreCategory(Store store){
+		List<StoreCategory> storeCategories = findAllByStoreCategory(store.getId());
+		for (StoreCategory storeCategory: storeCategories) {
+			storeCategory.delete(storeCategory.getId());
+		}
+	}
+
 
 	
-	public List<StoreCategory> findAllByStoreCategory(String storeId){
-		return storeCategoryJpaRepository.findAllByStoreId(UUID.fromString(storeId))
+	public List<StoreCategory> findAllByStoreCategory(UUID storeId){
+		return storeCategoryJpaRepository.findAllByStoreId(storeId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_STORE.getMessage()));
 	}
 	
