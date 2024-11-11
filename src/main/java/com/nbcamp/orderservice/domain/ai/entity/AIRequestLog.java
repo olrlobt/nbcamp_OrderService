@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 
-import com.nbcamp.orderservice.domain.product.entity.Product;
+import com.nbcamp.orderservice.domain.store.entity.Store;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,8 +39,8 @@ public class AIRequestLog {
 	private UUID id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "product_id", nullable = false)
-	private Product product;
+	@JoinColumn(name = "store_id", nullable = false)
+	private Store store;
 
 	@Column(name = "request", nullable = false)
 	private String request;
@@ -55,5 +55,14 @@ public class AIRequestLog {
 	@CreatedBy
 	@Column(name = "created_by", updatable = false)
 	private UUID createdBy;
+
+	public static AIRequestLog create(Store store, String request, String response, UUID createdBy) {
+		return AIRequestLog.builder()
+			.store(store)
+			.request(request)
+			.response(response)
+			.createdBy(createdBy)
+			.build();
+	}
 
 }
