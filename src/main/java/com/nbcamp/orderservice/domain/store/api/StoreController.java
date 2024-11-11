@@ -26,20 +26,19 @@ public class StoreController {
 
 	private final StoreService storeService;
 
-	@PostMapping("/store/user/{userId}")
+	@PostMapping("/stores/users/{usersId}")
 	public ResponseEntity<CommonResponse<StoreResponse>> createStore(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable String userId,
+		@PathVariable String usersId,
 		@RequestBody StoreRequest storeRequest
 	) {
 		return CommonResponse.success(
-			SuccessCode.SUCCESS_INSERT, storeService.createStore(userId, storeRequest, userDetails.getUser()));
+			SuccessCode.SUCCESS_INSERT, storeService.createStore(usersId, storeRequest, userDetails.getUser()));
 	}
 
-	@GetMapping("/sotre/{storeId}")
-	public ResponseEntity<CommonResponse<StoreDetailsResponse>> getDetailsStore(@PathVariable String storeId){
+	@GetMapping("/stores/{storeId}")
+	public ResponseEntity<CommonResponse<StoreDetailsResponse>> getDetailsStore(@PathVariable String storeId) {
 		return CommonResponse.success(SuccessCode.SUCCESS, storeService.getDetailsStore(storeId));
 	}
-
 
 }
