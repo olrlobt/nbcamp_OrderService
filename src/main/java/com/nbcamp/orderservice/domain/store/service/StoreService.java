@@ -40,6 +40,7 @@ public class StoreService {
 	@Transactional
 	public StoreResponse createStore(String userId, StoreRequest request, User user) {
 		checkMasterUserRoll(user);
+		validateAddressPattern(request.address());
 		User owner = userService.findById(userId);
 		Store store = Store.create(request, owner);
 
@@ -89,6 +90,18 @@ public class StoreService {
 			|| user.getUserRole().equals(UserRole.MANAGER)) {
 			throw new IllegalArgumentException(ErrorCode.INSUFFICIENT_PERMISSIONS.getMessage());
 		}
+	}
+
+	private void validateAddressPattern(String fullAddress) {
+		String addressPattern = "([가-힣]+[특별시|광역시|도])\\s([가-힣]+구)";
+		Pattern pattern = Pattern.compile(addressPattern);
+		Matcher matcher = pattern.matcher(fullAddress);
+
+		if (matcher.find()) {
+			return;
+		}
+
+		throw new IllegalArgumentException(ErrorCode.ADDRESS_PATTERN_MISMATCH.getMessage());
 	}
 
 	public Store findById(String uuid) {
