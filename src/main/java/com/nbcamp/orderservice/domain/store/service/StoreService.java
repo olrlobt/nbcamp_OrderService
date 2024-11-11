@@ -2,13 +2,18 @@ package com.nbcamp.orderservice.domain.store.service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nbcamp.orderservice.domain.category.entity.Category;
 import com.nbcamp.orderservice.domain.category.service.CategoryService;
 import com.nbcamp.orderservice.domain.common.UserRole;
+import com.nbcamp.orderservice.domain.store.dto.StoreCursorResponse;
 import com.nbcamp.orderservice.domain.store.dto.StoreDetailsResponse;
 import com.nbcamp.orderservice.domain.store.dto.StoreRequest;
 import com.nbcamp.orderservice.domain.store.dto.StoreResponse;
@@ -68,7 +73,11 @@ public class StoreService {
 		);
 	}
 
-
+	@Transactional(readOnly = true)
+	public Slice<StoreCursorResponse> getCursorStore(String cursorId, String category, String address,
+		Pageable pageable) {
+		return storeQueryRepository.findAllByStorePageable(cursorId, category, extractAddress(address), pageable);
+	}
 
 	private List<Category> findCategoryList(List<String> categoryList) {
 		return categoryService.findCategoriesByNames(categoryList);
@@ -87,5 +96,15 @@ public class StoreService {
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_STORE.getMessage()));
 	}
 
+	private String extractAddress(String fullAddress) {
+		String addressPattern = "([가-힣]+[특별시|광역시|도])\\s([가-힣]+구)";
+		Pattern pattern = Pattern.compile(addressPattern);
+		Matcher matcher = pattern.matcher(fullAddress);
+
+		if (matcher.find()) {
+			return matcher.group(1) + " " + matcher.group(2);
+		}
+		throw new IllegalArgumentException(ErrorCode.ADDRESS_PATTERN_MISMATCH.getMessage());
+	}
 
 }

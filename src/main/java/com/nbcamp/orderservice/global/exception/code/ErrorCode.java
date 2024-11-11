@@ -72,6 +72,7 @@ public enum ErrorCode {
 	 * STORE
 	 */
 	NOT_FOUND_STORE(HttpStatus.BAD_REQUEST, "매장을 찾을 수 없습니다."),
+	ADDRESS_PATTERN_MISMATCH(HttpStatus.BAD_REQUEST, "주소가 예상되는 패턴과 일치하지 않습니다."),
 
 	/**
 	 * PRODUCT

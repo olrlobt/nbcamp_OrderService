@@ -1,5 +1,7 @@
 package com.nbcamp.orderservice.domain.store.api;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,8 +9,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nbcamp.orderservice.domain.store.dto.StoreCursorResponse;
 import com.nbcamp.orderservice.domain.store.dto.StoreDetailsResponse;
 import com.nbcamp.orderservice.domain.store.dto.StoreRequest;
 import com.nbcamp.orderservice.domain.store.dto.StoreResponse;
@@ -39,6 +43,17 @@ public class StoreController {
 	@GetMapping("/stores/{storeId}")
 	public ResponseEntity<CommonResponse<StoreDetailsResponse>> getDetailsStore(@PathVariable String storeId) {
 		return CommonResponse.success(SuccessCode.SUCCESS, storeService.getDetailsStore(storeId));
+	}
+
+	@GetMapping("/stores")
+	public ResponseEntity<CommonResponse<Slice<StoreCursorResponse>>> getCursorStore(
+		@RequestParam(required = false) String cursorId,
+		@RequestParam(required = false) String category,
+		@RequestParam String address,
+		Pageable pageable
+	) {
+		return CommonResponse.success(SuccessCode.SUCCESS,
+			storeService.getCursorStore(cursorId, category, address, pageable));
 	}
 
 }
