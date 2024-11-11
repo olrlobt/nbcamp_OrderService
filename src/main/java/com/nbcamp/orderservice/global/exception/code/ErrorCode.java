@@ -76,8 +76,12 @@ public enum ErrorCode {
 	/**
 	 * PRODUCT
 	 */
-	NOT_FOUND_PRODUCT(HttpStatus.BAD_REQUEST, "상품을 찾을 수 없습니다.");
+	NOT_FOUND_PRODUCT(HttpStatus.BAD_REQUEST, "상품을 찾을 수 없습니다."),
 
+	/**
+	 * ORDER
+	 */
+	NO_PERMISSION_TO_CREATE_ORDER(HttpStatus.BAD_REQUEST, "주문 생성권한이 없습니다.");
 	private final HttpStatus httpStatus;
 	private final String message;
 
