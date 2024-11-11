@@ -23,9 +23,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	public UserDetails loadUserByUsername(String uuid) throws UsernameNotFoundException {
 		try {
 			UUID uuidConverted = UUID.fromString(uuid);
-			User users = usersRepository.findById(uuidConverted)
+			User user = usersRepository.findById(uuidConverted)
 				.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
-			return new UserDetailsImpl(users);
+			return new UserDetailsImpl(user);
 		} catch (IllegalArgumentException e) {
 			throw new UsernameNotFoundException(ErrorCode.INVALID_UUID_FORMAT.getMessage());
 		}

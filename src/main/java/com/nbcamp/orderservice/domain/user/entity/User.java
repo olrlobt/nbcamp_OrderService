@@ -53,12 +53,16 @@ public class User extends BaseTimeEntity {
 	private String refreshToken;
 
 	public static User create(SignupRequest request, PasswordEncoder passwordEncoder) {
-		return User.builder()
-			.id(UUID.randomUUID())
+		UUID uuid = UUID.randomUUID();
+
+		User user = User.builder()
+			.id(uuid)
 			.username(request.username())
 			.password(passwordEncoder.encode(request.password()))
-			.userRole(request.userRole())
+			.userRole(UserRole.CUSTOMER)
 			.build();
+		user.setCreatedBy(uuid);
+		return user;
 	}
 
 	public void update(UserUpdateRequest request){
@@ -67,7 +71,6 @@ public class User extends BaseTimeEntity {
 	}
 
 	public void delete() {
-		//todo. 사람 추가
 		this.setDeletedAt(LocalDateTime.now());
 	}
 
