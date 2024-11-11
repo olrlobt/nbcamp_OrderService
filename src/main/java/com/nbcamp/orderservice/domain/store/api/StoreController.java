@@ -7,6 +7,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -54,6 +55,16 @@ public class StoreController {
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS,
 			storeService.getCursorStore(cursorId, category, address, pageable));
+	}
+
+	@PutMapping("/stores/{storesId}")
+	public ResponseEntity<CommonResponse<StoreResponse>> updateStore(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
+		@PathVariable String storesId,
+		@RequestBody StoreRequest storeRequest
+	) {
+		return CommonResponse.success(SuccessCode.SUCCESS_UPDATE,
+			storeService.updateStore(userDetails.getUser(), storesId, storeRequest));
 	}
 
 }

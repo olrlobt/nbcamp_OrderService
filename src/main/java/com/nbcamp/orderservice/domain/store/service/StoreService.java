@@ -80,6 +80,30 @@ public class StoreService {
 		return storeQueryRepository.findAllByStorePageable(cursorId, category, extractAddress(address), pageable);
 	}
 
+	@Transactional
+	public StoreResponse updateStore(User user, String storeId, StoreRequest request) {
+		checkMasterUserRoll(user);
+		validateAddressPattern(request.address());
+		Store store = findById(storeId);
+
+		List<StoreCategory> storeCategories =
+			storeCategoryService.storeCategoryUpdate(store, findCategoryList(request.category()));
+
+		store.update(request, storeCategories);
+
+		return new StoreResponse(
+			store.getId(),
+			store.getUser().getId(),
+			store.getUser().getUsername(),
+			store.getName(),
+			store.getAddress(),
+			store.getStoreCategory()
+				.stream()
+				.map(storeCategory -> storeCategory.getCategory().getCategory())
+				.toList(),
+			store.getCallNumber());
+	}
+
 	private List<Category> findCategoryList(List<String> categoryList) {
 		return categoryService.findCategoriesByNames(categoryList);
 	}

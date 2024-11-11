@@ -73,6 +73,13 @@ public class Store extends BaseTimeEntity {
 			.build();
 	}
 
+	public void update(StoreRequest storeRequest, List<StoreCategory> storeCategories){
+		this.name = storeRequest.name();
+		this.storeCategory = storeCategories;
+		this.address = storeRequest.address();
+		this.callNumber = storeRequest.callNumber();
+	}
+
 	public void addStoreCategory(List<StoreCategory> storeCategories){
 		this.storeCategory = storeCategories;
 	}
