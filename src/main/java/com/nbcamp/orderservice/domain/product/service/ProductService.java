@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.product.dto.ProductRequest;
 import com.nbcamp.orderservice.domain.product.dto.ProductResponse;
 import com.nbcamp.orderservice.domain.product.entity.Product;
@@ -15,6 +16,7 @@ import com.nbcamp.orderservice.domain.product.repository.ProductJpaRepository;
 import com.nbcamp.orderservice.domain.product.repository.ProductQueryRepository;
 import com.nbcamp.orderservice.domain.store.entity.Store;
 import com.nbcamp.orderservice.domain.store.repository.StoreJpaRepository;
+import com.nbcamp.orderservice.domain.user.entity.User;
 import com.nbcamp.orderservice.global.exception.code.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
@@ -28,8 +30,8 @@ public class ProductService {
 	private final StoreJpaRepository storeJpaRepository;
 
 	@Transactional
-	public ProductResponse createProduct(String storeId, ProductRequest request) {
-		// TODO : 권한 검증
+	public ProductResponse createProduct(String storeId, ProductRequest request, User user) {
+		validateOwner(user.getUserRole());
 		Store store = getStoreById(storeId);
 		Product product = Product.create(request, store);
 		productJpaRepository.save(product);
@@ -45,7 +47,7 @@ public class ProductService {
 	}
 
 	@Transactional(readOnly = true)
-	public ProductResponse getProduct(String storeId, String productId) {
+	public ProductResponse getProduct(String storeId, String productId, User user) {
 		Store store = getStoreById(storeId);
 		Product product = getProductById(productId);
 
@@ -60,7 +62,7 @@ public class ProductService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<ProductResponse> getAllProduct(String storeId, int page, int size) {
+	public Page<ProductResponse> getAllProduct(String storeId, int page, int size, User user) {
 		UUID storeUuid = getStoreById(storeId).getId();
 		Pageable pageable = PageRequest.of(page, size);
 
@@ -68,8 +70,8 @@ public class ProductService {
 	}
 
 	@Transactional
-	public ProductResponse updateProduct(String storeId, String productId, ProductRequest request) {
-		// TODO : 권한 검증
+	public ProductResponse updateProduct(String storeId, String productId, ProductRequest request, User user) {
+		validateOwner(user.getUserRole());
 		Store store = getStoreById(storeId);
 		Product product = getProductById(productId);
 		product.update(request);
@@ -85,11 +87,17 @@ public class ProductService {
 	}
 
 	@Transactional
-	public void deleteProduct(String storeId, String productId) {
-		// TODO : 권한 검증
+	public void deleteProduct(String storeId, String productId, User user) {
+		validateOwner(user.getUserRole());
 		getStoreById(storeId);
 		Product product = getProductById(productId);
-		product.delete();
+		product.delete(user.getId());
+	}
+
+	private void validateOwner(UserRole role) {
+		if (!role.equals(UserRole.MANAGER) && !role.equals(UserRole.MASTER) && !role.equals(UserRole.OWNER)) {
+			throw new IllegalArgumentException(ErrorCode.INSUFFICIENT_PERMISSIONS.getMessage());
+		}
 	}
 
 	private Product getProductById(String productId) {
