@@ -38,7 +38,7 @@ public class Product extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	@Column(name = "id")
-	private UUID id = UUID.randomUUID();
+	private UUID id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "store_id", nullable = false)
