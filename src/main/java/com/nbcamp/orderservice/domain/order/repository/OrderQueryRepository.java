@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import com.nbcamp.orderservice.domain.order.dto.OrderInfoDto;
 import com.nbcamp.orderservice.domain.order.dto.OrderProductResponse;
 import com.nbcamp.orderservice.domain.order.dto.OrderResponse;
+import com.nbcamp.orderservice.domain.order.entity.OrderProduct;
 import com.nbcamp.orderservice.domain.order.entity.QOrder;
 import com.nbcamp.orderservice.domain.order.entity.QOrderProduct;
 import com.nbcamp.orderservice.domain.product.entity.QProduct;
@@ -246,4 +247,52 @@ public class OrderQueryRepository {
 		return StringUtils.hasText(query) ? QOrderProduct.orderProduct.product.name.containsIgnoreCase(query) : null;
 	}
 
+	public OrderInfoDto findByIdWithOrderProduct(UUID orderId) {
+		OrderResponse orderResponses = jpaQueryFactory
+			.select(
+				Projections.constructor(
+					OrderResponse.class,
+					order.id,
+					order.store.id,
+					order.user.id,
+					order.orderStatus,
+					order.orderType,
+					order.deliveryAddress,
+					order.request,
+					order.totalPrice
+				)
+			)
+			.from(order)
+			.join(order.store, store).fetchJoin()
+			.join(order.user, user).fetchJoin()
+			.where(order.id.eq(orderId))
+			.fetchOne();
+
+		List<OrderProductResponse> orderProductResponses = jpaQueryFactory
+			.select(
+				Projections.constructor(
+					OrderProductResponse.class,
+					orderProduct.id,
+					orderProduct.order.id,
+					orderProduct.product.id,
+					orderProduct.product.name,
+					orderProduct.quantity,
+					orderProduct.totalPrice
+				)
+			)
+			.distinct()
+			.from(orderProduct)
+			.where(orderProduct.order.id.eq(orderId))
+			.fetch();
+
+		return new OrderInfoDto(orderResponses, orderProductResponses);
+	}
+
+	public List<OrderProduct> findOrderProductsBy(UUID orderId) {
+		return jpaQueryFactory
+			.selectFrom(orderProduct)
+			.distinct()
+			.where(orderProduct.order.id.eq(orderId))
+			.fetch();
+	}
 }

@@ -69,5 +69,10 @@ public class OrderController {
 		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
 	}
 
+	@GetMapping("/orders/{orderId}")
+	public ResponseEntity<CommonResponse<OrderInfoDto>> getOrderDetail(@PathVariable String orderId) {
+		OrderInfoDto orderInfo = orderService.getOrderDetail(UUID.fromString(orderId));
+		return CommonResponse.success(SuccessCode.SUCCESS, orderInfo);
+	}
 
 }

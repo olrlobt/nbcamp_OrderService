@@ -135,4 +135,35 @@ public class OrderService {
 		order.cancelOrder(user.getId());
 	}
 
+	public OrderInfoDto getOrderDetail(UUID orderId) {
+		Order order = orderRepository.findById(orderId)
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
+
+		List<OrderProduct> orderProducts = orderQueryRepository.findOrderProductsBy(orderId);
+
+		OrderResponse orderResponse = new OrderResponse(
+			order.getId(),
+			order.getStore().getId(),
+			order.getUser().getId(),
+			order.getOrderStatus(),
+			order.getOrderType(),
+			order.getDeliveryAddress(),
+			order.getRequest(),
+			order.getTotalPrice()
+		);
+
+		List<OrderProductResponse> orderProductResponses = orderProducts.stream()
+			.map(orderProduct -> new OrderProductResponse(
+				orderProduct.getId(),
+				orderProduct.getOrder().getId(),
+				orderProduct.getProduct().getId(),
+				orderProduct.getProduct().getName(),
+				orderProduct.getQuantity(),
+				orderProduct.getTotalPrice()
+			))
+			.toList();
+
+		return new OrderInfoDto(orderResponse, orderProductResponses);
+	}
+
 }
