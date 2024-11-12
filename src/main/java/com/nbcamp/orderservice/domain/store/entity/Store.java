@@ -90,5 +90,11 @@ public class Store extends BaseTimeEntity {
 		this.storeCategory = storeCategories;
 	}
 
+	public void updateStoreGrade(int grade){
+		double totalGrade = this.storeGrade * this.storeGradeReviews + grade;
+		this.storeGradeReviews += 1;
+		this.storeGrade = totalGrade/ this.storeGradeReviews;
+	}
+
 }
 
