@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +19,7 @@ import com.nbcamp.orderservice.domain.order.dto.OrderResponse;
 import com.nbcamp.orderservice.domain.order.entity.Order;
 import com.nbcamp.orderservice.domain.order.entity.OrderProduct;
 import com.nbcamp.orderservice.domain.order.repository.OrderProductRepository;
+import com.nbcamp.orderservice.domain.order.repository.OrderQueryRepository;
 import com.nbcamp.orderservice.domain.order.repository.OrderRepository;
 import com.nbcamp.orderservice.domain.product.entity.Product;
 import com.nbcamp.orderservice.domain.product.repository.ProductJpaRepository;
@@ -37,6 +40,7 @@ public class OrderService {
 	private final OrderProductRepository orderProductRepository;
 	private final StoreJpaRepository storeJpaRepository;
 	private final ProductJpaRepository productJpaRepository;
+	private final OrderQueryRepository orderQueryRepository;
 
 	@Transactional
 	public OrderInfoDto createOrder(OrderRequest request, User user) {
@@ -75,6 +79,20 @@ public class OrderService {
 		return new OrderInfoDto(orderResponse, orderProductResponses);
 	}
 
+	public Page<OrderInfoDto> getOrders(Pageable pageable, User user, String query) {
+		UserRole userRole = user.getUserRole();
+
+		if (userRole == UserRole.OWNER) {
+			Store store = storeJpaRepository.findByUser(user)
+				.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_STORE.getMessage()));
+			return orderQueryRepository.findByStore(store, pageable, query);
+		} else if (userRole == UserRole.CUSTOMER) {
+			return orderQueryRepository.findByUser(user, pageable, query);
+		} else {
+			return orderQueryRepository.findAllOrders(pageable, query);
+		}
+	}
+
 	private Store getStoreById(UUID storeId) {
 		return storeJpaRepository.findById(storeId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_STORE.getMessage()));
@@ -100,7 +118,7 @@ public class OrderService {
 	@Transactional
 	public void cancelOrder(String orderId, User user) {
 		Order order = orderRepository.findById(UUID.fromString(orderId))
-			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_Order.getMessage()));
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
 
 		if (order.getDeletedAt() != null) {
 			throw new IllegalStateException(ErrorCode.ALREADY_CANCELED.getMessage());

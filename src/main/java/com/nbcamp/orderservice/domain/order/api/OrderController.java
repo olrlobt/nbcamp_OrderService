@@ -1,5 +1,7 @@
 package com.nbcamp.orderservice.domain.order.api;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -16,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nbcamp.orderservice.domain.order.dto.OrderInfoDto;
 import com.nbcamp.orderservice.domain.order.dto.OrderRequest;
-import com.nbcamp.orderservice.domain.order.dto.OrderResponse;
 import com.nbcamp.orderservice.domain.order.service.OrderService;
 import com.nbcamp.orderservice.global.exception.code.SuccessCode;
 import com.nbcamp.orderservice.global.response.CommonResponse;
@@ -40,6 +41,26 @@ public class OrderController {
 			orderService.createOrder(request, userDetails.getUser()));
 	}
 
+	@GetMapping("/orders")
+	public ResponseEntity<CommonResponse<Page<OrderInfoDto>>> getAllOrders(
+		@RequestParam(value = "query", required = false) String query,
+		@RequestParam(value = "sort", defaultValue = "createdAt") String sort, // 기본 정렬: 생성일
+		@RequestParam(value = "direction", defaultValue = "desc") String direction, // 기본 정렬 순서: 내림차순
+		@RequestParam(value = "size", defaultValue = "10") int size,
+		@RequestParam(value = "page", defaultValue = "0") int page,
+		@AuthenticationPrincipal UserDetailsImpl userDetails
+	) {
+		if (size != 10 && size != 30 && size != 50) {
+			size = 10; // 기본값으로 고정
+		}
+		;
+		Sort sortCriteria = Sort.by(
+			"desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC, sort
+		);
+		return CommonResponse.success(SuccessCode.SUCCESS,
+			orderService.getOrders(PageRequest.of(page, size, sortCriteria), userDetails.getUser(), query));
+	}
+
 	@DeleteMapping("/orders/{orderId}")
 	public ResponseEntity<CommonResponse<Void>> cancelOrder(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -47,5 +68,6 @@ public class OrderController {
 		orderService.cancelOrder(orderId, userDetails.getUser());
 		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
 	}
+
 
 }
