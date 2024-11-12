@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nbcamp.orderservice.domain.common.OrderStatus;
 import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.order.dto.OrderInfoDto;
 import com.nbcamp.orderservice.domain.order.dto.OrderProductResponse;
@@ -164,6 +165,34 @@ public class OrderService {
 			.toList();
 
 		return new OrderInfoDto(orderResponse, orderProductResponses);
+	}
+
+	public OrderResponse updateOrderStatus(UUID orderId, OrderStatus newStatus) {
+		Order order = orderRepository.findById(orderId)
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
+
+		validateOrderStatus(order.getOrderStatus(), newStatus);
+
+		order.updateOrderStatus(newStatus);
+		orderRepository.save(order);
+
+		// 업데이트된 OrderResponse 반환
+		return new OrderResponse(
+			order.getId(),
+			order.getStore().getId(),
+			order.getUser().getId(),
+			order.getOrderStatus(),
+			order.getOrderType(),
+			order.getDeliveryAddress(),
+			order.getRequest(),
+			order.getTotalPrice()
+		);
+	}
+
+	private void validateOrderStatus(OrderStatus currentStatus, OrderStatus newStatus) {
+		if (currentStatus == OrderStatus.COMPLETED || currentStatus == OrderStatus.CANCELLED) {
+			throw new IllegalArgumentException(ErrorCode.INVALID_ORDER_STATUS.getMessage());
+		}
 	}
 
 }

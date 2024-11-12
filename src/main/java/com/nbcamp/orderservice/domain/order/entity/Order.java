@@ -96,4 +96,8 @@ public class Order extends BaseTimeEntity {
 			orderProduct.cancel(userId);
 		}
 	}
+
+	public void updateOrderStatus(OrderStatus newStatus) {
+		this.orderStatus = newStatus;
+	}
 }

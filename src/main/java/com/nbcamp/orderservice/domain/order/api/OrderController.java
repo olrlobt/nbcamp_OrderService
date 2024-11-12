@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,9 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nbcamp.orderservice.domain.common.OrderStatus;
+import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.order.dto.OrderInfoDto;
 import com.nbcamp.orderservice.domain.order.dto.OrderRequest;
+import com.nbcamp.orderservice.domain.order.dto.OrderResponse;
 import com.nbcamp.orderservice.domain.order.service.OrderService;
+import com.nbcamp.orderservice.global.exception.code.ErrorCode;
 import com.nbcamp.orderservice.global.exception.code.SuccessCode;
 import com.nbcamp.orderservice.global.response.CommonResponse;
 import com.nbcamp.orderservice.global.security.UserDetailsImpl;
@@ -73,6 +78,24 @@ public class OrderController {
 	public ResponseEntity<CommonResponse<OrderInfoDto>> getOrderDetail(@PathVariable String orderId) {
 		OrderInfoDto orderInfo = orderService.getOrderDetail(UUID.fromString(orderId));
 		return CommonResponse.success(SuccessCode.SUCCESS, orderInfo);
+	}
+
+	@PatchMapping("orders/{orderId}")
+	public ResponseEntity<CommonResponse<OrderResponse>> updateOrderStatus(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
+		@PathVariable UUID orderId,
+		@RequestParam String status) {
+		if ((userDetails.getUser().getUserRole() == UserRole.CUSTOMER)) {
+			throw new IllegalArgumentException(ErrorCode.ACCESS_DENIED.getMessage());
+		}
+		OrderStatus newStatus;
+		try {
+			newStatus = OrderStatus.valueOf(status.toUpperCase());
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException(ErrorCode.COMMON_INVALID_PARAM.getMessage());
+		}
+		OrderResponse updatedOrder = orderService.updateOrderStatus(orderId, newStatus);
+		return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, updatedOrder);
 	}
 
 }
