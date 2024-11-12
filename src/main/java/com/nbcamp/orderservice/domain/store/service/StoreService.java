@@ -63,8 +63,8 @@ public class StoreService {
 	}
 
 	@Transactional(readOnly = true)
-	public StoreDetailsResponse getDetailsStore(String storesId) {
-		Store store = findById(storesId);
+	public StoreDetailsResponse getDetailsStore(String storeId) {
+		Store store = findById(storeId);
 		return new StoreDetailsResponse(
 			store.getId(),
 			store.getUser().getUsername(),
@@ -137,8 +137,8 @@ public class StoreService {
 		throw new IllegalArgumentException(ErrorCode.ADDRESS_PATTERN_MISMATCH.getMessage());
 	}
 
-	public Store findById(String uuid) {
-		return storeJpaRepository.findById(UUID.fromString(uuid))
+	public Store findById(String storeId) {
+		return storeJpaRepository.findById(UUID.fromString(storeId))
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_STORE.getMessage()));
 	}
 

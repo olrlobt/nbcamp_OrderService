@@ -32,14 +32,14 @@ public class StoreController {
 
 	private final StoreService storeService;
 
-	@PostMapping("/stores/users/{usersId}")
+	@PostMapping("/stores/users/{userId}")
 	public ResponseEntity<CommonResponse<StoreResponse>> createStore(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable String usersId,
+		@PathVariable String userId,
 		@RequestBody StoreRequest storeRequest
 	) {
 		return CommonResponse.success(
-			SuccessCode.SUCCESS_INSERT, storeService.createStore(usersId, storeRequest, userDetails.getUser()));
+			SuccessCode.SUCCESS_INSERT, storeService.createStore(userId, storeRequest, userDetails.getUser()));
 	}
 
 	@GetMapping("/stores/{storeId}")
@@ -58,22 +58,22 @@ public class StoreController {
 			storeService.getCursorStore(cursorId, category, address, pageable));
 	}
 
-	@PutMapping("/stores/{storesId}")
+	@PutMapping("/stores/{storeId}")
 	public ResponseEntity<CommonResponse<StoreResponse>> updateStore(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable String storesId,
+		@PathVariable String storeId,
 		@RequestBody StoreRequest storeRequest
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS_UPDATE,
-			storeService.updateStore(userDetails.getUser(), storesId, storeRequest));
+			storeService.updateStore(userDetails.getUser(), storeId, storeRequest));
 	}
 
-	@DeleteMapping("/stores/{storesId}")
+	@DeleteMapping("/stores/{storeId}")
 	public ResponseEntity<CommonResponse<Void>> deleteStore(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable String storesId
+		@PathVariable String storeId
 	){
-		storeService.deletedStore(userDetails.getUser(), storesId);
+		storeService.deletedStore(userDetails.getUser(), storeId);
 		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
 	}
 
