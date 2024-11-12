@@ -86,7 +86,7 @@ public class OrderQueryRepository {
 			)
 			.fetchOne();
 
-		return getOrderInfo(pageable, query, orderResponses, total);
+		return getOrderInfo(pageable, orderResponses, total);
 
 	}
 
@@ -129,7 +129,7 @@ public class OrderQueryRepository {
 			)
 			.fetchOne();
 
-		return getOrderInfo(pageable, query, orderResponses, total);
+		return getOrderInfo(pageable, orderResponses, total);
 	}
 
 	public Page<OrderInfoDto> findByUser(User user, Pageable pageable, String query) {
@@ -176,10 +176,10 @@ public class OrderQueryRepository {
 
 		log.info("total :" + total);
 
-		return getOrderInfo(pageable, query, orderResponses, total);
+		return getOrderInfo(pageable, orderResponses, total);
 	}
 
-	private Page<OrderInfoDto> getOrderInfo(Pageable pageable, String query, List<OrderResponse> orderResponses,
+	private Page<OrderInfoDto> getOrderInfo(Pageable pageable, List<OrderResponse> orderResponses,
 		Long total) {
 
 		List<UUID> orderIds = orderResponses.stream()
@@ -245,47 +245,6 @@ public class OrderQueryRepository {
 
 	private BooleanExpression productNameLike(String query) {
 		return StringUtils.hasText(query) ? QOrderProduct.orderProduct.product.name.containsIgnoreCase(query) : null;
-	}
-
-	public OrderInfoDto findByIdWithOrderProduct(UUID orderId) {
-		OrderResponse orderResponses = jpaQueryFactory
-			.select(
-				Projections.constructor(
-					OrderResponse.class,
-					order.id,
-					order.store.id,
-					order.user.id,
-					order.orderStatus,
-					order.orderType,
-					order.deliveryAddress,
-					order.request,
-					order.totalPrice
-				)
-			)
-			.from(order)
-			.join(order.store, store).fetchJoin()
-			.join(order.user, user).fetchJoin()
-			.where(order.id.eq(orderId))
-			.fetchOne();
-
-		List<OrderProductResponse> orderProductResponses = jpaQueryFactory
-			.select(
-				Projections.constructor(
-					OrderProductResponse.class,
-					orderProduct.id,
-					orderProduct.order.id,
-					orderProduct.product.id,
-					orderProduct.product.name,
-					orderProduct.quantity,
-					orderProduct.totalPrice
-				)
-			)
-			.distinct()
-			.from(orderProduct)
-			.where(orderProduct.order.id.eq(orderId))
-			.fetch();
-
-		return new OrderInfoDto(orderResponses, orderProductResponses);
 	}
 
 	public List<OrderProduct> findOrderProductsBy(UUID orderId) {

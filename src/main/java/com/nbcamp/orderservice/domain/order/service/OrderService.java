@@ -171,7 +171,7 @@ public class OrderService {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
 
-		validateOrderStatus(order.getOrderStatus(), newStatus);
+		validateOrderStatus(order.getOrderStatus());
 
 		order.updateOrderStatus(newStatus);
 		orderRepository.save(order);
@@ -189,7 +189,7 @@ public class OrderService {
 		);
 	}
 
-	private void validateOrderStatus(OrderStatus currentStatus, OrderStatus newStatus) {
+	private void validateOrderStatus(OrderStatus currentStatus) {
 		if (currentStatus == OrderStatus.COMPLETED || currentStatus == OrderStatus.CANCELLED) {
 			throw new IllegalArgumentException(ErrorCode.INVALID_ORDER_STATUS.getMessage());
 		}

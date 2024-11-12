@@ -58,7 +58,6 @@ public class OrderController {
 		if (size != 10 && size != 30 && size != 50) {
 			size = 10; // 기본값으로 고정
 		}
-		;
 		Sort sortCriteria = Sort.by(
 			"desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC, sort
 		);
