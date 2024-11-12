@@ -19,4 +19,6 @@ public interface UserService {
 	UserResponse updateUser(UserDetailsImpl userDetails, String userId, UserUpdateRequest request);
 
 	void deleteUser(UserDetailsImpl userDetails, String userId);
+
+	void updateRefreshToken(String username, String refreshToken);
 }

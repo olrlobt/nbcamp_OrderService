@@ -67,6 +67,13 @@ public class UserServiceImpl implements UserService {
 		user.delete();
 	}
 
+	@Transactional
+	public void updateRefreshToken(String username, String refreshToken) {
+		userRepository.findByUsername(username).ifPresent(
+			users -> users.updateRefreshToken(refreshToken)
+		);
+	}
+
 	private void ignoreAuth(UserDetailsImpl userDetails, String userId) {
 		UserRole userRole = userDetails.getUserRole();
 		if((userRole == UserRole.CUSTOMER || userRole == UserRole.OWNER)
