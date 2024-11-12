@@ -13,6 +13,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -34,6 +36,7 @@ import lombok.NoArgsConstructor;
 public class Product extends BaseTimeEntity {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
 	@Column(name = "id")
 	private UUID id = UUID.randomUUID();
 
@@ -71,7 +74,8 @@ public class Product extends BaseTimeEntity {
 		this.displayStatus = request.status();
 	}
 
-	public void delete() {
+	public void delete(UUID uuid) {
+		this.setDeletedBy(uuid);
 		this.setDeletedAt(LocalDateTime.now());
 	}
 }
