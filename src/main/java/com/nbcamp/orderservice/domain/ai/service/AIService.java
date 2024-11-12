@@ -4,8 +4,8 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
+import com.nbcamp.orderservice.domain.ai.client.GeminiFeignClient;
 import com.nbcamp.orderservice.domain.ai.dto.AIRequest;
 import com.nbcamp.orderservice.domain.ai.dto.AIResponse;
 import com.nbcamp.orderservice.domain.ai.dto.ChatRequest;
@@ -26,10 +26,7 @@ public class AIService {
 
 	private final AIJpaRepository aiJpaRepository;
 	private final StoreJpaRepository storeJpaRepository;
-	private final RestTemplate restTemplate;
-
-	@Value("${gemini.api.url}")
-	private String apiUrl;
+	private final GeminiFeignClient geminiFeignClient;
 
 	@Value("${gemini.api.key}")
 	private String apiKey;
@@ -45,14 +42,10 @@ public class AIService {
 
 		String requestText =
 			STORE_NAME_PROMPT + store.getName() + PRODUCT_DESCRIPTION_PROMPT + request.text() + MAX_LENGTH_HINT;
+		ChatResponse chatResponse = geminiFeignClient.createChat(apiKey, new ChatRequest(requestText));
 
-		String requestUrl = apiUrl + "?key=" + apiKey;
-		ChatRequest chatRequest = new ChatRequest(requestText);
-		ChatResponse chatResponse = restTemplate.postForObject(requestUrl, chatRequest, ChatResponse.class);
-
-		if (chatResponse == null) {
+		if (chatResponse == null)
 			throw new IllegalStateException(ErrorCode.INTERNAL_SERVER_ERROR.getMessage());
-		}
 		String message = chatResponse.candidates().get(0).content().parts().get(0).text();
 
 		aiJpaRepository.save(AIRequestLog.create(store, request.text(), message, user.getId()));
