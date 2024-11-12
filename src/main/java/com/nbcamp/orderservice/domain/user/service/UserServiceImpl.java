@@ -9,8 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.user.dto.AllUserResponse;
-import com.nbcamp.orderservice.domain.user.dto.LoginRequest;
-import com.nbcamp.orderservice.domain.user.dto.LoginResponse;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
 import com.nbcamp.orderservice.domain.user.dto.UserResponse;
 import com.nbcamp.orderservice.domain.user.dto.UserUpdateRequest;
@@ -28,18 +26,6 @@ public class UserServiceImpl implements UserService {
 	private final JwtService jwtService;
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
-
-	public LoginResponse login(LoginRequest loginRequest) {
-		User user = userRepository.findByUsername(loginRequest.username())
-			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
-
-		if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
-			throw new IllegalArgumentException(ErrorCode.FAIL_LOGIN.getMessage());
-		}
-
-		return new LoginResponse(user.getUsername(),
-			jwtService.createAccessToken(user.getUsername()));
-	}
 
 	@Transactional
 	public UserResponse signup(SignupRequest signupRequest) {

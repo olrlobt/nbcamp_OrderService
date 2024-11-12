@@ -1,16 +1,12 @@
 package com.nbcamp.orderservice.domain.user.service;
 
 import com.nbcamp.orderservice.domain.user.dto.AllUserResponse;
-import com.nbcamp.orderservice.domain.user.dto.LoginRequest;
-import com.nbcamp.orderservice.domain.user.dto.LoginResponse;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
 import com.nbcamp.orderservice.domain.user.dto.UserResponse;
 import com.nbcamp.orderservice.domain.user.dto.UserUpdateRequest;
 import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 
 public interface UserService {
-
-	LoginResponse login(LoginRequest loginRequest);
 
 	UserResponse signup(SignupRequest signupRequest);
 

@@ -20,10 +20,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	private final UserRepository usersRepository;
 
 	@Override
-	public UserDetails loadUserByUsername(String uuid) throws UsernameNotFoundException {
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		try {
-			UUID uuidConverted = UUID.fromString(uuid);
-			User user = usersRepository.findById(uuidConverted)
+			User user = usersRepository.findByUsername(username)
 				.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
 			return new UserDetailsImpl(user);
 		} catch (IllegalArgumentException e) {

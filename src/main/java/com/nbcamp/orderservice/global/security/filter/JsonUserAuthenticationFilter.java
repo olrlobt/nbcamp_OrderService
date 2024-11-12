@@ -24,7 +24,7 @@ public class JsonUserAuthenticationFilter extends AbstractAuthenticationProcessi
 	private final ObjectMapper objectMapper;
 
 	private static final AntPathRequestMatcher DEFAULT_LOGIN_PATH_REQUEST_MATCHER =
-		new AntPathRequestMatcher("api/v1/login", "POST"); //=>   /login 의 요청에, POST로 온 요청에 매칭
+		new AntPathRequestMatcher("/api/v1/users/login", "POST"); //=>   /login 의 요청에, POST로 온 요청에 매칭
 
 	public JsonUserAuthenticationFilter(ObjectMapper objectMapper) {
 		super(DEFAULT_LOGIN_PATH_REQUEST_MATCHER);
