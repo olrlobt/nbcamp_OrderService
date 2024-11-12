@@ -39,7 +39,7 @@ public class User extends BaseTimeEntity {
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
-	@Column(name = "username", nullable = false)
+	@Column(name = "username", nullable = false, unique = true)
 	private String username;
 
 	@Column(name = "password", nullable = false)

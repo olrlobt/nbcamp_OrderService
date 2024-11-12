@@ -56,6 +56,7 @@ public enum ErrorCode {
 	EXIST_EMAIL(HttpStatus.BAD_REQUEST, "중복된 이메일입니다."),
 	EXIST_PHONE(HttpStatus.BAD_REQUEST, "중복된 전화번호입니다."),
 	EXIST_NICKNAME(HttpStatus.BAD_REQUEST, "중복된 닉네임입니다."),
+	EXIST_USERNAME(HttpStatus.BAD_REQUEST, "중복된 아이디입니다."),
 	FAIL_LOGIN(HttpStatus.BAD_REQUEST, "이메일 또는 비밀번호가 잘못되었습니다."),
 	NOT_MATCH_CONFIRM(HttpStatus.BAD_REQUEST, "입력 값과 확인 값이 일치하지 않습니다."),
 	MATCH_PASSWORD_AND_NEW_PASSWORD(HttpStatus.BAD_REQUEST, "현재 비밀번호와 변경할 비밀번호가 일치합니다."),
