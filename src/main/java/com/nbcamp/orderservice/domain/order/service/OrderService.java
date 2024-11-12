@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nbcamp.orderservice.domain.common.UserRole;
+import com.nbcamp.orderservice.domain.order.dto.OrderInfoDto;
+import com.nbcamp.orderservice.domain.order.dto.OrderProductResponse;
 import com.nbcamp.orderservice.domain.order.dto.OrderRequest;
 import com.nbcamp.orderservice.domain.order.dto.OrderResponse;
 import com.nbcamp.orderservice.domain.order.entity.Order;
@@ -37,7 +39,7 @@ public class OrderService {
 	private final ProductJpaRepository productJpaRepository;
 
 	@Transactional
-	public OrderResponse createOrder(OrderRequest request, User user) {
+	public OrderInfoDto createOrder(OrderRequest request, User user) {
 		Store store = getStoreById(request.storeId());
 		validateUserRoleForCreateOrder(user);
 
@@ -48,23 +50,29 @@ public class OrderService {
 		List<OrderProduct> orderProducts = OrderProduct.create(order, products, request.products());
 		orderProductRepository.saveAll(orderProducts);
 
-		return new OrderResponse(
+		OrderResponse orderResponse = new OrderResponse(
 			order.getId(),
-			order.getOrderStatus(),
 			order.getStore().getId(),
+			order.getUser().getId(),
+			order.getOrderStatus(),
 			order.getOrderType(),
 			order.getDeliveryAddress(),
 			order.getRequest(),
-			order.getTotalPrice(),
-			orderProducts.stream()
-				.map(orderProduct -> new OrderResponse.OrderProductResponse(
-					orderProduct.getId(),
-					orderProduct.getProduct().getId(),
-					orderProduct.getQuantity(),
-					orderProduct.getTotalPrice()
-				))
-				.collect(Collectors.toList())
+			order.getTotalPrice()
 		);
+
+		List<OrderProductResponse> orderProductResponses = orderProducts.stream()
+			.map(orderProduct -> new OrderProductResponse(
+				orderProduct.getId(),
+				orderProduct.getOrder().getId(),
+				orderProduct.getProduct().getId(),
+				orderProduct.getProduct().getName(),
+				orderProduct.getQuantity(),
+				orderProduct.getTotalPrice()
+			))
+			.toList();
+
+		return new OrderInfoDto(orderResponse, orderProductResponses);
 	}
 
 	private Store getStoreById(UUID storeId) {
