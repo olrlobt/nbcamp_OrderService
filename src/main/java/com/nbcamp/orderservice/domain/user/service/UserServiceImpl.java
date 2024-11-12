@@ -38,6 +38,11 @@ public class UserServiceImpl implements UserService {
 		jwtService.destroyRefreshToken(username);
 	}
 
+	public User findById(String userId){
+		return userRepository.findById(UUID.fromString(userId))
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
+	}
+
 	@Transactional(readOnly = true)
 	public UserResponse getUserDetail(String userId) {
 		return userRepository.findUserResponseByUserId(UUID.fromString(userId))

@@ -4,6 +4,7 @@ import com.nbcamp.orderservice.domain.user.dto.AllUserResponse;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
 import com.nbcamp.orderservice.domain.user.dto.UserResponse;
 import com.nbcamp.orderservice.domain.user.dto.UserUpdateRequest;
+import com.nbcamp.orderservice.domain.user.entity.User;
 import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 
 public interface UserService {
@@ -21,4 +22,6 @@ public interface UserService {
 	void deleteUser(UserDetailsImpl userDetails, String userId);
 
 	void updateRefreshToken(String username, String refreshToken);
+
+	public User findById(String userId);
 }
