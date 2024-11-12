@@ -1,5 +1,6 @@
 package com.nbcamp.orderservice.domain.order.entity;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -85,5 +86,14 @@ public class Order extends BaseTimeEntity {
 			.totalPrice(request.price())
 			.build();
 
+	}
+
+	public void cancelOrder(UUID userId) {
+		this.setDeletedAt(LocalDateTime.now());
+		this.setDeletedBy(userId);
+
+		for (OrderProduct orderProduct : orderProducts) {
+			orderProduct.cancel(userId);
+		}
 	}
 }

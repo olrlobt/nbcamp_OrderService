@@ -1,5 +1,7 @@
 package com.nbcamp.orderservice.domain.order.service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -86,4 +88,25 @@ public class OrderService {
 			.map(productRequest -> getProductById(productRequest.productId().toString()))
 			.collect(Collectors.toList());
 	}
+
+	@Transactional
+	public void cancelOrder(String orderId, User user) {
+		Order order = orderRepository.findById(UUID.fromString(orderId))
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_Order.getMessage()));
+
+		if (order.getDeletedAt() != null) {
+			throw new IllegalStateException(ErrorCode.ALREADY_CANCELED.getMessage());
+		}
+
+		if (user.getUserRole() == UserRole.CUSTOMER) {
+			LocalDateTime orderTime = order.getCreatedAt();
+			LocalDateTime now = LocalDateTime.now();
+			if (Duration.between(orderTime, now).toMinutes() > 5) {
+				throw new IllegalStateException(ErrorCode.CANCELLATION_TIME_EXCEEDED.getMessage());
+			}
+		}
+
+		order.cancelOrder(user.getId());
+	}
+
 }

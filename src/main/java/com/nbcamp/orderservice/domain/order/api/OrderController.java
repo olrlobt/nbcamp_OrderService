@@ -34,5 +34,12 @@ public class OrderController {
 			orderService.createOrder(request, userDetails.getUser()));
 	}
 
+	@DeleteMapping("/orders/{orderId}")
+	public ResponseEntity<CommonResponse<Void>> cancelOrder(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
+		@PathVariable String orderId) {
+		orderService.cancelOrder(orderId, userDetails.getUser());
+		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
+	}
 
 }
