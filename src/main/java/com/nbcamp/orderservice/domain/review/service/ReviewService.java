@@ -11,6 +11,7 @@ import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.order.entity.Order;
 import com.nbcamp.orderservice.domain.order.repository.OrderRepository;
 import com.nbcamp.orderservice.domain.review.dto.ReviewCursorResponse;
+import com.nbcamp.orderservice.domain.review.dto.ReviewDetailsCursorResponse;
 import com.nbcamp.orderservice.domain.review.dto.ReviewRequest;
 import com.nbcamp.orderservice.domain.review.dto.ReviewResponse;
 import com.nbcamp.orderservice.domain.review.entity.Review;
@@ -19,6 +20,7 @@ import com.nbcamp.orderservice.domain.review.repository.ReviewQueryRepository;
 import com.nbcamp.orderservice.domain.store.entity.Store;
 import com.nbcamp.orderservice.domain.store.service.StoreService;
 import com.nbcamp.orderservice.domain.user.entity.User;
+import com.nbcamp.orderservice.domain.user.service.UserService;
 import com.nbcamp.orderservice.global.exception.code.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class ReviewService {
 	private final ReviewQueryRepository reviewQueryRepository;
 	private final OrderRepository orderRepository;
 	private final StoreService storeService;
+	private final UserService userService;
 
 	@Transactional
 	public ReviewResponse createReview(User user, String orderId, ReviewRequest request) {
@@ -52,8 +55,14 @@ public class ReviewService {
 	@Transactional(readOnly = true)
 	public Slice<ReviewCursorResponse> getCursorReview(String storeId, Pageable pageable) {
 		Store store = storeService.findById(storeId);
-		return reviewQueryRepository.getAllReviewInStore(pageable, store);
+		return reviewQueryRepository.getAllReviewInStore(store, pageable);
 
+	}
+
+	@Transactional(readOnly = true)
+	public Slice<ReviewDetailsCursorResponse> getDetailsCursorUserReview(String userId, Pageable pageable){
+		User user = userService.findById(userId);
+		return reviewQueryRepository.getAllReviewInUser(user, pageable);
 	}
 
 	@Transactional

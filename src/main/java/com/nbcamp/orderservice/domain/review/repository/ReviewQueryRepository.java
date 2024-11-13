@@ -9,9 +9,11 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import com.nbcamp.orderservice.domain.review.dto.ReviewCursorResponse;
+import com.nbcamp.orderservice.domain.review.dto.ReviewDetailsCursorResponse;
 import com.nbcamp.orderservice.domain.review.entity.QReview;
 import com.nbcamp.orderservice.domain.store.entity.Store;
 import com.nbcamp.orderservice.domain.user.entity.QUser;
+import com.nbcamp.orderservice.domain.user.entity.User;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -29,7 +31,7 @@ public class ReviewQueryRepository {
 	QReview qReview = QReview.review;
 	QUser qUser = QUser.user;
 
-	public Slice<ReviewCursorResponse> getAllReviewInStore(Pageable pageable, Store store) {
+	public Slice<ReviewCursorResponse> getAllReviewInStore(Store store, Pageable pageable) {
 
 		Pageable validatedPageable = validatePageSize(pageable);
 
@@ -61,6 +63,42 @@ public class ReviewQueryRepository {
 
 		return new SliceImpl<>(reviewList, pageable, hasNext);
 	}
+
+	public Slice<ReviewDetailsCursorResponse> getAllReviewInUser(User user, Pageable pageable){
+
+		List<ReviewDetailsCursorResponse> reviewList = jpaQueryFactory.query()
+			.select(
+				Projections.constructor(
+					ReviewDetailsCursorResponse.class,
+					qReview.order.store.id,
+					qReview.order.store.name,
+					qReview.id,
+					qReview.content,
+					qReview.grade
+				)
+			)
+			.from(qReview)
+			.where(
+				qReview.user.id.eq(user.getId()),
+				qReview.deletedAt.isNull(),
+				qReview.deletedBy.isNull()
+			)
+			.orderBy(
+				qReview.createdAt.desc(),
+				qReview.updatedAt.desc()
+			)
+			.limit(pageable.getPageSize() + 1)
+			.fetch();
+
+		boolean hasNext = reviewList.size() > pageable.getPageSize();
+		if (hasNext) {
+			reviewList.remove(pageable.getPageSize());
+		}
+
+		return new SliceImpl<>(reviewList, pageable, hasNext);
+	}
+
+
 
 	private Pageable validatePageSize(Pageable pageable){
 		int pageSize = pageable.getPageSize();

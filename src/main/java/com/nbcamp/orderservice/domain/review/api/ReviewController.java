@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nbcamp.orderservice.domain.review.dto.ReviewCursorResponse;
+import com.nbcamp.orderservice.domain.review.dto.ReviewDetailsCursorResponse;
 import com.nbcamp.orderservice.domain.review.dto.ReviewRequest;
 import com.nbcamp.orderservice.domain.review.dto.ReviewResponse;
 import com.nbcamp.orderservice.domain.review.service.ReviewService;
@@ -50,6 +51,14 @@ public class ReviewController {
 		return CommonResponse.success(SuccessCode.SUCCESS, reviewService.getCursorReview(storeId, pageable));
 	}
 
+	@GetMapping("/reviews/users/{userId}")
+	public ResponseEntity<CommonResponse<Slice<ReviewDetailsCursorResponse>>> getCursorDetailsReview(
+		@PathVariable String userId,
+		Pageable pageable
+	) {
+		return CommonResponse.success(SuccessCode.SUCCESS, reviewService.getDetailsCursorUserReview(userId, pageable));
+	}
+
 	@PutMapping("/reviews/{reviewId}")
 	public ResponseEntity<CommonResponse<ReviewResponse>> updateReview(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -66,7 +75,7 @@ public class ReviewController {
 	public ResponseEntity<CommonResponse<Void>> deleteReview(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@PathVariable String reviewId
-	){
+	) {
 		reviewService.deleteReview(userDetails.getUser(), reviewId);
 		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
 	}
