@@ -39,6 +39,7 @@ public class ReviewService {
 		checkCustomerUserRole(user);
 		Order order = findByOrderId(orderId);
 		validateOrderAndReviewUser(order, user);
+		findExistingReview(order, user);
 		Review review = reviewJpaRepository.save(Review.create(request, user, order));
 		order.getStore().addStoreGrade(review.getGrade());
 
@@ -107,11 +108,19 @@ public class ReviewService {
 		}
 	}
 
-	private void validateOrderAndReviewUser(Order order, User user){
+	public void validateOrderAndReviewUser(Order order, User user){
 		if(order.getUser().equals(user)){
 			throw new IllegalArgumentException(ErrorCode.NOT_MATCH_CONFIRM.getMessage());
 		}
 	}
+
+	public void findExistingReview(Order order, User user){
+		if(reviewJpaRepository.existsByUserIdAndOrderId(user.getId(), order.getId())){
+			throw new IllegalArgumentException(ErrorCode.EXISTING_REVIEW.getMessage());
+		}
+	}
+
+
 
 	private Order findByOrderId(String orderId) {
 		return orderRepository.findById(UUID.fromString(orderId))

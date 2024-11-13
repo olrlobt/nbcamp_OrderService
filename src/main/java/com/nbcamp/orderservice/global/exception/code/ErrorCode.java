@@ -92,7 +92,8 @@ public enum ErrorCode {
 	/**
 	 * REVIEW
 	 */
-	NOT_FOUND_REVIEW(HttpStatus.BAD_REQUEST, "리뷰정보를 찾을 수 없습니다.");
+	NOT_FOUND_REVIEW(HttpStatus.BAD_REQUEST, "리뷰정보를 찾을 수 없습니다."),
+	EXISTING_REVIEW(HttpStatus.BAD_REQUEST,  "이미 해당 매점에 작성한 리뷰가 있습니다.");
 
 
 	private final HttpStatus httpStatus;
