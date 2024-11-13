@@ -7,6 +7,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +21,7 @@ import com.nbcamp.orderservice.global.response.CommonResponse;
 import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 
 import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
@@ -32,18 +34,31 @@ public class ReviewController {
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@PathVariable String orderId,
 		@RequestBody ReviewRequest reviewRequest
-	){
+	) {
 		return CommonResponse.success(
 			SuccessCode.SUCCESS_INSERT,
-			reviewService.createReview(userDetails.getUser(), orderId, reviewRequest));
+			reviewService.createReview(userDetails.getUser(), orderId, reviewRequest)
+		);
 	}
 
 	@GetMapping("/stores/{storeId}/orders/reviews")
-	public ResponseEntity<CommonResponse<Slice<ReviewCursorResponse>>> getAllReview(
+	public ResponseEntity<CommonResponse<Slice<ReviewCursorResponse>>> getCursorReview(
 		@PathVariable String storeId,
 		Pageable pageable
-	){
-		return CommonResponse.success(SuccessCode.SUCCESS, reviewService.findAllByStoreAndReview(storeId, pageable));
+	) {
+		return CommonResponse.success(SuccessCode.SUCCESS, reviewService.getCursorReview(storeId, pageable));
+	}
+
+	@PutMapping("/reviews/{reviewId}")
+	public ResponseEntity<CommonResponse<ReviewResponse>> updateReview(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
+		@PathVariable String reviewId,
+		@RequestBody ReviewRequest reviewRequest
+	) {
+		return CommonResponse.success(
+			SuccessCode.SUCCESS_UPDATE,
+			reviewService.updateReview(userDetails.getUser(), reviewId, reviewRequest)
+		);
 	}
 
 }

@@ -38,7 +38,7 @@ public class ReviewService {
 		Order order = findByOrderId(orderId);
 		validateOrderAndReviewUser(order, user);
 		Review review = reviewJpaRepository.save(Review.create(request, user, order));
-		order.getStore().updateStoreGrade(review.getGrade());
+		order.getStore().addStoreGrade(review.getGrade());
 
 		return new ReviewResponse(
 			review.getId(),
@@ -47,11 +47,25 @@ public class ReviewService {
 	}
 
 	@Transactional(readOnly = true)
-	public Slice<ReviewCursorResponse> findAllByStoreAndReview(String storeId, Pageable pageable) {
+	public Slice<ReviewCursorResponse> getCursorReview(String storeId, Pageable pageable) {
 		Store store = storeService.findById(storeId);
 		return reviewQueryRepository.getAllReviewInStore(pageable, store);
 
 	}
+
+	@Transactional
+	public ReviewResponse updateReview(User user, String reviewId, ReviewRequest request){
+		checkCustomerUserRole(user);
+		Review review = findById(reviewId);
+		validateOrderAndReviewUser(review.getOrder(), user);
+		review.update(request);
+
+		return new ReviewResponse(
+			review.getId(),
+			review.getContent(),
+			review.getGrade());
+	}
+
 
 	public void checkCustomerUserRole(User user) {
 		if (user.getUserRole() != UserRole.CUSTOMER) {
@@ -68,6 +82,11 @@ public class ReviewService {
 		if(order.getUser().getId() != user.getId()){
 			throw new IllegalArgumentException(ErrorCode.NOT_MATCH_CONFIRM.getMessage());
 		}
+	}
+
+	public Review findById(String reviewId){
+		return reviewJpaRepository.findById(UUID.fromString(reviewId))
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_REVIEW.getMessage()));
 	}
 
 

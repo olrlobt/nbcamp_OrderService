@@ -60,4 +60,11 @@ public class Review extends BaseTimeEntity {
 			.grade(request.grade())
 			.build();
 	}
+
+	public void update(ReviewRequest request){
+		this.order.getStore().updateStoreGrade(request.grade(), this.grade);
+		this.content = request.content();
+		this.grade = request.grade();
+
+	}
 }
