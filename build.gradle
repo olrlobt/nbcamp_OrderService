@@ -48,6 +48,10 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.1.2'
     // Bucket4j
     implementation group: 'com.github.vladimir-bukhtoyarov', name: 'bucket4j-core', version: '7.6.0'
+    //validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation:3.3.5'
+
+
 }
 
 tasks.named('test') {

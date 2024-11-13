@@ -32,6 +32,7 @@ public class BaseTimeEntity {
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
 
+	@Setter
 	@CreatedBy
 	@Column(name = "created_by", updatable = false)
 	private UUID createdBy;

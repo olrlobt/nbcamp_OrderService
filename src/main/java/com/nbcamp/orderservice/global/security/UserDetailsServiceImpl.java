@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.nbcamp.orderservice.domain.user.entity.User;
 import com.nbcamp.orderservice.domain.user.repository.UserRepository;
+import com.nbcamp.orderservice.global.exception.code.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,14 +20,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	private final UserRepository usersRepository;
 
 	@Override
-	public UserDetails loadUserByUsername(String uuid) throws UsernameNotFoundException {
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		try {
-			UUID uuidConverted = UUID.fromString(uuid);
-			User users = usersRepository.findById(uuidConverted)
-				.orElseThrow(() -> new IllegalArgumentException("User not found with UUID: " + uuid));
-			return new UserDetailsImpl(users);
+			User user = usersRepository.findByUsername(username)
+				.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
+			return new UserDetailsImpl(user);
 		} catch (IllegalArgumentException e) {
-			throw new UsernameNotFoundException("Invalid UUID format: " + uuid, e);
+			throw new UsernameNotFoundException(ErrorCode.INVALID_UUID_FORMAT.getMessage());
 		}
 	}
 }

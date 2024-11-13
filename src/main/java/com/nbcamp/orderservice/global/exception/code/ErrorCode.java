@@ -16,6 +16,7 @@ public enum ErrorCode {
 	CONSTRAINT_VIOLATION(HttpStatus.CONFLICT, "제약 조건 위반"),
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부 서버 오류가 발생하였습니다."),
 	S3_UPLOADER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S3 업로드 중 오류가 발생하였습니다."),
+	UNSUPPORTED_CONTENT_TYPE(HttpStatus.BAD_REQUEST, "지원되지 않는 Content-Type입니다."),
 	RATE_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "요청 제한이 초과되었습니다. 나중에 다시 시도해 주세요."),
 
 	/**
@@ -44,6 +45,8 @@ public enum ErrorCode {
 	NON_LOCKED_ACCOUNT(HttpStatus.BAD_REQUEST, "사용자 계정이 정지되었습니다."),
 	DISABLE_ACCOUNT(HttpStatus.BAD_REQUEST, "사용자 계정은 비활성화 상태입니다."),
 	EXPIRED_CREDENTIAL(HttpStatus.BAD_REQUEST, "사용자 인증 정보가 만료되었습니다."),
+	INSUFFICIENT_PERMISSION(HttpStatus.FORBIDDEN, "사용자에게 접근 권한이 없습니다."),
+
 
 	/**
 	 * Admin, Member
@@ -54,6 +57,7 @@ public enum ErrorCode {
 	EXIST_EMAIL(HttpStatus.BAD_REQUEST, "중복된 이메일입니다."),
 	EXIST_PHONE(HttpStatus.BAD_REQUEST, "중복된 전화번호입니다."),
 	EXIST_NICKNAME(HttpStatus.BAD_REQUEST, "중복된 닉네임입니다."),
+	EXIST_USERNAME(HttpStatus.BAD_REQUEST, "중복된 아이디입니다."),
 	FAIL_LOGIN(HttpStatus.BAD_REQUEST, "이메일 또는 비밀번호가 잘못되었습니다."),
 	NOT_MATCH_CONFIRM(HttpStatus.BAD_REQUEST, "입력 값과 확인 값이 일치하지 않습니다."),
 	MATCH_PASSWORD_AND_NEW_PASSWORD(HttpStatus.BAD_REQUEST, "현재 비밀번호와 변경할 비밀번호가 일치합니다."),
@@ -62,6 +66,7 @@ public enum ErrorCode {
 	ALREADY_BLOCK(HttpStatus.BAD_REQUEST, "해당 계정은 이미 차단되어 있습니다."),
 	ALREADY_UNBLOCK(HttpStatus.BAD_REQUEST, "해당 계정은 차단되어 있지 않습니다."),
 	INSUFFICIENT_PERMISSIONS(HttpStatus.FORBIDDEN, "해당 요청은 권한이 부족하여 수행할 수 없습니다."),
+	INVALID_UUID_FORMAT(HttpStatus.BAD_REQUEST, "잘못된 UUID 형식입니다."),
 
 	/**
 	 * Category
