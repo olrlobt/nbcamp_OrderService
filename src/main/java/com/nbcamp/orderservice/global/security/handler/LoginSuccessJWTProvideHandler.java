@@ -8,6 +8,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 
 import com.nbcamp.orderservice.domain.user.repository.UserRepository;
 import com.nbcamp.orderservice.domain.user.service.JwtService;
+import com.nbcamp.orderservice.domain.user.service.UserService;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 public class LoginSuccessJWTProvideHandler extends SimpleUrlAuthenticationSuccessHandler {
 
 	private final JwtService jwtService;
-	private final UserRepository usersRepository;
+	private final UserService userService;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -30,9 +31,7 @@ public class LoginSuccessJWTProvideHandler extends SimpleUrlAuthenticationSucces
 		String refreshToken = jwtService.createRefreshToken();
 
 		jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
-		usersRepository.findByUsername(username).ifPresent(
-			users -> users.updateRefreshToken(refreshToken)
-		);
+		userService.updateRefreshToken(username, refreshToken);
 
 		log.info( "로그인에 성공합니다. username: {}" , username);
 		log.info( "AccessToken 을 발급합니다. AccessToken: {}" ,accessToken);

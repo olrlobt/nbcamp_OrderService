@@ -14,6 +14,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -34,9 +36,10 @@ public class User extends BaseTimeEntity {
 
 	@Id
 	@Column(name = "id")
-	private UUID id = UUID.randomUUID();
+	@GeneratedValue(strategy = GenerationType.UUID)
+	private UUID id;
 
-	@Column(name = "username", nullable = false)
+	@Column(name = "username", nullable = false, unique = true)
 	private String username;
 
 	@Column(name = "password", nullable = false)
@@ -50,12 +53,16 @@ public class User extends BaseTimeEntity {
 	private String refreshToken;
 
 	public static User create(SignupRequest request, PasswordEncoder passwordEncoder) {
-		return User.builder()
-			.id(UUID.randomUUID())
+		UUID uuid = UUID.randomUUID();
+
+		User user = User.builder()
+			.id(uuid)
 			.username(request.username())
 			.password(passwordEncoder.encode(request.password()))
-			.userRole(request.userRole())
+			.userRole(UserRole.CUSTOMER)
 			.build();
+		user.setCreatedBy(uuid);
+		return user;
 	}
 
 	public void update(UserUpdateRequest request){
@@ -64,7 +71,6 @@ public class User extends BaseTimeEntity {
 	}
 
 	public void delete() {
-		//todo. 사람 추가
 		this.setDeletedAt(LocalDateTime.now());
 	}
 

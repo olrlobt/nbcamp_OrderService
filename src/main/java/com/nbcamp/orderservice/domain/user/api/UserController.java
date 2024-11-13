@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nbcamp.orderservice.domain.user.dto.AllUserResponse;
-import com.nbcamp.orderservice.domain.user.dto.LoginRequest;
-import com.nbcamp.orderservice.domain.user.dto.LoginResponse;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
 import com.nbcamp.orderservice.domain.user.dto.UserResponse;
 import com.nbcamp.orderservice.domain.user.dto.UserUpdateRequest;
@@ -24,6 +22,7 @@ import com.nbcamp.orderservice.global.exception.code.SuccessCode;
 import com.nbcamp.orderservice.global.response.CommonResponse;
 import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,15 +35,9 @@ public class UserController {
 	private final UserService userService;
 
 	@PostMapping("/users/signup")
-	public ResponseEntity<CommonResponse<UserResponse>> signup(@RequestBody SignupRequest signupRequest) {
+	public ResponseEntity<CommonResponse<UserResponse>> signup(@Valid @RequestBody SignupRequest signupRequest) {
 		UserResponse signup = userService.signup(signupRequest);
 		return CommonResponse.success(SuccessCode.SUCCESS_INSERT, signup);
-	}
-
-	@PostMapping("/users/login")
-	public ResponseEntity<CommonResponse<LoginResponse>> login(@RequestBody LoginRequest loginRequest) {
-		LoginResponse login = userService.login(loginRequest);
-		return CommonResponse.success(SuccessCode.SUCCESS, login);
 	}
 
 	@PostMapping("/users/logout")

@@ -45,6 +45,7 @@ public class UserQueryRepositoryImpl implements UserQueryRepository {
 				)
 			)
 			.from(user)
+			.where(user.deletedBy.isNull())
 			.fetch();
 
 		return new AllUserResponse(userResponses);
