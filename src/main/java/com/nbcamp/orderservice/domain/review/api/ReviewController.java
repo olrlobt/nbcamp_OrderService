@@ -4,6 +4,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,6 +60,15 @@ public class ReviewController {
 			SuccessCode.SUCCESS_UPDATE,
 			reviewService.updateReview(userDetails.getUser(), reviewId, reviewRequest)
 		);
+	}
+
+	@DeleteMapping("/reviews/{reviewId}")
+	public ResponseEntity<CommonResponse<Void>> deleteReview(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
+		@PathVariable String reviewId
+	){
+		reviewService.deleteReview(userDetails.getUser(), reviewId);
+		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
 	}
 
 }

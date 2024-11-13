@@ -68,6 +68,30 @@ public class ReviewService {
 			review.getGrade());
 	}
 
+	@Transactional
+	public void deleteReview(User user, String reviewId){
+		checkDeleteReviewUserRole(user);
+		Review review = findById(reviewId);
+		deleteByRole(user, review);
+
+	}
+
+	public void deleteByRole(User user, Review review){
+		if(user.getUserRole() == UserRole.CUSTOMER){
+			validateOrderAndReviewUser(review.getOrder(), user);
+			deleteByCustomer(review, user);
+		} else {
+			deleteByAdmin(review, user);
+		}
+	}
+
+	public void deleteByCustomer(Review review, User user){
+		review.delete(user.getId());
+	}
+
+	public void deleteByAdmin(Review review, User user){
+		review.delete(user.getId());
+	}
 
 	public void checkCustomerUserRole(User user) {
 		if (user.getUserRole() != UserRole.CUSTOMER) {
@@ -75,6 +99,13 @@ public class ReviewService {
 		}
 	}
 
+	public void checkDeleteReviewUserRole(User user){
+		if(user.getUserRole() != UserRole.CUSTOMER
+			&& user.getUserRole() != UserRole.MANAGER
+			&& user.getUserRole() != UserRole.MASTER){
+			throw new IllegalArgumentException(ErrorCode.INSUFFICIENT_PERMISSIONS.getMessage());
+		}
+	}
 
 	private void validateOrderAndReviewUser(Order order, User user){
 		if(order.getUser().equals(user)){
@@ -86,6 +117,7 @@ public class ReviewService {
 		return orderRepository.findById(UUID.fromString(orderId))
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
 	}
+
 
 
 	public Review findById(String reviewId){

@@ -1,5 +1,6 @@
 package com.nbcamp.orderservice.domain.review.entity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
@@ -66,5 +67,11 @@ public class Review extends BaseTimeEntity {
 		this.content = request.content();
 		this.grade = request.grade();
 
+	}
+
+	public void delete(UUID uuid){
+		this.setDeletedBy(uuid);
+		this.setDeletedAt(LocalDateTime.now());
+		this.order.getStore().removeStoreGrade(this.grade);
 	}
 }

@@ -102,6 +102,19 @@ public class Store extends BaseTimeEntity {
 		this.storeGrade = totalGrade / this.storeGradeReviews;
 	}
 
+	public void removeStoreGrade(int removedGrade){
+		if (this.storeGradeReviews <= 1) {
+
+			this.storeGrade = 0;
+			this.storeGradeReviews = 0;
+		} else {
+			double totalGrade = this.storeGrade * this.storeGradeReviews;
+			totalGrade -= removedGrade;
+			this.storeGradeReviews -= 1;
+			this.storeGrade = totalGrade / this.storeGradeReviews;
+		}
+	}
+
 
 
 }

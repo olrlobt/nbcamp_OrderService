@@ -82,7 +82,18 @@ public enum ErrorCode {
 	/**
 	 * PRODUCT
 	 */
-	NOT_FOUND_PRODUCT(HttpStatus.BAD_REQUEST, "상품을 찾을 수 없습니다.");
+	NOT_FOUND_PRODUCT(HttpStatus.BAD_REQUEST, "상품을 찾을 수 없습니다."),
+
+	/**
+	 * ORDER
+	 */
+	NOT_FOUND_ORDER(HttpStatus.BAD_REQUEST, "주문정보를 찾을 수 없습니다."),
+
+	/**
+	 * REVIEW
+	 */
+	NOT_FOUND_REVIEW(HttpStatus.BAD_REQUEST, "리뷰정보를 찾을 수 없습니다.");
+
 
 	private final HttpStatus httpStatus;
 	private final String message;
