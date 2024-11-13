@@ -16,6 +16,7 @@ public enum ErrorCode {
 	CONSTRAINT_VIOLATION(HttpStatus.CONFLICT, "제약 조건 위반"),
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부 서버 오류가 발생하였습니다."),
 	S3_UPLOADER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S3 업로드 중 오류가 발생하였습니다."),
+	RATE_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "요청 제한이 초과되었습니다. 나중에 다시 시도해 주세요."),
 
 	/**
 	 * Common
