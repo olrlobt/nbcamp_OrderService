@@ -12,8 +12,10 @@ import com.nbcamp.orderservice.domain.review.dto.ReviewCursorResponse;
 import com.nbcamp.orderservice.domain.review.entity.QReview;
 import com.nbcamp.orderservice.domain.store.entity.Store;
 import com.nbcamp.orderservice.domain.user.entity.QUser;
+import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -43,8 +45,12 @@ public class ReviewQueryRepository {
 				)
 			)
 			.from(qReview)
-			.where(qReview.order.store.id.eq(store.getId()))
-			.orderBy(getOrderSpecifier(pageable))
+			.where(
+				qReview.order.store.id.eq(store.getId()),
+				qReview.deletedAt.isNull(),
+				qReview.deletedBy.isNull()
+			)
+			.orderBy(getOrderSpecifier(validatedPageable))
 			.limit(validatedPageable.getPageSize() + 1)
 			.fetch();
 
@@ -70,27 +76,10 @@ public class ReviewQueryRepository {
 			.getSort()
 			.stream()
 			.map(order -> {
-				String property = order.getProperty();
-				if (property.equals("createdAt")) {
-					if (order.isAscending()) {
-						return qReview.createdAt.asc();
-					} else {
-						return qReview.createdAt.desc();
-					}
-				} else if (property.equals("updatedAt")) {
-					if (order.isAscending()) {
-						return qReview.updatedAt.asc();
-					} else {
-						return qReview.updatedAt.desc();
-					}
-				} else if (property.equals("grade")) {
-					if (order.isAscending()) {
-						return qReview.grade.asc();
-					} else {
-						return qReview.grade.desc();
-					}
-				}
-				return qReview.createdAt.desc();
+				PathBuilder pathBuilder = new PathBuilder<>(qReview.getType(), qReview.getMetadata());
+					return new OrderSpecifier(
+						order.isAscending() ? Order.ASC : Order.DESC,
+						pathBuilder.get(order.getProperty()));
 			}).toArray(OrderSpecifier[]::new);
 	}
 

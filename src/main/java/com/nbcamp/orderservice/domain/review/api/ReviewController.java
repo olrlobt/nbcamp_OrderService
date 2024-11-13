@@ -38,7 +38,7 @@ public class ReviewController {
 			reviewService.createReview(userDetails.getUser(), orderId, reviewRequest));
 	}
 
-	@GetMapping("/stores/{storeId}/order/reviews")
+	@GetMapping("/stores/{storeId}/orders/reviews")
 	public ResponseEntity<CommonResponse<Slice<ReviewCursorResponse>>> getAllReview(
 		@PathVariable String storeId,
 		Pageable pageable

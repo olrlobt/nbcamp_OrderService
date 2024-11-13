@@ -36,6 +36,7 @@ public class ReviewService {
 	public ReviewResponse createReview(User user, String orderId, ReviewRequest request) {
 		checkCustomerUserRole(user);
 		Order order = findByOrderId(orderId);
+		validateOrderAndReviewUser(order, user);
 		Review review = reviewJpaRepository.save(Review.create(request, user, order));
 		order.getStore().updateStoreGrade(review.getGrade());
 
@@ -53,16 +54,22 @@ public class ReviewService {
 	}
 
 	public void checkCustomerUserRole(User user) {
-		if (user.getUserRole() == UserRole.OWNER ||
-			user.getUserRole() == UserRole.MANAGER ||
-			user.getUserRole() == UserRole.MASTER) {
+		if (user.getUserRole() != UserRole.CUSTOMER) {
 			throw new IllegalArgumentException(ErrorCode.INSUFFICIENT_PERMISSIONS.getMessage());
 		}
-
 	}
 
 	private Order findByOrderId(String orderId) {
 		return orderRepository.findById(UUID.fromString(orderId))
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
 	}
+
+	private void validateOrderAndReviewUser(Order order, User user){
+		if(order.getUser().getId() != user.getId()){
+			throw new IllegalArgumentException(ErrorCode.NOT_MATCH_CONFIRM.getMessage());
+		}
+	}
+
+
+
 }
