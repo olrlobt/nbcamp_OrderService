@@ -22,9 +22,11 @@ import com.nbcamp.orderservice.domain.user.entity.User;
 import com.nbcamp.orderservice.global.exception.code.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReviewService {
 
 	private final ReviewJpaRepository reviewJpaRepository;
@@ -73,21 +75,24 @@ public class ReviewService {
 		}
 	}
 
+
+	private void validateOrderAndReviewUser(Order order, User user){
+		if(order.getUser().equals(user)){
+			throw new IllegalArgumentException(ErrorCode.NOT_MATCH_CONFIRM.getMessage());
+		}
+	}
+
 	private Order findByOrderId(String orderId) {
 		return orderRepository.findById(UUID.fromString(orderId))
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
 	}
 
-	private void validateOrderAndReviewUser(Order order, User user){
-		if(order.getUser().getId() != user.getId()){
-			throw new IllegalArgumentException(ErrorCode.NOT_MATCH_CONFIRM.getMessage());
-		}
-	}
 
 	public Review findById(String reviewId){
 		return reviewJpaRepository.findById(UUID.fromString(reviewId))
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_REVIEW.getMessage()));
 	}
+
 
 
 
