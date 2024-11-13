@@ -56,7 +56,7 @@ public class Review extends BaseTimeEntity {
 		return Review.builder()
 			.user(user)
 			.order(order)
-			.content(request.comment())
+			.content(request.content())
 			.grade(request.grade())
 			.build();
 	}
