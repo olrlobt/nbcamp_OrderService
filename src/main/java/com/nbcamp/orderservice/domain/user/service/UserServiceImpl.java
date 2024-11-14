@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
 
 	@Transactional
 	public void updateRefreshToken(String username, String refreshToken) {
-		userRepository.findByUsername(username).ifPresent(
+		userRepository.findByUsernameAndDeletedAtIsNull(username).ifPresent(
 			users -> users.updateRefreshToken(refreshToken)
 		);
 	}

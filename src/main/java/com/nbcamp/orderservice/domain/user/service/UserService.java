@@ -23,5 +23,5 @@ public interface UserService {
 
 	void updateRefreshToken(String username, String refreshToken);
 
-	public User findById(String userId);
+	User findById(String userId);
 }

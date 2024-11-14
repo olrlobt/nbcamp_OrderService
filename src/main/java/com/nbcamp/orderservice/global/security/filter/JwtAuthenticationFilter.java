@@ -57,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		jwtService.extractAccessToken(request)
 			.filter(jwtService::isTokenValid)
 			.flatMap(accessToken -> jwtService.extractUsername(accessToken)
-				.flatMap(usersRepository::findByUsername))
+				.flatMap(usersRepository::findByUsernameAndDeletedAtIsNull))
 			.ifPresent(this::saveAuthentication);
 		filterChain.doFilter(request, response);
 	}

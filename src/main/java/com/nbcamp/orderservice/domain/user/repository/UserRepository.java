@@ -9,5 +9,5 @@ import com.nbcamp.orderservice.domain.user.entity.User;
 
 public interface UserRepository extends JpaRepository<User, UUID>, UserQueryRepository{
 	Optional<User> findByRefreshToken(String refreshToken);
-	Optional<User> findByUsername(String username);
+	Optional<User> findByUsernameAndDeletedAtIsNull(String username);
 }
