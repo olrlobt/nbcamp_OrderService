@@ -13,13 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nbcamp.orderservice.domain.common.OrderStatus;
 import com.nbcamp.orderservice.domain.common.UserRole;
-import com.nbcamp.orderservice.domain.order.dto.OrderInfoDto;
+import com.nbcamp.orderservice.domain.order.dto.OrderInfoResponse;
 import com.nbcamp.orderservice.domain.order.dto.OrderProductResponse;
 import com.nbcamp.orderservice.domain.order.dto.OrderRequest;
 import com.nbcamp.orderservice.domain.order.dto.OrderResponse;
 import com.nbcamp.orderservice.domain.order.entity.Order;
 import com.nbcamp.orderservice.domain.order.entity.OrderProduct;
-import com.nbcamp.orderservice.domain.order.repository.OrderProductRepository;
+import com.nbcamp.orderservice.domain.order.repository.OrderProductJpaRepository;
 import com.nbcamp.orderservice.domain.order.repository.OrderQueryRepository;
 import com.nbcamp.orderservice.domain.order.repository.OrderRepository;
 import com.nbcamp.orderservice.domain.product.entity.Product;
@@ -38,22 +38,23 @@ import lombok.extern.slf4j.Slf4j;
 public class OrderService {
 
 	private final OrderRepository orderRepository;
-	private final OrderProductRepository orderProductRepository;
+	private final OrderProductJpaRepository orderProductJpaRepository;
 	private final StoreJpaRepository storeJpaRepository;
 	private final ProductJpaRepository productJpaRepository;
 	private final OrderQueryRepository orderQueryRepository;
+	private final OrderProductService orderProductService;
+
 
 	@Transactional
-	public OrderInfoDto createOrder(OrderRequest request, User user) {
-		Store store = getStoreById(request.storeId());
+	public OrderInfoResponse createOrder(OrderRequest request, User user) {
 		validateUserRoleForCreateOrder(user);
+		Store store = getStoreById(request.storeId());
 
 		Order order = Order.create(request, store, user);
 		orderRepository.save(order);
 
-		List<Product> products = getProductsFromRequest(request.products());
-		List<OrderProduct> orderProducts = OrderProduct.create(order, products, request.products());
-		orderProductRepository.saveAll(orderProducts);
+		List<OrderProduct> orderProducts = orderProductService.createOrderProducts(order, request.products());
+		order.addOrderProduct(orderProducts);
 
 		OrderResponse orderResponse = new OrderResponse(
 			order.getId(),
@@ -69,7 +70,6 @@ public class OrderService {
 		List<OrderProductResponse> orderProductResponses = orderProducts.stream()
 			.map(orderProduct -> new OrderProductResponse(
 				orderProduct.getId(),
-				orderProduct.getOrder().getId(),
 				orderProduct.getProduct().getId(),
 				orderProduct.getProduct().getName(),
 				orderProduct.getQuantity(),
@@ -77,10 +77,10 @@ public class OrderService {
 			))
 			.toList();
 
-		return new OrderInfoDto(orderResponse, orderProductResponses);
+		return new OrderInfoResponse(orderResponse, orderProductResponses);
 	}
 
-	public Page<OrderInfoDto> getOrders(Pageable pageable, User user, String query) {
+	public Page<OrderInfoResponse> getOrders(Pageable pageable, User user, String query) {
 		UserRole userRole = user.getUserRole();
 
 		if (userRole == UserRole.OWNER) {
@@ -136,7 +136,7 @@ public class OrderService {
 		order.cancelOrder(user.getId());
 	}
 
-	public OrderInfoDto getOrderDetail(UUID orderId) {
+	public OrderInfoResponse getOrderDetail(UUID orderId) {
 		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
 
@@ -156,7 +156,6 @@ public class OrderService {
 		List<OrderProductResponse> orderProductResponses = orderProducts.stream()
 			.map(orderProduct -> new OrderProductResponse(
 				orderProduct.getId(),
-				orderProduct.getOrder().getId(),
 				orderProduct.getProduct().getId(),
 				orderProduct.getProduct().getName(),
 				orderProduct.getQuantity(),
@@ -164,7 +163,7 @@ public class OrderService {
 			))
 			.toList();
 
-		return new OrderInfoDto(orderResponse, orderProductResponses);
+		return new OrderInfoResponse(orderResponse, orderProductResponses);
 	}
 
 	public OrderResponse updateOrderStatus(UUID orderId, OrderStatus newStatus) {

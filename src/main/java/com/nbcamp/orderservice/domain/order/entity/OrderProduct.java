@@ -1,7 +1,5 @@
 package com.nbcamp.orderservice.domain.order.entity;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -54,23 +52,32 @@ public class OrderProduct extends BaseTimeEntity {
 	@Column(name = "total_price", nullable = false)
 	private int totalPrice;
 
-	public static List<OrderProduct> create(Order order, List<Product> products,
-		List<OrderRequest.OrderProduct> productRequests) {
-		return productRequests.stream()
-			.map(productRequest -> {
-				Product product = products.stream()
-					.filter(p -> p.getId().equals(productRequest.productId()))
-					.findFirst()
-					.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_PRODUCT.getMessage()));
+	// public static List<OrderProduct> create(Order order, List<Product> products,
+	// 	List<OrderRequest.OrderProduct> productRequests) {
+	// 	return productRequests.stream()
+	// 		.map(productRequest -> {
+	// 			Product product = products.stream()
+	// 				.filter(p -> p.getId().equals(productRequest.productId()))
+	// 				.findFirst()
+	// 				.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_PRODUCT.getMessage()));
+	//
+	// 			return OrderProduct.builder()
+	// 				.order(order)
+	// 				.product(product)
+	// 				.quantity(productRequest.quantity())
+	// 				.totalPrice(productRequest.price())
+	// 				.build();
+	// 		})
+	// 		.collect(Collectors.toList());
+	// }
 
-				return OrderProduct.builder()
-					.order(order)
-					.product(product)
-					.quantity(productRequest.quantity())
-					.totalPrice(productRequest.price())
-					.build();
-			})
-			.collect(Collectors.toList());
+	public static OrderProduct create(Order order, Product product, int quantity){
+		return OrderProduct.builder()
+			.order(order)
+			.product(product)
+			.quantity(quantity)
+			.totalPrice(quantity * product.getPrice())
+			.build();
 	}
 
 	public void cancel(UUID userId) {
