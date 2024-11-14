@@ -27,15 +27,15 @@ public class OrderProductService {
 	public List<OrderProduct> createOrderProducts(Order order, List<OrderRequest.OrderProduct> productList){
 		List<OrderProduct> orderProducts = new ArrayList<>();
 		for (OrderRequest.OrderProduct product : productList) {
-			Product purchasedProduct = findByProducts(String.valueOf(product));
+			Product purchasedProduct = findByProducts(product.productId());
 			orderProducts.add(OrderProduct.create(order, purchasedProduct, product.quantity()));
 		}
 		return orderProducts;
 	}
 
 
-	private Product findByProducts(String productId){
-		return productJpaRepository.findById(UUID.fromString(productId))
+	private Product findByProducts(UUID productId){
+		return productJpaRepository.findById(productId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_PRODUCT.getMessage()));
 	}
 
