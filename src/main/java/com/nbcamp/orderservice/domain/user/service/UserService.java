@@ -24,4 +24,6 @@ public interface UserService {
 	void updateRefreshToken(String username, String refreshToken);
 
 	User findById(String userId);
+
+	void updateUserRole(String userId, String role);
 }

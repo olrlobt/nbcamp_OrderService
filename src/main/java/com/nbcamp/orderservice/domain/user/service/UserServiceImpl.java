@@ -79,6 +79,19 @@ public class UserServiceImpl implements UserService {
 		);
 	}
 
+	@Transactional
+	public void updateUserRole(String userId, String role) {
+		User user = userRepository.findById(UUID.fromString(userId))
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
+
+		try {
+			UserRole userRole = UserRole.valueOf(role.toUpperCase());
+			user.updateRole(userRole);
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException(ErrorCode.INVALID_ROLE.getMessage());
+		}
+	}
+
 	private void ignoreAuth(UserDetailsImpl userDetails, String userId) {
 		UserRole userRole = userDetails.getUserRole();
 		if((userRole == UserRole.CUSTOMER || userRole == UserRole.OWNER)

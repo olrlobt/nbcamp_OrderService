@@ -81,4 +81,8 @@ public class User extends BaseTimeEntity {
 	public void destroyRefreshToken() {
 		this.refreshToken = null;
 	}
+
+	public void updateRole(UserRole role){
+		this.userRole = role;
+	}
 }

@@ -75,4 +75,12 @@ public class UserController {
 		userService.deleteUser(userDetails, userId);
 		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
 	}
+
+	@PreAuthorize("hasAnyRole('MASTER')")
+	@PutMapping("/users/{userId}/role")
+	public ResponseEntity<CommonResponse<Void>> updateUserRole(@PathVariable String userId, @RequestBody String role){
+		userService.updateUserRole(userId, role);
+		// return CommonResponse.success(SuccessCode.SUCCESS, allUsers);
+		return null;
+	}
 }
