@@ -7,6 +7,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nbcamp.orderservice.domain.common.OrderStatus;
 import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.order.entity.Order;
 import com.nbcamp.orderservice.domain.order.repository.OrderRepository;
@@ -41,6 +42,7 @@ public class ReviewService {
 	public ReviewResponse createReview(User user, String orderId, ReviewRequest request) {
 		checkCustomerUserRole(user);
 		Order order = findByOrderId(orderId);
+		validateOrderComplete(order);
 		validateOrderAndReviewUser(order, user);
 		findExistingReview(order, user);
 		Review review = reviewJpaRepository.save(Review.create(request, user, order));
@@ -106,6 +108,12 @@ public class ReviewService {
 	public void checkCustomerUserRole(User user) {
 		if (user.getUserRole() != UserRole.CUSTOMER) {
 			throw new IllegalArgumentException(ErrorCode.INSUFFICIENT_PERMISSIONS.getMessage());
+		}
+	}
+
+	public void validateOrderComplete(Order order){
+		if(order.getOrderStatus() != OrderStatus.COMPLETED){
+			throw new IllegalArgumentException(ErrorCode.ORDER_INCOMPLETE_PROCESS.getMessage());
 		}
 	}
 

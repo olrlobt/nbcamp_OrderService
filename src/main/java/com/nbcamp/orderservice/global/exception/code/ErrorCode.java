@@ -88,6 +88,7 @@ public enum ErrorCode {
 	 * ORDER
 	 */
 	NOT_FOUND_ORDER(HttpStatus.BAD_REQUEST, "주문정보를 찾을 수 없습니다."),
+	ORDER_INCOMPLETE_PROCESS(HttpStatus.BAD_REQUEST, "주문이 완료된 상태가 아닙니다."),
 
 	/**
 	 * REVIEW
