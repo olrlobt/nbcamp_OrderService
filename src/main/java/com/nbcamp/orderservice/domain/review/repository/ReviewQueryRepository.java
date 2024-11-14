@@ -58,7 +58,7 @@ public class ReviewQueryRepository {
 
 		boolean hasNext = reviewList.size() > pageable.getPageSize();
 		if (hasNext) {
-			reviewList.remove(pageable.getPageSize());
+			reviewList.remove(validatedPageable.getPageSize());
 		}
 
 		return new SliceImpl<>(reviewList, pageable, hasNext);
