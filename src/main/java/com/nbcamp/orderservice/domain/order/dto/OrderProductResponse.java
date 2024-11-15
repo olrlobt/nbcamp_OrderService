@@ -7,6 +7,6 @@ public record OrderProductResponse(
 	UUID productId,
 	String productName,
 	int quantity,
-	int price
+	int productTotalPrice
 ) {
 }
