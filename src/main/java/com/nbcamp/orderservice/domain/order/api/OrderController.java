@@ -61,7 +61,8 @@ public class OrderController {
 		@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 		@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
 		@RequestParam(value = "orderStatus", required = false) OrderStatus orderStatus,
-		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC") SortOption sortOption
+		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC") SortOption sortOption,
+		@AuthenticationPrincipal UserDetailsImpl UserDetailsImpl
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS,
 			orderService.getOrdersAdmin(
@@ -71,7 +72,8 @@ public class OrderController {
 				startDate,
 				endDate,
 				orderStatus,
-				sortOption
+				sortOption,
+				UserDetailsImpl.getUser()
 			));
 	}
 

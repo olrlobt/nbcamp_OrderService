@@ -26,7 +26,6 @@ import com.nbcamp.orderservice.domain.order.dto.OrderUpdateRequest;
 import com.nbcamp.orderservice.domain.order.entity.Order;
 import com.nbcamp.orderservice.domain.order.entity.OrderProduct;
 import com.nbcamp.orderservice.domain.order.repository.OrderJpaRepository;
-import com.nbcamp.orderservice.domain.order.repository.OrderProductJpaRepository;
 import com.nbcamp.orderservice.domain.order.repository.OrderQueryRepository;
 import com.nbcamp.orderservice.domain.product.entity.Product;
 import com.nbcamp.orderservice.domain.product.repository.ProductJpaRepository;
@@ -44,7 +43,6 @@ import lombok.extern.slf4j.Slf4j;
 public class OrderService {
 
 	private final OrderJpaRepository orderJpaRepository;
-	private final OrderProductJpaRepository orderProductJpaRepository;
 	private final StoreJpaRepository storeJpaRepository;
 	private final ProductJpaRepository productJpaRepository;
 	private final OrderQueryRepository orderQueryRepository;
@@ -54,7 +52,9 @@ public class OrderService {
 	@Transactional
 	public OrderInfoResponse createOrder(OrderRequest request, User user) {
 		validateUserRoleForCreateOrder(user);
-		// TODO: 2024-11-15  주소 검증로직추가 (오프라인 온라인) 오프라인은 주소가 없음
+		if(request.address() != null){
+			validateAddressPattern(request.address());
+		}
 		Store store = getStoreById(request.storeId());
 
 		Order order = Order.create(request, store, user);
@@ -74,6 +74,7 @@ public class OrderService {
 			order.getTotalPrice()
 		);
 
+
 		List<OrderProductResponse> orderProductResponses = orderProducts.stream()
 			.map(orderProduct -> new OrderProductResponse(
 				orderProduct.getId(),
@@ -87,6 +88,7 @@ public class OrderService {
 		return new OrderInfoResponse(orderResponse, orderProductResponses);
 	}
 
+
 	@Transactional(readOnly = true)
 	public Page<OrderResponse> getOrdersAdmin(
 		Pageable pageable,
@@ -95,9 +97,13 @@ public class OrderService {
 		LocalDate startDate,
 		LocalDate endDate,
 		OrderStatus orderStatus,
-		SortOption sortOption
+		SortOption sortOption,
+		User user
 	) {
-		// TODO: 2024-11-15 매장주인이 자기자신의 매장만 조회 가능하도록 매장 검증 추가
+		if(user.getUserRole() == UserRole.OWNER){
+			existsByStore(storeId, user.getId());
+		}
+
 		return orderQueryRepository.findByStoreOrders(
 			pageable,
 			storeId,
