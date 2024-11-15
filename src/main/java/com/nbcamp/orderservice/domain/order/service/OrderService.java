@@ -27,7 +27,6 @@ import com.nbcamp.orderservice.domain.order.entity.Order;
 import com.nbcamp.orderservice.domain.order.entity.OrderProduct;
 import com.nbcamp.orderservice.domain.order.repository.OrderJpaRepository;
 import com.nbcamp.orderservice.domain.order.repository.OrderQueryRepository;
-import com.nbcamp.orderservice.domain.product.repository.ProductJpaRepository;
 import com.nbcamp.orderservice.domain.store.entity.Store;
 import com.nbcamp.orderservice.domain.store.repository.StoreJpaRepository;
 import com.nbcamp.orderservice.domain.user.entity.User;
@@ -43,7 +42,6 @@ public class OrderService {
 
 	private final OrderJpaRepository orderJpaRepository;
 	private final StoreJpaRepository storeJpaRepository;
-	private final ProductJpaRepository productJpaRepository;
 	private final OrderQueryRepository orderQueryRepository;
 	private final OrderProductService orderProductService;
 	private final CategoryJpaRepository categoryJpaRepository;
