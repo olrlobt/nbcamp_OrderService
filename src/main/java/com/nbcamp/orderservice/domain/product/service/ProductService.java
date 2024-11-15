@@ -62,11 +62,19 @@ public class ProductService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<ProductResponse> getAllProduct(String storeId, int page, int size, User user) {
+	public Page<ProductResponse> getAllProducts(String storeId, int page, int size, User user) {
 		UUID storeUuid = getStoreById(storeId).getId();
 		Pageable pageable = PageRequest.of(page, size);
 
 		return productQueryRepository.findAllProductResponsesByStoreId(storeUuid, pageable);
+	}
+
+	@Transactional(readOnly = true)
+	public Page<ProductResponse> searchProducts(String storeId, int page, int size, String keyword, User user) {
+		UUID storeUuid = getStoreById(storeId).getId();
+		Pageable pageable = PageRequest.of(page, size);
+
+		return productQueryRepository.searchProducts(storeUuid, pageable, keyword);
 	}
 
 	@Transactional

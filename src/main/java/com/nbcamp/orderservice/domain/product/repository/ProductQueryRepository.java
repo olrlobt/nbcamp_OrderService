@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.nbcamp.orderservice.domain.product.dto.ProductResponse;
 import com.nbcamp.orderservice.domain.product.entity.QProduct;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -49,8 +50,42 @@ public class ProductQueryRepository {
 			.from(product)
 			.where(product.store.id.eq(storeId))
 			.fetchOne();
-		
+
 		return new PageImpl<>(productResponses, pageable, total != null ? total : 0L);
 	}
 
+	public Page<ProductResponse> searchProducts(UUID storeId, Pageable pageable, String keyword) {
+		BooleanExpression keywordCondition = keyword != null && !keyword.isEmpty()
+			? product.name.containsIgnoreCase(keyword).or(product.description.containsIgnoreCase(keyword))
+			: null;
+
+		List<ProductResponse> productResponses = jpaQueryFactory
+			.select(
+				Projections.constructor(
+					ProductResponse.class,
+					product.id,
+					product.store.id,
+					product.name,
+					product.description,
+					product.price,
+					product.displayStatus
+				))
+			.from(product)
+			.where(
+				product.store.id.eq(storeId)
+					.and(keywordCondition)
+			)
+			.orderBy(product.createdAt.asc(), product.updatedAt.asc())
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.fetch();
+
+		Long total = jpaQueryFactory
+			.select(product.count())
+			.from(product)
+			.where(product.store.id.eq(storeId).and(keywordCondition))
+			.fetchOne();
+
+		return new PageImpl<>(productResponses, pageable, total != null ? total : 0L);
+	}
 }

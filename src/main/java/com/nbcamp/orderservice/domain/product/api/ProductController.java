@@ -34,7 +34,6 @@ public class ProductController {
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@PathVariable("storeId") String storeId,
 		@RequestBody ProductRequest request
-		// + 유저 인증
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS_INSERT,
 			productService.createProduct(storeId, request, userDetails.getUser()));
@@ -45,22 +44,32 @@ public class ProductController {
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@PathVariable("storeId") String storeId,
 		@PathVariable("productId") String productId
-		// + 유저 인증
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS,
 			productService.getProduct(storeId, productId, userDetails.getUser()));
 	}
 
 	@GetMapping("/stores/{storeId}/products")
-	public ResponseEntity<CommonResponse<Page<ProductResponse>>> getAllProduct(
+	public ResponseEntity<CommonResponse<Page<ProductResponse>>> getAllProducts(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@RequestParam("page") int page,
 		@RequestParam("size") int size,
 		@PathVariable("storeId") String storeId
-		// + 유저 인증
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS,
-			productService.getAllProduct(storeId, page - 1, size, userDetails.getUser()));
+			productService.getAllProducts(storeId, page - 1, size, userDetails.getUser()));
+	}
+
+	@GetMapping("/stores/{storeId}/products")
+	public ResponseEntity<CommonResponse<Page<ProductResponse>>> searchProducts(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
+		@RequestParam("page") int page,
+		@RequestParam("size") int size,
+		@PathVariable("storeId") String storeId,
+		@RequestParam(value = "keyword", required = false) String keyword
+	) {
+		return CommonResponse.success(SuccessCode.SUCCESS,
+			productService.searchProducts(storeId, page - 1, size, keyword, userDetails.getUser()));
 	}
 
 	@PutMapping("/stores/{storeId}/products/{productId}")
@@ -69,7 +78,6 @@ public class ProductController {
 		@PathVariable("storeId") String storeId,
 		@PathVariable("productId") String productId,
 		@RequestBody ProductRequest request
-		// + 유저 인증
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS_INSERT,
 			productService.updateProduct(storeId, productId, request, userDetails.getUser()));
@@ -80,7 +88,6 @@ public class ProductController {
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@PathVariable("storeId") String storeId,
 		@PathVariable("productId") String productId
-		// + 유저 인증
 	) {
 		productService.deleteProduct(storeId, productId, userDetails.getUser());
 		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
