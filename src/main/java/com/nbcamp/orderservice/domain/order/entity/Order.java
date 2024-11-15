@@ -9,6 +9,7 @@ import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
 import com.nbcamp.orderservice.domain.common.OrderStatus;
 import com.nbcamp.orderservice.domain.common.OrderType;
 import com.nbcamp.orderservice.domain.order.dto.OrderRequest;
+import com.nbcamp.orderservice.domain.order.dto.OrderUpdateRequest;
 import com.nbcamp.orderservice.domain.store.entity.Store;
 import com.nbcamp.orderservice.domain.user.entity.User;
 
@@ -97,8 +98,10 @@ public class Order extends BaseTimeEntity {
 		}
 	}
 
-	public void updateOrderStatus(OrderStatus newStatus) {
-		this.orderStatus = newStatus;
+	public void update(OrderUpdateRequest orderUpdateRequest) {
+		this.orderStatus = orderUpdateRequest.orderStatus();
+		this.deliveryAddress = orderUpdateRequest.deliveryAddress();
+		this.request += "\n[추가 요청]: " + orderUpdateRequest.request();
 	}
 
 	public void addOrderProduct(List<OrderProduct> orderProducts){

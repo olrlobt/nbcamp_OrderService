@@ -12,9 +12,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,17 +23,17 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nbcamp.orderservice.domain.common.OrderStatus;
 import com.nbcamp.orderservice.domain.common.OrderType;
 import com.nbcamp.orderservice.domain.common.SortOption;
-import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.order.dto.OrderInfoResponse;
 import com.nbcamp.orderservice.domain.order.dto.OrderProductResponse;
 import com.nbcamp.orderservice.domain.order.dto.OrderRequest;
 import com.nbcamp.orderservice.domain.order.dto.OrderResponse;
+import com.nbcamp.orderservice.domain.order.dto.OrderUpdateRequest;
 import com.nbcamp.orderservice.domain.order.service.OrderService;
-import com.nbcamp.orderservice.global.exception.code.ErrorCode;
 import com.nbcamp.orderservice.global.exception.code.SuccessCode;
 import com.nbcamp.orderservice.global.response.CommonResponse;
 import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -43,7 +43,6 @@ public class OrderController {
 
 	private final OrderService orderService;
 
-
 	@PostMapping("/orders")
 	public ResponseEntity<CommonResponse<OrderInfoResponse>> createOrder(
 		@RequestBody OrderRequest request,
@@ -52,6 +51,7 @@ public class OrderController {
 		return CommonResponse.success(SuccessCode.SUCCESS_INSERT,
 			orderService.createOrder(request, userDetails.getUser()));
 	}
+
 	@PreAuthorize("hasAnyRole('OWNER','MANAGER','MASTER')")
 	@GetMapping("/stores/{storeId}/orders")
 	public ResponseEntity<CommonResponse<Page<OrderResponse>>> getAllOrdersAdmin(
@@ -60,8 +60,8 @@ public class OrderController {
 		@RequestParam(value = "orderType", required = false) OrderType orderType,
 		@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 		@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-		@RequestParam(value = "orderStatus",required = false) OrderStatus orderStatus,
-		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC")SortOption sortOption
+		@RequestParam(value = "orderStatus", required = false) OrderStatus orderStatus,
+		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC") SortOption sortOption
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS,
 			orderService.getOrdersAdmin(
@@ -85,8 +85,8 @@ public class OrderController {
 		@RequestParam(value = "orderType", required = false) OrderType orderType,
 		@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 		@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-		@RequestParam(value = "orderStatus",required = false) OrderStatus orderStatus,
-		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC")SortOption sortOption
+		@RequestParam(value = "orderStatus", required = false) OrderStatus orderStatus,
+		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC") SortOption sortOption
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS,
 			orderService.getOrdersCustomer(
@@ -102,7 +102,6 @@ public class OrderController {
 			));
 	}
 
-
 	@GetMapping("/orders/{orderId}")
 	public ResponseEntity<CommonResponse<List<OrderProductResponse>>> getOrderDetail(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -112,22 +111,15 @@ public class OrderController {
 			orderService.getOrderDetail(orderId, userDetails.getUser()));
 	}
 
-	@PatchMapping("orders/{orderId}")
+	@PreAuthorize("hasAnyRole('OWNER','MANAGER','MASTER')")
+	@PutMapping("/orders/{orderId}")
 	public ResponseEntity<CommonResponse<OrderResponse>> updateOrderStatus(
-		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@PathVariable UUID orderId,
-		@RequestParam String status) {
-		if ((userDetails.getUser().getUserRole() == UserRole.CUSTOMER)) {
-			throw new IllegalArgumentException(ErrorCode.ACCESS_DENIED.getMessage());
-		}
-		OrderStatus newStatus;
-		try {
-			newStatus = OrderStatus.valueOf(status.toUpperCase());
-		} catch (IllegalArgumentException e) {
-			throw new IllegalArgumentException(ErrorCode.COMMON_INVALID_PARAM.getMessage());
-		}
-		OrderResponse updatedOrder = orderService.updateOrderStatus(orderId, newStatus);
-		return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, updatedOrder);
+		@RequestBody @Valid OrderUpdateRequest orderUpdateRequest,
+		@AuthenticationPrincipal UserDetailsImpl userDetails
+	) {
+		return CommonResponse.success(SuccessCode.SUCCESS_UPDATE,
+			orderService.updateOrderStatus(orderId, orderUpdateRequest, userDetails.getUser()));
 	}
 
 	@DeleteMapping("/orders/{orderId}")

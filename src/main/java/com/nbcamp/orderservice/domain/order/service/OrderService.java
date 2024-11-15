@@ -5,6 +5,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -21,6 +23,7 @@ import com.nbcamp.orderservice.domain.order.dto.OrderInfoResponse;
 import com.nbcamp.orderservice.domain.order.dto.OrderProductResponse;
 import com.nbcamp.orderservice.domain.order.dto.OrderRequest;
 import com.nbcamp.orderservice.domain.order.dto.OrderResponse;
+import com.nbcamp.orderservice.domain.order.dto.OrderUpdateRequest;
 import com.nbcamp.orderservice.domain.order.entity.Order;
 import com.nbcamp.orderservice.domain.order.entity.OrderProduct;
 import com.nbcamp.orderservice.domain.order.repository.OrderJpaRepository;
@@ -95,6 +98,7 @@ public class OrderService {
 		OrderStatus orderStatus,
 		SortOption sortOption
 	) {
+		// TODO: 2024-11-15 매장주인이 자기자신의 매장만 조회 가능하도록 매장 검증 추가
 		return orderQueryRepository.findByStoreOrders(
 			pageable,
 			storeId,
@@ -143,27 +147,32 @@ public class OrderService {
 	}
 
 
-	private Store getStoreById(UUID storeId) {
-		return storeJpaRepository.findById(storeId)
-			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_STORE.getMessage()));
-	}
-
-	private void validateUserRoleForCreateOrder(User user) {
-		if (user.getUserRole() != UserRole.CUSTOMER && user.getUserRole() != UserRole.OWNER) {
-			throw new IllegalArgumentException(ErrorCode.NO_PERMISSION_TO_CREATE_ORDER.getMessage());
+	@Transactional
+	public OrderResponse updateOrderStatus(UUID orderId, OrderUpdateRequest orderUpdateRequest, User user) {
+		Order order = findByOrder(orderId);
+		if(user.getUserRole() == UserRole.OWNER){
+			existsByStore(order.getStore().getId(), user.getId());
 		}
+		validateOrderStatus(order.getOrderStatus());
+
+		if(orderUpdateRequest.deliveryAddress() != null){
+			validateAddressPattern(orderUpdateRequest.deliveryAddress());
+		}
+
+		order.update(orderUpdateRequest);
+
+		return new OrderResponse(
+			order.getId(),
+			order.getStore().getId(),
+			order.getUser().getId(),
+			order.getOrderStatus(),
+			order.getOrderType(),
+			order.getDeliveryAddress(),
+			order.getRequest(),
+			order.getTotalPrice()
+		);
 	}
 
-	private Product getProductById(String productId) {
-		return productJpaRepository.findById(UUID.fromString(productId))
-			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_PRODUCT.getMessage()));
-	}
-
-	private List<Product> getProductsFromRequest(List<OrderRequest.OrderProduct> productRequests) {
-		return productRequests.stream()
-			.map(productRequest -> getProductById(productRequest.productId().toString()))
-			.collect(Collectors.toList());
-	}
 
 	@Transactional
 	public void cancelOrder(String orderId, User user) {
@@ -186,28 +195,40 @@ public class OrderService {
 	}
 
 
-
-	public OrderResponse updateOrderStatus(UUID orderId, OrderStatus newStatus) {
-		Order order = orderJpaRepository.findById(orderId)
-			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
-
-		validateOrderStatus(order.getOrderStatus());
-
-		order.updateOrderStatus(newStatus);
-		orderJpaRepository.save(order);
-
-		// 업데이트된 OrderResponse 반환
-		return new OrderResponse(
-			order.getId(),
-			order.getStore().getId(),
-			order.getUser().getId(),
-			order.getOrderStatus(),
-			order.getOrderType(),
-			order.getDeliveryAddress(),
-			order.getRequest(),
-			order.getTotalPrice()
-		);
+	private void validateAddressPattern(String fullAddress) {
+		String addressPattern = "([가-힣]+[특별시|광역시|도])\\s([가-힣]+구)";
+		Pattern pattern = Pattern.compile(addressPattern);
+		Matcher matcher = pattern.matcher(fullAddress);
+		if (matcher.find()) {
+			return;
+		}
+		throw new IllegalArgumentException(ErrorCode.ADDRESS_PATTERN_MISMATCH.getMessage());
 	}
+
+
+	private Store getStoreById(UUID storeId) {
+		return storeJpaRepository.findById(storeId)
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_STORE.getMessage()));
+	}
+
+	private void validateUserRoleForCreateOrder(User user) {
+		if (user.getUserRole() != UserRole.CUSTOMER && user.getUserRole() != UserRole.OWNER) {
+			throw new IllegalArgumentException(ErrorCode.NO_PERMISSION_TO_CREATE_ORDER.getMessage());
+		}
+	}
+
+	private Product getProductById(String productId) {
+		return productJpaRepository.findById(UUID.fromString(productId))
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_PRODUCT.getMessage()));
+	}
+
+	private List<Product> getProductsFromRequest(List<OrderRequest.OrderProduct> productRequests) {
+		return productRequests.stream()
+			.map(productRequest -> getProductById(productRequest.productId().toString()))
+			.collect(Collectors.toList());
+	}
+
+
 
 	private void validateOrderInCustomer(UUID orderId, User user){
 		if(!orderJpaRepository.existsByIdAndUserId(orderId, user.getId())){
@@ -226,6 +247,11 @@ public class OrderService {
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
 	}
 
+	private void existsByStore(UUID storeId, UUID userId){
+		if(!storeJpaRepository.existsByIdAndUserId(storeId, userId)){
+			throw new IllegalArgumentException(ErrorCode.NOT_MATCH_CONFIRM.getMessage());
+		}
+	}
 
 	private void existsByCategory(UUID categoryId){
 		if(!categoryJpaRepository.existsById(categoryId)){
