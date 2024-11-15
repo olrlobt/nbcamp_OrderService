@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.product.dto.ProductRequest;
 import com.nbcamp.orderservice.domain.product.dto.ProductResponse;
 import com.nbcamp.orderservice.domain.product.service.ProductService;
@@ -54,10 +55,11 @@ public class ProductController {
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@RequestParam("page") int page,
 		@RequestParam("size") int size,
-		@PathVariable("storeId") String storeId
+		@PathVariable("storeId") String storeId,
+		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC") SortOption sortOption
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS,
-			productService.getAllProducts(storeId, page - 1, size, userDetails.getUser()));
+			productService.getAllProducts(storeId, page - 1, size, sortOption, userDetails.getUser()));
 	}
 
 	@GetMapping("/stores/{storeId}/products")
@@ -66,10 +68,11 @@ public class ProductController {
 		@RequestParam("page") int page,
 		@RequestParam("size") int size,
 		@PathVariable("storeId") String storeId,
-		@RequestParam(value = "keyword", required = false) String keyword
+		@RequestParam(value = "keyword", required = false) String keyword,
+		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC") SortOption sortOption
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS,
-			productService.searchProducts(storeId, page - 1, size, keyword, userDetails.getUser()));
+			productService.searchProducts(storeId, page - 1, size, keyword, sortOption, userDetails.getUser()));
 	}
 
 	@PutMapping("/stores/{storeId}/products/{productId}")

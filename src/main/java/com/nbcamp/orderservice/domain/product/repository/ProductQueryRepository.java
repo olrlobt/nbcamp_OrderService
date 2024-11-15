@@ -8,8 +8,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.product.dto.ProductResponse;
 import com.nbcamp.orderservice.domain.product.entity.QProduct;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -24,7 +26,8 @@ public class ProductQueryRepository {
 
 	QProduct product = QProduct.product;
 
-	public Page<ProductResponse> findAllProductResponsesByStoreId(UUID storeId, Pageable pageable) {
+	public Page<ProductResponse> findAllProductResponsesByStoreId(UUID storeId, Pageable pageable,
+		SortOption sortOption) {
 		List<ProductResponse> productResponses = jpaQueryFactory
 			.select(
 				Projections.constructor(
@@ -40,7 +43,7 @@ public class ProductQueryRepository {
 			.where(
 				product.store.id.eq(storeId)
 			)
-			.orderBy(product.createdAt.asc(), product.updatedAt.asc())
+			.orderBy(getOrderSpecifier(sortOption, product))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
@@ -54,7 +57,8 @@ public class ProductQueryRepository {
 		return new PageImpl<>(productResponses, pageable, total != null ? total : 0L);
 	}
 
-	public Page<ProductResponse> searchProducts(UUID storeId, Pageable pageable, String keyword) {
+	public Page<ProductResponse> searchProducts(UUID storeId, Pageable pageable, String keyword,
+		SortOption sortOption) {
 		BooleanExpression keywordCondition = keyword != null && !keyword.isEmpty()
 			? product.name.containsIgnoreCase(keyword).or(product.description.containsIgnoreCase(keyword))
 			: null;
@@ -75,7 +79,7 @@ public class ProductQueryRepository {
 				product.store.id.eq(storeId)
 					.and(keywordCondition)
 			)
-			.orderBy(product.createdAt.asc(), product.updatedAt.asc())
+			.orderBy(getOrderSpecifier(sortOption, product))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
@@ -88,4 +92,14 @@ public class ProductQueryRepository {
 
 		return new PageImpl<>(productResponses, pageable, total != null ? total : 0L);
 	}
+
+	private OrderSpecifier<?> getOrderSpecifier(SortOption sortOption, QProduct product) {
+		return switch (sortOption) {
+			case CREATED_AT_DESC -> product.createdAt.desc();
+			case UPDATED_AT_ASC -> product.updatedAt.asc();
+			case UPDATED_AT_DESC -> product.updatedAt.desc();
+			default -> product.createdAt.asc();
+		};
+	}
+
 }
