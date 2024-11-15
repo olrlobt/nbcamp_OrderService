@@ -6,5 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.nbcamp.orderservice.domain.order.entity.Order;
 
-public interface OrderRepository extends JpaRepository<Order, UUID> {
+public interface OrderJpaRepository extends JpaRepository<Order, UUID> {
+	boolean existsByIdAndUserId(UUID orderId, UUID userId);
 }
