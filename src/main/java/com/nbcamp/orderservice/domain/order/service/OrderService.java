@@ -1,7 +1,6 @@
 package com.nbcamp.orderservice.domain.order.service;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -15,13 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nbcamp.orderservice.domain.category.repository.CategoryJpaRepository;
 import com.nbcamp.orderservice.domain.common.OrderStatus;
-import com.nbcamp.orderservice.domain.common.OrderType;
-import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.order.dto.OrderInfoResponse;
 import com.nbcamp.orderservice.domain.order.dto.OrderProductResponse;
 import com.nbcamp.orderservice.domain.order.dto.OrderRequest;
 import com.nbcamp.orderservice.domain.order.dto.OrderResponse;
+import com.nbcamp.orderservice.domain.order.dto.OrderSearchAdminRequest;
+import com.nbcamp.orderservice.domain.order.dto.OrderSearchCustomerRequest;
 import com.nbcamp.orderservice.domain.order.dto.OrderUpdateRequest;
 import com.nbcamp.orderservice.domain.order.entity.Order;
 import com.nbcamp.orderservice.domain.order.entity.OrderProduct;
@@ -60,27 +59,12 @@ public class OrderService {
 		order.addOrderProduct(orderProducts);
 		orderJpaRepository.save(order);
 
-		OrderResponse orderResponse = new OrderResponse(
-			order.getId(),
-			order.getStore().getId(),
-			order.getUser().getId(),
-			order.getOrderStatus(),
-			order.getOrderType(),
-			order.getDeliveryAddress(),
-			order.getRequest(),
-			order.getTotalPrice()
-		);
+		OrderResponse orderResponse = new OrderResponse(order);
 
-
-		List<OrderProductResponse> orderProductResponses = orderProducts.stream()
-			.map(orderProduct -> new OrderProductResponse(
-				orderProduct.getId(),
-				orderProduct.getProduct().getId(),
-				orderProduct.getProduct().getName(),
-				orderProduct.getQuantity(),
-				orderProduct.getTotalPrice()
-			))
-			.toList();
+		List<OrderProductResponse> orderProductResponses =
+			orderProducts.stream()
+			.map(OrderProductResponse::new)
+				.toList();
 
 		return new OrderInfoResponse(orderResponse, orderProductResponses);
 	}
@@ -90,53 +74,29 @@ public class OrderService {
 	public Page<OrderResponse> getOrdersAdmin(
 		Pageable pageable,
 		UUID storeId,
-		OrderType orderType,
-		LocalDate startDate,
-		LocalDate endDate,
-		OrderStatus orderStatus,
-		SortOption sortOption,
+		OrderSearchAdminRequest request,
 		User user
 	) {
 		if(user.getUserRole() == UserRole.OWNER){
 			existsByStore(storeId, user.getId());
 		}
 
-		return orderQueryRepository.findByStoreOrders(
-			pageable,
-			storeId,
-			orderType,
-			startDate,
-			endDate,
-			orderStatus,
-			sortOption
-		);
+		return orderQueryRepository.findByStoreOrders(pageable, storeId, request);
 	}
 
 	@Transactional(readOnly = true)
 	public Page<OrderResponse> getOrdersCustomer(
 		Pageable pageable,
 		User user,
-		String storeName,
-		UUID categoryId,
-		OrderType orderType,
-		LocalDate startDate,
-		LocalDate endDate,
-		OrderStatus orderStatus,
-		SortOption sortOption
+		OrderSearchCustomerRequest request
 	) {
-		if(categoryId != null){
-			existsByCategory(categoryId);
+		if(request.categoryId() != null){
+			existsByCategory(request.categoryId());
 		}
 		return orderQueryRepository.findAllByUserOrder(
 			pageable,
 			user,
-			storeName,
-			categoryId,
-			orderType,
-			startDate,
-			endDate,
-			orderStatus,
-			sortOption
+			request
 		);
 	}
 
@@ -163,16 +123,7 @@ public class OrderService {
 
 		order.update(orderUpdateRequest);
 
-		return new OrderResponse(
-			order.getId(),
-			order.getStore().getId(),
-			order.getUser().getId(),
-			order.getOrderStatus(),
-			order.getOrderType(),
-			order.getDeliveryAddress(),
-			order.getRequest(),
-			order.getTotalPrice()
-		);
+		return new OrderResponse(order);
 	}
 
 

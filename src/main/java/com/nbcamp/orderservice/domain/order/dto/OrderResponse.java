@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import com.nbcamp.orderservice.domain.common.OrderStatus;
 import com.nbcamp.orderservice.domain.common.OrderType;
+import com.nbcamp.orderservice.domain.order.entity.Order;
 
 public record OrderResponse(
 	UUID orderId,
@@ -15,4 +16,16 @@ public record OrderResponse(
 	String content,
 	int totalPrice
 ) {
+	public OrderResponse(Order order) {
+		this(
+			order.getId(),
+			order.getStore().getId(),
+			order.getUser().getId(),
+			order.getOrderStatus(),
+			order.getOrderType(),
+			order.getDeliveryAddress(),
+			order.getRequest(),
+			order.getTotalPrice()
+		);
+	}
 }

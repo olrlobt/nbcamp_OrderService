@@ -16,6 +16,8 @@ import com.nbcamp.orderservice.domain.common.OrderType;
 import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.order.dto.OrderProductResponse;
 import com.nbcamp.orderservice.domain.order.dto.OrderResponse;
+import com.nbcamp.orderservice.domain.order.dto.OrderSearchAdminRequest;
+import com.nbcamp.orderservice.domain.order.dto.OrderSearchCustomerRequest;
 import com.nbcamp.orderservice.domain.order.entity.QOrder;
 import com.nbcamp.orderservice.domain.order.entity.QOrderProduct;
 import com.nbcamp.orderservice.domain.product.entity.QProduct;
@@ -46,11 +48,7 @@ public class OrderQueryRepository {
 	public Page<OrderResponse> findByStoreOrders(
 		Pageable pageable,
 		UUID storeId,
-		OrderType orderType,
-		LocalDate startDate,
-		LocalDate endDate,
-		OrderStatus orderStatus,
-		SortOption sortOption
+		OrderSearchAdminRequest request
 	) {
 
 		List<OrderResponse> orderResponseList = jpaQueryFactory.query()
@@ -70,12 +68,12 @@ public class OrderQueryRepository {
 			.from(order)
 			.where(
 				order.store.id.eq(storeId),
-				orderTypeEquals(orderType),
-				orderPeriodCondition(startDate, endDate),
-				orderStateEquals(orderStatus)
+				orderTypeEquals(request.orderType()),
+				orderPeriodCondition(request.startDate(), request.endDate()),
+				orderStateEquals(request.orderStatus())
 
 			)
-			.orderBy(getOrderSpecifier(sortOption))
+			.orderBy(getOrderSpecifier(request.sortOption()))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
@@ -86,9 +84,9 @@ public class OrderQueryRepository {
 				.from(order)
 				.where(
 					order.store.id.eq(storeId),
-					orderTypeEquals(orderType),
-					orderPeriodCondition(startDate, endDate),
-					orderStateEquals(orderStatus)
+					orderTypeEquals(request.orderType()),
+					orderPeriodCondition(request.startDate(), request.endDate()),
+					orderStateEquals(request.orderStatus())
 				)
 				.fetchOne()
 		).orElse(0L);
@@ -101,13 +99,7 @@ public class OrderQueryRepository {
 	public Page<OrderResponse> findAllByUserOrder(
 		Pageable pageable,
 		User user,
-		String storeName,
-		UUID categoryId,
-		OrderType orderType,
-		LocalDate startDate,
-		LocalDate endDate,
-		OrderStatus orderStatus,
-		SortOption sortOption
+		OrderSearchCustomerRequest request
 	) {
 
 		List<OrderResponse> orderResponseList = jpaQueryFactory.query()
@@ -127,13 +119,13 @@ public class OrderQueryRepository {
 			.from(order)
 			.where(
 				order.user.id.eq(user.getId()),
-				storeNameContains(storeName),
-				categoryEquals(categoryId),
-				orderTypeEquals(orderType),
-				orderPeriodCondition(startDate, endDate),
-				orderStateEquals(orderStatus)
+				storeNameContains(request.storeName()),
+				categoryEquals(request.categoryId()),
+				orderTypeEquals(request.orderType()),
+				orderPeriodCondition(request.startDate(), request.endDate()),
+				orderStateEquals(request.orderStatus())
 			)
-			.orderBy(getOrderSpecifier(sortOption))
+			.orderBy(getOrderSpecifier(request.sortOption()))
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
 			.fetch();
@@ -145,11 +137,11 @@ public class OrderQueryRepository {
 				.from(order)
 				.where(
 					order.user.id.eq(user.getId()),
-					storeNameContains(storeName),
-					categoryEquals(categoryId),
-					orderTypeEquals(orderType),
-					orderPeriodCondition(startDate, endDate),
-					orderStateEquals(orderStatus)
+					storeNameContains(request.storeName()),
+					categoryEquals(request.categoryId()),
+					orderTypeEquals(request.orderType()),
+					orderPeriodCondition(request.startDate(), request.endDate()),
+					orderStateEquals(request.orderStatus())
 				)
 				.fetchOne()
 		).orElse(0L);
@@ -179,16 +171,6 @@ public class OrderQueryRepository {
 
 	private BooleanExpression storeNameContains(String storeName) {
 		return StringUtils.hasText(storeName) ? order.store.name.containsIgnoreCase(storeName) : null;
-	}
-
-	private BooleanExpression productNameContains(String productName) {
-		return StringUtils.hasText(productName) ?
-			orderProduct.product.name.containsIgnoreCase(productName) : null;
-	}
-
-	private BooleanExpression storeUserNameContains(String storeUserName) {
-		return StringUtils.hasText(storeUserName) ?
-			order.store.name.containsIgnoreCase(storeUserName) : null;
 	}
 
 	private BooleanExpression categoryEquals(UUID categoryId) {
