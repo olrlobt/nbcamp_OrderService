@@ -89,6 +89,12 @@ public class Order extends BaseTimeEntity {
 
 	}
 
+	public void update(OrderUpdateRequest orderUpdateRequest) {
+		this.orderStatus = orderUpdateRequest.orderStatus();
+		this.deliveryAddress = orderUpdateRequest.deliveryAddress();
+		this.request += "\n[추가 요청]: " + orderUpdateRequest.request();
+	}
+
 	public void cancelOrder(UUID userId) {
 		this.setDeletedAt(LocalDateTime.now());
 		this.setDeletedBy(userId);
@@ -96,12 +102,6 @@ public class Order extends BaseTimeEntity {
 		for (OrderProduct orderProduct : orderProducts) {
 			orderProduct.cancel(userId);
 		}
-	}
-
-	public void update(OrderUpdateRequest orderUpdateRequest) {
-		this.orderStatus = orderUpdateRequest.orderStatus();
-		this.deliveryAddress = orderUpdateRequest.deliveryAddress();
-		this.request += "\n[추가 요청]: " + orderUpdateRequest.request();
 	}
 
 	public void addOrderProduct(List<OrderProduct> orderProducts){

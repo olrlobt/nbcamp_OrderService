@@ -125,7 +125,7 @@ public class OrderController {
 	@DeleteMapping("/orders/{orderId}")
 	public ResponseEntity<CommonResponse<Void>> cancelOrder(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable String orderId) {
+		@PathVariable UUID orderId) {
 		orderService.cancelOrder(orderId, userDetails.getUser());
 		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
 	}

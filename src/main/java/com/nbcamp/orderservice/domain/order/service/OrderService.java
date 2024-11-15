@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -175,20 +174,15 @@ public class OrderService {
 
 
 	@Transactional
-	public void cancelOrder(String orderId, User user) {
-		Order order = orderJpaRepository.findById(UUID.fromString(orderId))
-			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
+	public void cancelOrder(UUID orderId, User user) {
+		Order order = findByOrder(orderId);
 
 		if (order.getDeletedAt() != null) {
 			throw new IllegalStateException(ErrorCode.ALREADY_CANCELED.getMessage());
 		}
 
 		if (user.getUserRole() == UserRole.CUSTOMER) {
-			LocalDateTime orderTime = order.getCreatedAt();
-			LocalDateTime now = LocalDateTime.now();
-			if (Duration.between(orderTime, now).toMinutes() > 5) {
-				throw new IllegalStateException(ErrorCode.CANCELLATION_TIME_EXCEEDED.getMessage());
-			}
+			validateOrderCreateAtDuration(order.getCreatedAt(), LocalDateTime.now());
 		}
 
 		order.cancelOrder(user.getId());
@@ -204,6 +198,13 @@ public class OrderService {
 		}
 		throw new IllegalArgumentException(ErrorCode.ADDRESS_PATTERN_MISMATCH.getMessage());
 	}
+
+	private void validateOrderCreateAtDuration(LocalDateTime orderTime, LocalDateTime now){
+		if (Duration.between(orderTime, now).toMinutes() > 5) {
+			throw new IllegalStateException(ErrorCode.CANCELLATION_TIME_EXCEEDED.getMessage());
+		}
+	}
+
 
 
 	private Store getStoreById(UUID storeId) {
@@ -221,13 +222,6 @@ public class OrderService {
 		return productJpaRepository.findById(UUID.fromString(productId))
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_PRODUCT.getMessage()));
 	}
-
-	private List<Product> getProductsFromRequest(List<OrderRequest.OrderProduct> productRequests) {
-		return productRequests.stream()
-			.map(productRequest -> getProductById(productRequest.productId().toString()))
-			.collect(Collectors.toList());
-	}
-
 
 
 	private void validateOrderInCustomer(UUID orderId, User user){
