@@ -27,7 +27,6 @@ import com.nbcamp.orderservice.domain.order.entity.Order;
 import com.nbcamp.orderservice.domain.order.entity.OrderProduct;
 import com.nbcamp.orderservice.domain.order.repository.OrderJpaRepository;
 import com.nbcamp.orderservice.domain.order.repository.OrderQueryRepository;
-import com.nbcamp.orderservice.domain.product.entity.Product;
 import com.nbcamp.orderservice.domain.product.repository.ProductJpaRepository;
 import com.nbcamp.orderservice.domain.store.entity.Store;
 import com.nbcamp.orderservice.domain.store.repository.StoreJpaRepository;
@@ -211,8 +210,6 @@ public class OrderService {
 		}
 	}
 
-
-
 	private Store getStoreById(UUID storeId) {
 		return storeJpaRepository.findById(storeId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_STORE.getMessage()));
@@ -222,11 +219,6 @@ public class OrderService {
 		if (user.getUserRole() != UserRole.CUSTOMER && user.getUserRole() != UserRole.OWNER) {
 			throw new IllegalArgumentException(ErrorCode.NO_PERMISSION_TO_CREATE_ORDER.getMessage());
 		}
-	}
-
-	private Product getProductById(String productId) {
-		return productJpaRepository.findById(UUID.fromString(productId))
-			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_PRODUCT.getMessage()));
 	}
 
 
