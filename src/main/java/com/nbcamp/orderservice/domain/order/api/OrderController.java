@@ -1,11 +1,13 @@
 package com.nbcamp.orderservice.domain.order.api;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,8 +20,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nbcamp.orderservice.domain.common.OrderStatus;
+import com.nbcamp.orderservice.domain.common.OrderType;
+import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.common.UserRole;
-import com.nbcamp.orderservice.domain.order.dto.OrderInfoDto;
+import com.nbcamp.orderservice.domain.order.dto.OrderInfoResponse;
 import com.nbcamp.orderservice.domain.order.dto.OrderRequest;
 import com.nbcamp.orderservice.domain.order.dto.OrderResponse;
 import com.nbcamp.orderservice.domain.order.service.OrderService;
@@ -37,45 +41,69 @@ public class OrderController {
 
 	private final OrderService orderService;
 
+
 	@PostMapping("/orders")
-	public ResponseEntity<CommonResponse<OrderInfoDto>> createOrder(
+	public ResponseEntity<CommonResponse<OrderInfoResponse>> createOrder(
 		@RequestBody OrderRequest request,
 		@AuthenticationPrincipal UserDetailsImpl userDetails
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS_INSERT,
 			orderService.createOrder(request, userDetails.getUser()));
 	}
-
-	@GetMapping("/orders")
-	public ResponseEntity<CommonResponse<Page<OrderInfoDto>>> getAllOrders(
-		@RequestParam(value = "query", required = false) String query,
-		@RequestParam(value = "sort", defaultValue = "createdAt") String sort, // 기본 정렬: 생성일
-		@RequestParam(value = "direction", defaultValue = "desc") String direction, // 기본 정렬 순서: 내림차순
-		@RequestParam(value = "size", defaultValue = "10") int size,
-		@RequestParam(value = "page", defaultValue = "0") int page,
-		@AuthenticationPrincipal UserDetailsImpl userDetails
+	@PreAuthorize("hasAnyRole('OWNER','MANAGER','MASTER')")
+	@GetMapping("/stores/{storeId}/orders")
+	public ResponseEntity<CommonResponse<Page<OrderResponse>>> getAllOrdersAdmin(
+		Pageable pageable,
+		@PathVariable UUID storeId,
+		@RequestParam(value = "orderType", required = false) OrderType orderType,
+		@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+		@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+		@RequestParam(value = "orderStatus",required = false) OrderStatus orderStatus,
+		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC")SortOption sortOption
 	) {
-		if (size != 10 && size != 30 && size != 50) {
-			size = 10; // 기본값으로 고정
-		}
-		Sort sortCriteria = Sort.by(
-			"desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC, sort
-		);
 		return CommonResponse.success(SuccessCode.SUCCESS,
-			orderService.getOrders(PageRequest.of(page, size, sortCriteria), userDetails.getUser(), query));
+			orderService.getOrdersAdmin(
+				pageable,
+				storeId,
+				orderType,
+				startDate,
+				endDate,
+				orderStatus,
+				sortOption
+			));
 	}
 
-	@DeleteMapping("/orders/{orderId}")
-	public ResponseEntity<CommonResponse<Void>> cancelOrder(
+	@PreAuthorize("hasAnyRole('CUSTOMER')")
+	@GetMapping("/orders")
+	public ResponseEntity<CommonResponse<Page<OrderResponse>>> getAllOrdersCustomer(
+		Pageable pageable,
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable String orderId) {
-		orderService.cancelOrder(orderId, userDetails.getUser());
-		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
+		@RequestParam(required = false) String storeName,
+		@RequestParam(required = false) UUID categoryId,
+		@RequestParam(value = "orderType", required = false) OrderType orderType,
+		@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+		@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+		@RequestParam(value = "orderStatus",required = false) OrderStatus orderStatus,
+		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC")SortOption sortOption
+	) {
+		return CommonResponse.success(SuccessCode.SUCCESS,
+			orderService.getOrdersCustomer(
+				pageable,
+				userDetails.getUser(),
+				storeName,
+				categoryId,
+				orderType,
+				startDate,
+				endDate,
+				orderStatus,
+				sortOption
+			));
 	}
+
 
 	@GetMapping("/orders/{orderId}")
-	public ResponseEntity<CommonResponse<OrderInfoDto>> getOrderDetail(@PathVariable String orderId) {
-		OrderInfoDto orderInfo = orderService.getOrderDetail(UUID.fromString(orderId));
+	public ResponseEntity<CommonResponse<OrderInfoResponse>> getOrderDetail(@PathVariable String orderId) {
+		OrderInfoResponse orderInfo = orderService.getOrderDetail(UUID.fromString(orderId));
 		return CommonResponse.success(SuccessCode.SUCCESS, orderInfo);
 	}
 
@@ -97,4 +125,11 @@ public class OrderController {
 		return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, updatedOrder);
 	}
 
+	@DeleteMapping("/orders/{orderId}")
+	public ResponseEntity<CommonResponse<Void>> cancelOrder(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
+		@PathVariable String orderId) {
+		orderService.cancelOrder(orderId, userDetails.getUser());
+		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
+	}
 }
