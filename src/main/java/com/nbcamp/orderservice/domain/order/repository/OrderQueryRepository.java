@@ -14,6 +14,7 @@ import org.springframework.util.StringUtils;
 import com.nbcamp.orderservice.domain.common.OrderStatus;
 import com.nbcamp.orderservice.domain.common.OrderType;
 import com.nbcamp.orderservice.domain.common.SortOption;
+import com.nbcamp.orderservice.domain.order.dto.OrderProductResponse;
 import com.nbcamp.orderservice.domain.order.dto.OrderResponse;
 import com.nbcamp.orderservice.domain.order.entity.QOrder;
 import com.nbcamp.orderservice.domain.order.entity.QOrderProduct;
@@ -156,6 +157,23 @@ public class OrderQueryRepository {
 
 		return new PageImpl<>(orderResponseList, pageable, total);
 
+	}
+	public List<OrderProductResponse> findAllByOrderProductInOrder(UUID orderId){
+
+		return jpaQueryFactory.query()
+			.select(
+				Projections.constructor(
+					OrderProductResponse.class,
+					orderProduct.id,
+					orderProduct.product.id,
+					orderProduct.product.name,
+					orderProduct.quantity,
+					orderProduct.totalPrice
+				)
+			).from(orderProduct)
+			.join(orderProduct.order, order).on(order.id.eq(orderId))
+			.orderBy(orderProduct.totalPrice.desc())
+			.fetch();
 	}
 
 

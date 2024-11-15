@@ -23,14 +23,13 @@ import com.nbcamp.orderservice.domain.order.dto.OrderRequest;
 import com.nbcamp.orderservice.domain.order.dto.OrderResponse;
 import com.nbcamp.orderservice.domain.order.entity.Order;
 import com.nbcamp.orderservice.domain.order.entity.OrderProduct;
+import com.nbcamp.orderservice.domain.order.repository.OrderJpaRepository;
 import com.nbcamp.orderservice.domain.order.repository.OrderProductJpaRepository;
 import com.nbcamp.orderservice.domain.order.repository.OrderQueryRepository;
-import com.nbcamp.orderservice.domain.order.repository.OrderRepository;
 import com.nbcamp.orderservice.domain.product.entity.Product;
 import com.nbcamp.orderservice.domain.product.repository.ProductJpaRepository;
 import com.nbcamp.orderservice.domain.store.entity.Store;
 import com.nbcamp.orderservice.domain.store.repository.StoreJpaRepository;
-import com.nbcamp.orderservice.domain.store.repository.StoreQueryRepository;
 import com.nbcamp.orderservice.domain.user.entity.User;
 import com.nbcamp.orderservice.global.exception.code.ErrorCode;
 
@@ -42,13 +41,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OrderService {
 
-	private final OrderRepository orderRepository;
+	private final OrderJpaRepository orderJpaRepository;
 	private final OrderProductJpaRepository orderProductJpaRepository;
 	private final StoreJpaRepository storeJpaRepository;
 	private final ProductJpaRepository productJpaRepository;
 	private final OrderQueryRepository orderQueryRepository;
 	private final OrderProductService orderProductService;
-	private final StoreQueryRepository storeQueryRepository;
 	private final CategoryJpaRepository categoryJpaRepository;
 
 	@Transactional
@@ -61,7 +59,7 @@ public class OrderService {
 
 		List<OrderProduct> orderProducts = orderProductService.createOrderProducts(order, request.products());
 		order.addOrderProduct(orderProducts);
-		orderRepository.save(order);
+		orderJpaRepository.save(order);
 
 		OrderResponse orderResponse = new OrderResponse(
 			order.getId(),
@@ -136,6 +134,14 @@ public class OrderService {
 		);
 	}
 
+	@Transactional(readOnly = true)
+	public List<OrderProductResponse> getOrderDetail(UUID orderId, User user) {
+		if(user.getUserRole() == UserRole.CUSTOMER){
+			validateOrderInCustomer(orderId, user);
+		}
+		return orderQueryRepository.findAllByOrderProductInOrder(orderId);
+	}
+
 
 	private Store getStoreById(UUID storeId) {
 		return storeJpaRepository.findById(storeId)
@@ -161,7 +167,7 @@ public class OrderService {
 
 	@Transactional
 	public void cancelOrder(String orderId, User user) {
-		Order order = orderRepository.findById(UUID.fromString(orderId))
+		Order order = orderJpaRepository.findById(UUID.fromString(orderId))
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
 
 		if (order.getDeletedAt() != null) {
@@ -179,45 +185,16 @@ public class OrderService {
 		order.cancelOrder(user.getId());
 	}
 
-	public OrderInfoResponse getOrderDetail(UUID orderId) {
-		Order order = orderRepository.findById(orderId)
-			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
 
-		List<OrderProduct> orderProducts = orderQueryRepository.findOrderProductsBy(orderId);
-
-		OrderResponse orderResponse = new OrderResponse(
-			order.getId(),
-			order.getStore().getId(),
-			order.getUser().getId(),
-			order.getOrderStatus(),
-			order.getOrderType(),
-			order.getDeliveryAddress(),
-			order.getRequest(),
-			order.getTotalPrice()
-		);
-
-		List<OrderProductResponse> orderProductResponses = orderProducts.stream()
-			.map(orderProduct -> new OrderProductResponse(
-				orderProduct.getId(),
-				orderProduct.getProduct().getId(),
-				orderProduct.getProduct().getName(),
-				orderProduct.getQuantity(),
-				orderProduct.getTotalPrice()
-			))
-			.toList();
-
-		return new OrderInfoResponse(orderResponse, orderProductResponses);
-		return null;
-	}
 
 	public OrderResponse updateOrderStatus(UUID orderId, OrderStatus newStatus) {
-		Order order = orderRepository.findById(orderId)
+		Order order = orderJpaRepository.findById(orderId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
 
 		validateOrderStatus(order.getOrderStatus());
 
 		order.updateOrderStatus(newStatus);
-		orderRepository.save(order);
+		orderJpaRepository.save(order);
 
 		// 업데이트된 OrderResponse 반환
 		return new OrderResponse(
@@ -232,10 +209,21 @@ public class OrderService {
 		);
 	}
 
+	private void validateOrderInCustomer(UUID orderId, User user){
+		if(!orderJpaRepository.existsByIdAndUserId(orderId, user.getId())){
+			throw new IllegalArgumentException(ErrorCode.NOT_MATCH_CONFIRM.getMessage());
+		}
+	}
+
 	private void validateOrderStatus(OrderStatus currentStatus) {
 		if (currentStatus == OrderStatus.COMPLETED || currentStatus == OrderStatus.CANCELLED) {
 			throw new IllegalArgumentException(ErrorCode.INVALID_ORDER_STATUS.getMessage());
 		}
+	}
+
+	private Order findByOrder(UUID orderId){
+		return orderJpaRepository.findById(orderId)
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
 	}
 
 

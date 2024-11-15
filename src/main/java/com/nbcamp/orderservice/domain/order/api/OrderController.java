@@ -1,6 +1,7 @@
 package com.nbcamp.orderservice.domain.order.api;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -24,6 +25,7 @@ import com.nbcamp.orderservice.domain.common.OrderType;
 import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.order.dto.OrderInfoResponse;
+import com.nbcamp.orderservice.domain.order.dto.OrderProductResponse;
 import com.nbcamp.orderservice.domain.order.dto.OrderRequest;
 import com.nbcamp.orderservice.domain.order.dto.OrderResponse;
 import com.nbcamp.orderservice.domain.order.service.OrderService;
@@ -102,9 +104,12 @@ public class OrderController {
 
 
 	@GetMapping("/orders/{orderId}")
-	public ResponseEntity<CommonResponse<OrderInfoResponse>> getOrderDetail(@PathVariable String orderId) {
-		OrderInfoResponse orderInfo = orderService.getOrderDetail(UUID.fromString(orderId));
-		return CommonResponse.success(SuccessCode.SUCCESS, orderInfo);
+	public ResponseEntity<CommonResponse<List<OrderProductResponse>>> getOrderDetail(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
+		@PathVariable UUID orderId
+	) {
+		return CommonResponse.success(SuccessCode.SUCCESS,
+			orderService.getOrderDetail(orderId, userDetails.getUser()));
 	}
 
 	@PatchMapping("orders/{orderId}")
