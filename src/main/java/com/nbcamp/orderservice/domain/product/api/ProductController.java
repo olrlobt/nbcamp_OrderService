@@ -62,7 +62,7 @@ public class ProductController {
 			productService.getAllProducts(storeId, page - 1, size, sortOption, userDetails.getUser()));
 	}
 
-	@GetMapping("/stores/{storeId}/products")
+	@GetMapping("/stores/{storeId}/products/search")
 	public ResponseEntity<CommonResponse<Page<ProductResponse>>> searchProducts(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@RequestParam("page") int page,
