@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.product.dto.ProductRequest;
 import com.nbcamp.orderservice.domain.product.dto.ProductResponse;
 import com.nbcamp.orderservice.domain.product.service.ProductService;
@@ -34,7 +35,6 @@ public class ProductController {
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@PathVariable("storeId") String storeId,
 		@RequestBody ProductRequest request
-		// + 유저 인증
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS_INSERT,
 			productService.createProduct(storeId, request, userDetails.getUser()));
@@ -45,22 +45,34 @@ public class ProductController {
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@PathVariable("storeId") String storeId,
 		@PathVariable("productId") String productId
-		// + 유저 인증
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS,
 			productService.getProduct(storeId, productId, userDetails.getUser()));
 	}
 
 	@GetMapping("/stores/{storeId}/products")
-	public ResponseEntity<CommonResponse<Page<ProductResponse>>> getAllProduct(
+	public ResponseEntity<CommonResponse<Page<ProductResponse>>> getAllProducts(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@RequestParam("page") int page,
 		@RequestParam("size") int size,
-		@PathVariable("storeId") String storeId
-		// + 유저 인증
+		@PathVariable("storeId") String storeId,
+		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC") SortOption sortOption
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS,
-			productService.getAllProduct(storeId, page - 1, size, userDetails.getUser()));
+			productService.getAllProducts(storeId, page - 1, size, sortOption, userDetails.getUser()));
+	}
+
+	@GetMapping("/stores/{storeId}/products")
+	public ResponseEntity<CommonResponse<Page<ProductResponse>>> searchProducts(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
+		@RequestParam("page") int page,
+		@RequestParam("size") int size,
+		@PathVariable("storeId") String storeId,
+		@RequestParam(value = "keyword", required = false) String keyword,
+		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC") SortOption sortOption
+	) {
+		return CommonResponse.success(SuccessCode.SUCCESS,
+			productService.searchProducts(storeId, page - 1, size, keyword, sortOption, userDetails.getUser()));
 	}
 
 	@PutMapping("/stores/{storeId}/products/{productId}")
@@ -69,7 +81,6 @@ public class ProductController {
 		@PathVariable("storeId") String storeId,
 		@PathVariable("productId") String productId,
 		@RequestBody ProductRequest request
-		// + 유저 인증
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS_INSERT,
 			productService.updateProduct(storeId, productId, request, userDetails.getUser()));
@@ -80,7 +91,6 @@ public class ProductController {
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@PathVariable("storeId") String storeId,
 		@PathVariable("productId") String productId
-		// + 유저 인증
 	) {
 		productService.deleteProduct(storeId, productId, userDetails.getUser());
 		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);

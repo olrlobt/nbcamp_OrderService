@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.product.dto.ProductRequest;
 import com.nbcamp.orderservice.domain.product.dto.ProductResponse;
@@ -62,11 +63,20 @@ public class ProductService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<ProductResponse> getAllProduct(String storeId, int page, int size, User user) {
+	public Page<ProductResponse> getAllProducts(String storeId, int page, int size, SortOption sortOption, User user) {
 		UUID storeUuid = getStoreById(storeId).getId();
 		Pageable pageable = PageRequest.of(page, size);
 
-		return productQueryRepository.findAllProductResponsesByStoreId(storeUuid, pageable);
+		return productQueryRepository.findAllProductResponsesByStoreId(storeUuid, pageable, sortOption);
+	}
+
+	@Transactional(readOnly = true)
+	public Page<ProductResponse> searchProducts(String storeId, int page, int size, String keyword,
+		SortOption sortOption, User user) {
+		UUID storeUuid = getStoreById(storeId).getId();
+		Pageable pageable = PageRequest.of(page, size);
+
+		return productQueryRepository.searchProducts(storeUuid, pageable, keyword, sortOption);
 	}
 
 	@Transactional
