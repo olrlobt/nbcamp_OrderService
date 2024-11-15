@@ -11,8 +11,8 @@ public record OrderResponse(
 	UUID userId,
 	OrderStatus status,
 	OrderType type,
-	String address,
-	String request,
-	int price
+	String deliveryAddress,
+	String content,
+	int totalPrice
 ) {
 }
