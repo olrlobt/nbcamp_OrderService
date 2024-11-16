@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService {
 
 		User user = userRepository.findById(UUID.fromString(userId))
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
-		user.update(request);
+		user.update(request, passwordEncoder);
 		return UserResponse.of(user);
 	}
 
