@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.order.entity.Order;
@@ -27,18 +28,36 @@ public class PaymentService {
 	private final PaymentQueryRepository paymentQueryRepository;
 	private final OrderJpaRepository orderJpaRepository;
 
+	@Transactional
 	public PaymentResponse createPayment(String orderId, PaymentRequest request, User user) {
-		Order order = orderJpaRepository.findById(UUID.fromString(orderId))
-			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
+		Order order = getOrder(orderId);
 		// 외부 결제 연동 로직. 그에 따른 PaymentStatus 제어
 		Payment payment = Payment.create(order, user, request);
 		paymentJpaRepository.save(payment);
-		return new PaymentResponse(payment.getId(), payment.getPaymentStatus(), payment.getPaymentMethod(),
-			payment.getAmount());
+		return getPaymentResponse(payment);
 	}
 
+	@Transactional(readOnly = true)
 	public Slice<PaymentResponse> getAllPaymentsByOrderId(String orderId, User user, Pageable pageable,
 		SortOption sortOption) {
 		return paymentQueryRepository.getAllPaymentsByOrderId(UUID.fromString(orderId), user, pageable, sortOption);
+	}
+
+	@Transactional(readOnly = true)
+	public PaymentResponse getPayment(String orderId, String paymentId, User user) {
+		getOrder(orderId);
+		Payment payment = paymentJpaRepository.findById(UUID.fromString(paymentId))
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_PAYMENT.getMessage()));
+		return getPaymentResponse(payment);
+	}
+
+	private Order getOrder(String orderId) {
+		return orderJpaRepository.findById(UUID.fromString(orderId))
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
+	}
+
+	private static PaymentResponse getPaymentResponse(Payment payment) {
+		return new PaymentResponse(payment.getId(), payment.getPaymentStatus(), payment.getPaymentMethod(),
+			payment.getAmount());
 	}
 }

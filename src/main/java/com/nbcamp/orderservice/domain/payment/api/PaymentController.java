@@ -50,4 +50,14 @@ public class PaymentController {
 			paymentService.getAllPaymentsByOrderId(orderId, userDetails.getUser(), pageable, sortOption));
 	}
 
+	@GetMapping("/{orderId}/payments/{paymentId}")
+	public ResponseEntity<CommonResponse<PaymentResponse>> getPayment(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
+		@PathVariable("orderId") String orderId,
+		@PathVariable("paymentId") String paymentId
+	) {
+		return CommonResponse.success(SuccessCode.SUCCESS,
+			paymentService.getPayment(orderId, paymentId, userDetails.getUser()));
+	}
+
 }
