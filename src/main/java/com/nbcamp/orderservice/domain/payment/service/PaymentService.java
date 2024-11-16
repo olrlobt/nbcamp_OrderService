@@ -2,14 +2,18 @@ package com.nbcamp.orderservice.domain.payment.service;
 
 import java.util.UUID;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
+import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.order.entity.Order;
 import com.nbcamp.orderservice.domain.order.repository.OrderJpaRepository;
 import com.nbcamp.orderservice.domain.payment.dto.PaymentRequest;
 import com.nbcamp.orderservice.domain.payment.dto.PaymentResponse;
 import com.nbcamp.orderservice.domain.payment.entity.Payment;
 import com.nbcamp.orderservice.domain.payment.repository.PaymentJpaRepository;
+import com.nbcamp.orderservice.domain.payment.repository.PaymentQueryRepository;
 import com.nbcamp.orderservice.domain.user.entity.User;
 import com.nbcamp.orderservice.global.exception.code.ErrorCode;
 
@@ -20,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class PaymentService {
 
 	private final PaymentJpaRepository paymentJpaRepository;
+	private final PaymentQueryRepository paymentQueryRepository;
 	private final OrderJpaRepository orderJpaRepository;
 
 	public PaymentResponse createPayment(String orderId, PaymentRequest request, User user) {
@@ -32,4 +37,8 @@ public class PaymentService {
 			payment.getAmount());
 	}
 
+	public Slice<PaymentResponse> getAllPaymentsByOrderId(String orderId, User user, Pageable pageable,
+		SortOption sortOption) {
+		return paymentQueryRepository.getAllPaymentsByOrderId(UUID.fromString(orderId), user, pageable, sortOption);
+	}
 }
