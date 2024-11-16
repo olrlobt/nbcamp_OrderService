@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nbcamp.orderservice.domain.common.OrderStatus;
 import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.order.entity.Order;
-import com.nbcamp.orderservice.domain.order.repository.OrderRepository;
+import com.nbcamp.orderservice.domain.order.repository.OrderJpaRepository;
 import com.nbcamp.orderservice.domain.review.dto.ReviewCursorResponse;
 import com.nbcamp.orderservice.domain.review.dto.ReviewDetailsCursorResponse;
 import com.nbcamp.orderservice.domain.review.dto.ReviewRequest;
@@ -34,7 +34,7 @@ public class ReviewService {
 
 	private final ReviewJpaRepository reviewJpaRepository;
 	private final ReviewQueryRepository reviewQueryRepository;
-	private final OrderRepository orderRepository;
+	private final OrderJpaRepository orderJpaRepository;
 	private final StoreService storeService;
 	private final UserService userService;
 
@@ -140,7 +140,7 @@ public class ReviewService {
 
 
 	private Order findByOrderId(String orderId) {
-		return orderRepository.findById(UUID.fromString(orderId))
+		return orderJpaRepository.findById(UUID.fromString(orderId))
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
 	}
 

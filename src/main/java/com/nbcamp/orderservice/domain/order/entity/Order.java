@@ -1,21 +1,30 @@
 package com.nbcamp.orderservice.domain.order.entity;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
 import com.nbcamp.orderservice.domain.common.OrderStatus;
 import com.nbcamp.orderservice.domain.common.OrderType;
+import com.nbcamp.orderservice.domain.order.dto.OrderRequest;
+import com.nbcamp.orderservice.domain.order.dto.OrderUpdateRequest;
 import com.nbcamp.orderservice.domain.store.entity.Store;
 import com.nbcamp.orderservice.domain.user.entity.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -35,7 +44,8 @@ public class Order extends BaseTimeEntity {
 
 	@Id
 	@Column(name = "id")
-	private UUID id = UUID.randomUUID();
+	@GeneratedValue(strategy = GenerationType.UUID)
+	private UUID id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "store_id", nullable = false)
@@ -62,4 +72,39 @@ public class Order extends BaseTimeEntity {
 	@Column(name = "total_price", nullable = false)
 	private int totalPrice;
 
+	@OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private List<OrderProduct> orderProducts = new ArrayList<>();
+
+	public static Order create(OrderRequest request, Store store, User user) {
+
+		return Order.builder()
+			.store(store)
+			.user(user)
+			.orderStatus(OrderStatus.PENDING)
+			.orderType(request.type())
+			.deliveryAddress(request.address())
+			.request(request.request())
+			.totalPrice(request.price())
+			.build();
+
+	}
+
+	public void update(OrderUpdateRequest orderUpdateRequest) {
+		this.orderStatus = orderUpdateRequest.orderStatus();
+		this.deliveryAddress = orderUpdateRequest.deliveryAddress();
+		this.request += "\n[추가 요청]: " + orderUpdateRequest.request();
+	}
+
+	public void cancelOrder(UUID userId) {
+		this.setDeletedAt(LocalDateTime.now());
+		this.setDeletedBy(userId);
+
+		for (OrderProduct orderProduct : orderProducts) {
+			orderProduct.cancel(userId);
+		}
+	}
+
+	public void addOrderProduct(List<OrderProduct> orderProducts){
+		this.orderProducts = orderProducts;
+	}
 }
