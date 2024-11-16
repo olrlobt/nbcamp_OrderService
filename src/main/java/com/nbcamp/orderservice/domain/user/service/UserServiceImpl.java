@@ -3,12 +3,14 @@ package com.nbcamp.orderservice.domain.user.service;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.common.UserRole;
-import com.nbcamp.orderservice.domain.user.dto.AllUserResponse;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
 import com.nbcamp.orderservice.domain.user.dto.UserResponse;
 import com.nbcamp.orderservice.domain.user.dto.UserUpdateRequest;
@@ -50,8 +52,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Transactional(readOnly = true)
-	public AllUserResponse getAllUsers() {
-		return userRepository.findAllUserResponse();
+	public Page<UserResponse> getAllUsers(SortOption sortOption, Pageable pageable) {
+		return userRepository.findAllUserResponse(sortOption, pageable);
 	}
 
 	@Transactional

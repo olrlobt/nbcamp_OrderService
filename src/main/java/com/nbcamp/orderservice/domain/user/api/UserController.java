@@ -1,5 +1,7 @@
 package com.nbcamp.orderservice.domain.user.api;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,9 +13,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nbcamp.orderservice.domain.user.dto.AllUserResponse;
+import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
 import com.nbcamp.orderservice.domain.user.dto.UserResponse;
 import com.nbcamp.orderservice.domain.user.dto.UserUpdateRequest;
@@ -54,8 +57,11 @@ public class UserController {
 
 	@PreAuthorize("hasAnyRole('MASTER', 'MANAGER')")
 	@GetMapping("/users")
-	public ResponseEntity<CommonResponse<AllUserResponse>> getAllUsers(){
-		AllUserResponse allUsers = userService.getAllUsers();
+	public ResponseEntity<CommonResponse<Page<UserResponse>>> getAllUsers(
+		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC") SortOption sortOption,
+		Pageable pageable
+	) {
+		Page<UserResponse> allUsers = userService.getAllUsers(sortOption, pageable);
 		return CommonResponse.success(SuccessCode.SUCCESS, allUsers);
 	}
 
