@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nbcamp.orderservice.domain.category.entity.Category;
 import com.nbcamp.orderservice.domain.category.repository.CategoryQueryRepository;
-import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.store.dto.StoreCursorRequest;
 import com.nbcamp.orderservice.domain.store.dto.StoreCursorResponse;
 import com.nbcamp.orderservice.domain.store.dto.StoreDetailsResponse;
@@ -69,9 +68,7 @@ public class StoreService {
 	}
 
 	@Transactional
-	public StoreResponse updateStore(User user, String storesId, StoreRequest request) {
-		checkMasterUserRoll(user);
-		validateAddressPattern(request.address());
+	public StoreResponse updateStore(UUID storesId, StoreRequest request) {
 		Store store = findById(storesId);
 
 		List<StoreCategory> storeCategories =
@@ -79,22 +76,11 @@ public class StoreService {
 
 		store.update(request, storeCategories);
 
-		return new StoreResponse(
-			store.getId(),
-			store.getUser().getId(),
-			store.getUser().getUsername(),
-			store.getName(),
-			store.getAddress(),
-			store.getStoreCategory()
-				.stream()
-				.map(storeCategory -> storeCategory.getCategory().getId())
-				.toList(),
-			store.getCallNumber());
+		return new StoreResponse(store);
 	}
 
 	@Transactional
-	public void deletedStore(User user, String storesId) {
-		checkMasterUserRoll(user);
+	public void deletedStore(UUID storesId) {
 		Store store = findById(storesId);
 		storeCategoryService.deleteStoreCategory(store);
 		store.delete(store.getId());
@@ -105,25 +91,6 @@ public class StoreService {
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_CATEGORY.getMessage()));
 	}
 
-	private void checkMasterUserRoll(User user) {
-		if (user.getUserRole().equals(UserRole.CUSTOMER)
-			|| user.getUserRole().equals(UserRole.OWNER)
-			|| user.getUserRole().equals(UserRole.MANAGER)) {
-			throw new IllegalArgumentException(ErrorCode.INSUFFICIENT_PERMISSIONS.getMessage());
-		}
-	}
-
-	private void validateAddressPattern(String fullAddress) {
-		String addressPattern = "([가-힣]+[특별시|광역시|도])\\s([가-힣]+구)";
-		Pattern pattern = Pattern.compile(addressPattern);
-		Matcher matcher = pattern.matcher(fullAddress);
-
-		if (matcher.find()) {
-			return;
-		}
-
-		throw new IllegalArgumentException(ErrorCode.ADDRESS_PATTERN_MISMATCH.getMessage());
-	}
 
 	public Store findById(UUID storeId) {
 		return storeJpaRepository.findById(storeId)

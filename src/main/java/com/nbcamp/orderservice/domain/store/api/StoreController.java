@@ -65,21 +65,19 @@ public class StoreController {
 	@PreAuthorize("hasAnyRole('MASTER')")
 	@PutMapping("/stores/{storeId}")
 	public ResponseEntity<CommonResponse<StoreResponse>> updateStore(
-		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable String storeId,
-		@RequestBody StoreRequest storeRequest
+		@PathVariable UUID storeId,
+		@Valid @RequestBody StoreRequest storeRequest
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS_UPDATE,
-			storeService.updateStore(userDetails.getUser(), storeId, storeRequest));
+			storeService.updateStore(storeId, storeRequest));
 	}
 
 	@PreAuthorize("hasAnyRole('MASTER')")
 	@DeleteMapping("/stores/{storeId}")
 	public ResponseEntity<CommonResponse<Void>> deleteStore(
-		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable String storeId
+		@PathVariable UUID storeId
 	){
-		storeService.deletedStore(userDetails.getUser(), storeId);
+		storeService.deletedStore(storeId);
 		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
 	}
 
