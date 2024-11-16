@@ -1,14 +1,18 @@
 package com.nbcamp.orderservice.domain.review.entity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
 import com.nbcamp.orderservice.domain.order.entity.Order;
+import com.nbcamp.orderservice.domain.review.dto.ReviewRequest;
 import com.nbcamp.orderservice.domain.user.entity.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -31,6 +35,7 @@ import lombok.NoArgsConstructor;
 public class Review extends BaseTimeEntity {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
 	@Column(name = "id")
 	private UUID id = UUID.randomUUID();
 
@@ -47,4 +52,26 @@ public class Review extends BaseTimeEntity {
 
 	@Column(name = "grade", nullable = false)
 	private int grade;
+
+	public static Review create(ReviewRequest request,User user, Order order){
+		return Review.builder()
+			.user(user)
+			.order(order)
+			.content(request.content())
+			.grade(request.grade())
+			.build();
+	}
+
+	public void update(ReviewRequest request){
+		this.order.getStore().updateStoreGrade(request.grade(), this.grade);
+		this.content = request.content();
+		this.grade = request.grade();
+
+	}
+
+	public void delete(UUID uuid){
+		this.setDeletedBy(uuid);
+		this.setDeletedAt(LocalDateTime.now());
+		this.order.getStore().removeStoreGrade(this.grade);
+	}
 }

@@ -17,6 +17,7 @@ public enum ErrorCode {
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부 서버 오류가 발생하였습니다."),
 	S3_UPLOADER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "S3 업로드 중 오류가 발생하였습니다."),
 	UNSUPPORTED_CONTENT_TYPE(HttpStatus.BAD_REQUEST, "지원되지 않는 Content-Type입니다."),
+	RATE_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "요청 제한이 초과되었습니다. 나중에 다시 시도해 주세요."),
 
 	/**
 	 * Common
@@ -82,7 +83,24 @@ public enum ErrorCode {
 	/**
 	 * PRODUCT
 	 */
-	NOT_FOUND_PRODUCT(HttpStatus.BAD_REQUEST, "상품을 찾을 수 없습니다.");
+	NOT_FOUND_PRODUCT(HttpStatus.BAD_REQUEST, "상품을 찾을 수 없습니다."),
+
+	/**
+	 * ORDER
+	 */
+	NO_PERMISSION_TO_CREATE_ORDER(HttpStatus.BAD_REQUEST, "주문 생성권한이 없습니다."),
+	NOT_FOUND_ORDER(HttpStatus.BAD_REQUEST, "주문정보를 찾을 수 없습니다."),
+	ALREADY_CANCELED(HttpStatus.BAD_REQUEST, "이미 취소된 주문정보입니다."),
+	CANCELLATION_TIME_EXCEEDED(HttpStatus.BAD_REQUEST, "주문 취소 가능 시간이 초과되었습니다. 주문 생성 후 5분 이내에만 취소할 수 있습니다."),
+	ACCESS_DENIED(HttpStatus.FORBIDDEN, "잘못된 접근입니다."),
+	INVALID_ORDER_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 주문 상태입니다."),
+	ORDER_INCOMPLETE_PROCESS(HttpStatus.BAD_REQUEST, "주문이 완료된 상태가 아닙니다."),
+
+	/**
+	 * REVIEW
+	 */
+	NOT_FOUND_REVIEW(HttpStatus.BAD_REQUEST, "리뷰정보를 찾을 수 없습니다."),
+	EXISTING_REVIEW(HttpStatus.BAD_REQUEST,  "이미 해당 매점에 작성한 리뷰가 있습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String message;
