@@ -60,7 +60,7 @@ public class StoreService {
 		return storeQueryRepository.findAllByStorePageable(
 			request.storeId(),
 			request.categoryId(),
-			request.address(),
+			extractAddress(request.address()),
 			request.sortOption(),
 			pageable,
 			user
