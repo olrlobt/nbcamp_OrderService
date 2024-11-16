@@ -1,5 +1,6 @@
 package com.nbcamp.orderservice.domain.payment.entity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.nbcamp.orderservice.domain.common.BaseTimeEntity;
@@ -70,4 +71,8 @@ public class Payment extends BaseTimeEntity {
 			.build();
 	}
 
+	public void delete(UUID uuid) {
+		this.setDeletedBy(uuid);
+		this.setDeletedAt(LocalDateTime.now());
+	}
 }

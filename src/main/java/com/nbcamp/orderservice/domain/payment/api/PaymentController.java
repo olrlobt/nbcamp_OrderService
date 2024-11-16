@@ -4,6 +4,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,6 +59,16 @@ public class PaymentController {
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS,
 			paymentService.getPayment(orderId, paymentId, userDetails.getUser()));
+	}
+
+	@DeleteMapping("/{orderId}/payments/{paymentId}")
+	public ResponseEntity<CommonResponse<Void>> deleteProduct(
+		@AuthenticationPrincipal UserDetailsImpl userDetails,
+		@PathVariable("orderId") String orderId,
+		@PathVariable("paymentId") String paymentId
+	) {
+		paymentService.deleteProduct(orderId, paymentId, userDetails.getUser());
+		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
 	}
 
 }

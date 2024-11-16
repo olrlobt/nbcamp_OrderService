@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nbcamp.orderservice.domain.common.SortOption;
+import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.order.entity.Order;
 import com.nbcamp.orderservice.domain.order.repository.OrderJpaRepository;
 import com.nbcamp.orderservice.domain.payment.dto.PaymentRequest;
@@ -46,9 +47,16 @@ public class PaymentService {
 	@Transactional(readOnly = true)
 	public PaymentResponse getPayment(String orderId, String paymentId, User user) {
 		getOrder(orderId);
-		Payment payment = paymentJpaRepository.findById(UUID.fromString(paymentId))
-			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_PAYMENT.getMessage()));
+		Payment payment = getPayment(paymentId);
 		return getPaymentResponse(payment);
+	}
+
+	@Transactional
+	public void deleteProduct(String orderId, String paymentId, User user) {
+		getOrder(orderId);
+		validateOwner(user.getUserRole());
+		Payment payment = getPayment(paymentId);
+		payment.delete(user.getId());
 	}
 
 	private Order getOrder(String orderId) {
@@ -60,4 +68,16 @@ public class PaymentService {
 		return new PaymentResponse(payment.getId(), payment.getPaymentStatus(), payment.getPaymentMethod(),
 			payment.getAmount());
 	}
+
+	private void validateOwner(UserRole role) {
+		if (!role.equals(UserRole.MANAGER) && !role.equals(UserRole.MASTER)) {
+			throw new IllegalArgumentException(ErrorCode.INSUFFICIENT_PERMISSIONS.getMessage());
+		}
+	}
+
+	private Payment getPayment(String paymentId) {
+		return paymentJpaRepository.findById(UUID.fromString(paymentId))
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_PAYMENT.getMessage()));
+	}
+
 }
