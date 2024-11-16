@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nbcamp.orderservice.domain.category.entity.Category;
 import com.nbcamp.orderservice.domain.category.repository.CategoryQueryRepository;
 import com.nbcamp.orderservice.domain.common.UserRole;
+import com.nbcamp.orderservice.domain.store.dto.StoreCursorRequest;
 import com.nbcamp.orderservice.domain.store.dto.StoreCursorResponse;
 import com.nbcamp.orderservice.domain.store.dto.StoreDetailsResponse;
 import com.nbcamp.orderservice.domain.store.dto.StoreRequest;
@@ -50,21 +51,21 @@ public class StoreService {
 	}
 
 	@Transactional(readOnly = true)
-	public StoreDetailsResponse getDetailsStore(String storeId) {
+	public StoreDetailsResponse getDetailsStore(UUID storeId) {
 		Store store = findById(storeId);
-		return new StoreDetailsResponse(
-			store.getId(),
-			store.getUser().getUsername(),
-			store.getName(),
-			store.getAddress(),
-			store.getCallNumber()
-		);
+		return new StoreDetailsResponse(store);
 	}
 
 	@Transactional(readOnly = true)
-	public Slice<StoreCursorResponse> getCursorStore(String cursorId, String category, String address,
-		Pageable pageable) {
-		return storeQueryRepository.findAllByStorePageable(cursorId, category, extractAddress(address), pageable);
+	public Slice<StoreCursorResponse> getCursorStore(StoreCursorRequest request, Pageable pageable, User user) {
+		return storeQueryRepository.findAllByStorePageable(
+			request.storeId(),
+			request.categoryId(),
+			request.address(),
+			request.sortOption(),
+			pageable,
+			user
+		);
 	}
 
 	@Transactional
@@ -92,17 +93,16 @@ public class StoreService {
 	}
 
 	@Transactional
-	public void deletedStore(User user, String storesId){
+	public void deletedStore(User user, String storesId) {
 		checkMasterUserRoll(user);
 		Store store = findById(storesId);
 		storeCategoryService.deleteStoreCategory(store);
 		store.delete(store.getId());
 	}
 
-
 	private List<Category> findCategoryList(List<UUID> categoryList) {
 		return categoryQueryRepository.findAllCategoryByCategoryId(categoryList)
-			.orElseThrow(()-> new IllegalArgumentException(ErrorCode.NOT_FOUND_CATEGORY.getMessage()));
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_CATEGORY.getMessage()));
 	}
 
 	private void checkMasterUserRoll(User user) {
@@ -125,8 +125,8 @@ public class StoreService {
 		throw new IllegalArgumentException(ErrorCode.ADDRESS_PATTERN_MISMATCH.getMessage());
 	}
 
-	public Store findById(String storeId) {
-		return storeJpaRepository.findById(UUID.fromString(storeId))
+	public Store findById(UUID storeId) {
+		return storeJpaRepository.findById(storeId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_STORE.getMessage()));
 	}
 
