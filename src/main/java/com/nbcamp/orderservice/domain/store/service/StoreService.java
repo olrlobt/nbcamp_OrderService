@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nbcamp.orderservice.domain.category.entity.Category;
-import com.nbcamp.orderservice.domain.category.service.CategoryService;
+import com.nbcamp.orderservice.domain.category.repository.CategoryQueryRepository;
 import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.store.dto.StoreCursorResponse;
 import com.nbcamp.orderservice.domain.store.dto.StoreDetailsResponse;
@@ -33,33 +33,20 @@ public class StoreService {
 
 	private final StoreJpaRepository storeJpaRepository;
 	private final StoreQueryRepository storeQueryRepository;
+	private final CategoryQueryRepository categoryQueryRepository;
 	private final UserService userService;
-	private final CategoryService categoryService;
 	private final StoreCategoryService storeCategoryService;
 
 	@Transactional
-	public StoreResponse createStore(String userId, StoreRequest request, User user) {
-		checkMasterUserRoll(user);
-		validateAddressPattern(request.address());
+	public StoreResponse createStore(String userId, StoreRequest request) {
 		User owner = userService.findById(userId);
 		Store store = Store.create(request, owner);
 
 		List<Category> categories = findCategoryList(request.category());
 		List<StoreCategory> storeCategories = storeCategoryService.createStoreCategory(store, categories);
 		store.addStoreCategory(storeCategories);
-		storeJpaRepository.save(store);
 
-		return new StoreResponse(
-			store.getId(),
-			store.getUser().getId(),
-			store.getUser().getUsername(),
-			store.getName(),
-			store.getAddress(),
-			store.getStoreCategory()
-				.stream()
-				.map(storeCategory -> storeCategory.getCategory().getCategory())
-				.toList(),
-			store.getCallNumber());
+		return new StoreResponse(storeJpaRepository.save(store));
 	}
 
 	@Transactional(readOnly = true)
@@ -99,7 +86,7 @@ public class StoreService {
 			store.getAddress(),
 			store.getStoreCategory()
 				.stream()
-				.map(storeCategory -> storeCategory.getCategory().getCategory())
+				.map(storeCategory -> storeCategory.getCategory().getId())
 				.toList(),
 			store.getCallNumber());
 	}
@@ -113,8 +100,9 @@ public class StoreService {
 	}
 
 
-	private List<Category> findCategoryList(List<String> categoryList) {
-		return categoryService.findCategoriesByNames(categoryList);
+	private List<Category> findCategoryList(List<UUID> categoryList) {
+		return categoryQueryRepository.findAllCategoryByCategoryId(categoryList)
+			.orElseThrow(()-> new IllegalArgumentException(ErrorCode.NOT_FOUND_CATEGORY.getMessage()));
 	}
 
 	private void checkMasterUserRoll(User user) {

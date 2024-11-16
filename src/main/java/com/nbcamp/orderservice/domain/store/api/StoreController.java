@@ -3,6 +3,7 @@ package com.nbcamp.orderservice.domain.store.api;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +24,7 @@ import com.nbcamp.orderservice.global.exception.code.SuccessCode;
 import com.nbcamp.orderservice.global.response.CommonResponse;
 import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -32,14 +34,14 @@ public class StoreController {
 
 	private final StoreService storeService;
 
+	@PreAuthorize("hasAnyRole('MASTER')")
 	@PostMapping("/stores/users/{userId}")
 	public ResponseEntity<CommonResponse<StoreResponse>> createStore(
-		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@PathVariable String userId,
-		@RequestBody StoreRequest storeRequest
+		@Valid @RequestBody StoreRequest storeRequest
 	) {
 		return CommonResponse.success(
-			SuccessCode.SUCCESS_INSERT, storeService.createStore(userId, storeRequest, userDetails.getUser()));
+			SuccessCode.SUCCESS_INSERT, storeService.createStore(userId, storeRequest));
 	}
 
 	@GetMapping("/stores/{storeId}")
@@ -58,6 +60,7 @@ public class StoreController {
 			storeService.getCursorStore(cursorId, category, address, pageable));
 	}
 
+	@PreAuthorize("hasAnyRole('MASTER')")
 	@PutMapping("/stores/{storeId}")
 	public ResponseEntity<CommonResponse<StoreResponse>> updateStore(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -68,6 +71,7 @@ public class StoreController {
 			storeService.updateStore(userDetails.getUser(), storeId, storeRequest));
 	}
 
+	@PreAuthorize("hasAnyRole('MASTER')")
 	@DeleteMapping("/stores/{storeId}")
 	public ResponseEntity<CommonResponse<Void>> deleteStore(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
