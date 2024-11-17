@@ -66,7 +66,7 @@ public enum ErrorCode {
 	ALREADY_UNBLOCK(HttpStatus.BAD_REQUEST, "해당 계정은 차단되어 있지 않습니다."),
 	INSUFFICIENT_PERMISSIONS(HttpStatus.FORBIDDEN, "해당 요청은 권한이 부족하여 수행할 수 없습니다."),
 	INVALID_UUID_FORMAT(HttpStatus.BAD_REQUEST, "잘못된 UUID 형식입니다."),
-
+	INVALID_ROLE(HttpStatus.BAD_REQUEST, "잘못된 ROLE 입니다."),
 	/**
 	 * Category
 	 */

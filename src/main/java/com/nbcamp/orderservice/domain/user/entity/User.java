@@ -65,9 +65,10 @@ public class User extends BaseTimeEntity {
 		return user;
 	}
 
-	public void update(UserUpdateRequest request){
-		//todo. 사람 추가
-		//todo. 데이터 추가
+	public void update(UserUpdateRequest request, PasswordEncoder passwordEncoder) {
+		this.username = request.username();
+		this.password = passwordEncoder.encode(request.password());
+
 	}
 
 	public void delete() {
@@ -80,5 +81,9 @@ public class User extends BaseTimeEntity {
 
 	public void destroyRefreshToken() {
 		this.refreshToken = null;
+	}
+
+	public void updateRole(UserRole role){
+		this.userRole = role;
 	}
 }

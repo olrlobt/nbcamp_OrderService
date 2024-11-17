@@ -3,12 +3,14 @@ package com.nbcamp.orderservice.domain.user.service;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.common.UserRole;
-import com.nbcamp.orderservice.domain.user.dto.AllUserResponse;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
 import com.nbcamp.orderservice.domain.user.dto.UserResponse;
 import com.nbcamp.orderservice.domain.user.dto.UserUpdateRequest;
@@ -50,8 +52,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Transactional(readOnly = true)
-	public AllUserResponse getAllUsers() {
-		return userRepository.findAllUserResponse();
+	public Page<UserResponse> getAllUsers(SortOption sortOption, Pageable pageable) {
+		return userRepository.findAllUserResponse(sortOption, pageable);
 	}
 
 	@Transactional
@@ -60,7 +62,7 @@ public class UserServiceImpl implements UserService {
 
 		User user = userRepository.findById(UUID.fromString(userId))
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
-		user.update(request);
+		user.update(request, passwordEncoder);
 		return UserResponse.of(user);
 	}
 
@@ -74,9 +76,22 @@ public class UserServiceImpl implements UserService {
 
 	@Transactional
 	public void updateRefreshToken(String username, String refreshToken) {
-		userRepository.findByUsername(username).ifPresent(
+		userRepository.findByUsernameAndDeletedAtIsNull(username).ifPresent(
 			users -> users.updateRefreshToken(refreshToken)
 		);
+	}
+
+	@Transactional
+	public void updateUserRole(String userId, String role) {
+		User user = userRepository.findById(UUID.fromString(userId))
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
+
+		try {
+			UserRole userRole = UserRole.valueOf(role.toUpperCase());
+			user.updateRole(userRole);
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException(ErrorCode.INVALID_ROLE.getMessage());
+		}
 	}
 
 	private void ignoreAuth(UserDetailsImpl userDetails, String userId) {
