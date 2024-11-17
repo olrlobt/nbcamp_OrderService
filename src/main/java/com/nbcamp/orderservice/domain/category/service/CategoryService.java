@@ -76,10 +76,6 @@ public class CategoryService {
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_CATEGORY.getMessage()));
 	}
 
-	public List<Category> findCategoriesByNames(List<String> categoryList){
-		return categoryQueryRepository.findAllCategoryByCategoryId(categoryList)
-			.orElseThrow(()-> new IllegalArgumentException(ErrorCode.NOT_FOUND_CATEGORY.getMessage()));
-	}
 
 	private void checkMasterUserRole(User user) {
 		if (user.getUserRole().equals(UserRole.CUSTOMER)

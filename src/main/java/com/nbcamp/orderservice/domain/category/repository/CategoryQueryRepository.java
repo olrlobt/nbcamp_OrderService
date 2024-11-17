@@ -2,6 +2,7 @@ package com.nbcamp.orderservice.domain.category.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
 
@@ -19,10 +20,10 @@ public class CategoryQueryRepository {
 
 	QCategory qCategory = QCategory.category1;
 
-	public Optional<List<Category>> findAllCategoryByCategoryId(List<String> categoryList){
+	public Optional<List<Category>> findAllCategoryByCategoryId(List<UUID> categoryList){
 		List<Category> categories = jpaQueryFactory
 			.selectFrom(qCategory)
-			.where(qCategory.category.in(categoryList)).fetch();
+			.where(qCategory.id.in(categoryList)).fetch();
 
 		if(categories.size() != categoryList.size()){
 			return Optional.empty();
