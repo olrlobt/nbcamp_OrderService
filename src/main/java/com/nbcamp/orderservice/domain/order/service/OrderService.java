@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nbcamp.orderservice.domain.category.repository.CategoryJpaRepository;
+import com.nbcamp.orderservice.domain.common.DisplayStatus;
 import com.nbcamp.orderservice.domain.common.OrderStatus;
 import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.order.dto.OrderInfoResponse;
@@ -24,6 +25,8 @@ import com.nbcamp.orderservice.domain.order.entity.Order;
 import com.nbcamp.orderservice.domain.order.entity.OrderProduct;
 import com.nbcamp.orderservice.domain.order.repository.OrderJpaRepository;
 import com.nbcamp.orderservice.domain.order.repository.OrderQueryRepository;
+import com.nbcamp.orderservice.domain.product.entity.Product;
+import com.nbcamp.orderservice.domain.product.repository.ProductJpaRepository;
 import com.nbcamp.orderservice.domain.store.entity.Store;
 import com.nbcamp.orderservice.domain.store.repository.StoreJpaRepository;
 import com.nbcamp.orderservice.domain.user.entity.User;
@@ -42,9 +45,16 @@ public class OrderService {
 	private final OrderQueryRepository orderQueryRepository;
 	private final OrderProductService orderProductService;
 	private final CategoryJpaRepository categoryJpaRepository;
+	private final ProductJpaRepository productJpaRepository;
 
 	@Transactional
 	public OrderInfoResponse createOrder(OrderRequest request, User user) {
+
+		List<UUID> productIds = request.products().stream()
+			.map(OrderRequest.OrderProduct::productId)
+			.toList();
+
+		validateProducts(productJpaRepository.findAllById(productIds), productIds, request.storeId());
 
 		Store store = getStoreById(request.storeId());
 		Order order = Order.create(request, store, user);
@@ -147,6 +157,21 @@ public class OrderService {
 	private void validateOrderInCustomer(UUID orderId, User user) {
 		if (!orderJpaRepository.existsByIdAndUserId(orderId, user.getId())) {
 			throw new IllegalArgumentException(ErrorCode.NOT_MATCH_CONFIRM.getMessage());
+		}
+	}
+
+	private void validateProducts(List<Product> products, List<UUID> productIds, UUID storeId) {
+
+		if (products.size() != productIds.size()) {
+			throw new IllegalArgumentException(ErrorCode.PARTIALLY_NOT_FOUND_PRODUCT.getMessage());
+		}
+		for (Product product : products) {
+			if (product.getDisplayStatus() != DisplayStatus.EXPOSED) {
+				throw new IllegalArgumentException(ErrorCode.PRODUCT_NOT_AVAILABLE.getMessage());
+			}
+			if (!product.getStore().getId().equals(storeId)) {
+				throw new IllegalArgumentException(ErrorCode.INVALID_PRODUCT_STORE_RELATION.getMessage());
+			}
 		}
 	}
 

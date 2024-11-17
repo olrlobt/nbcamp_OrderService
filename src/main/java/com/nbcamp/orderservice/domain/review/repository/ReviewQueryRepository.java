@@ -55,7 +55,9 @@ public class ReviewQueryRepository {
 				qReview.order.store.id.eq(store.getId()),
 				deleteFilter(includeDelete)
 			)
-			.orderBy(getOrderSpecifier(sortOption))
+			.orderBy(
+				getOrderSpecifier(sortOption)
+			)
 			.limit(pageable.getPageSize() + 1)
 			.fetch();
 
@@ -126,8 +128,11 @@ public class ReviewQueryRepository {
 			case CREATED_AT_DESC -> qReview.createdAt.desc();
 			case UPDATED_AT_ASC -> qReview.updatedAt.asc();
 			case UPDATED_AT_DESC -> qReview.updatedAt.desc();
+			case STAR_RATING_UP -> qReview.grade.desc();
+			case STAR_RATING_DOWN -> qReview.grade.asc();
 			default -> qReview.createdAt.asc();
 		};
 	}
+
 
 }
