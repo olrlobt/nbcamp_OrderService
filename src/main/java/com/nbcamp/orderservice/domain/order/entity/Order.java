@@ -90,9 +90,15 @@ public class Order extends BaseTimeEntity {
 	}
 
 	public void update(OrderUpdateRequest orderUpdateRequest) {
-		this.orderStatus = orderUpdateRequest.orderStatus();
-		this.deliveryAddress = orderUpdateRequest.deliveryAddress();
-		this.request += "\n[추가 요청]: " + orderUpdateRequest.request();
+		if (orderUpdateRequest.orderStatus() != null) {
+			this.orderStatus = orderUpdateRequest.orderStatus();
+		}
+		if (orderUpdateRequest.deliveryAddress() != null) {
+			this.deliveryAddress = orderUpdateRequest.deliveryAddress();
+		}
+		if (orderUpdateRequest.request() != null) {
+			this.request += "\n[추가 요청]: " + orderUpdateRequest.request();
+		}
 	}
 
 	public void cancelOrder(UUID userId) {
@@ -104,7 +110,7 @@ public class Order extends BaseTimeEntity {
 		}
 	}
 
-	public void addOrderProduct(List<OrderProduct> orderProducts){
+	public void addOrderProduct(List<OrderProduct> orderProducts) {
 		this.orderProducts = orderProducts;
 	}
 }

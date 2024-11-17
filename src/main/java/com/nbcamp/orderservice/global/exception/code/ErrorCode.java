@@ -102,12 +102,14 @@ public enum ErrorCode {
 	ORDER_NOT_BELONG_TO_USER(HttpStatus.BAD_REQUEST, "해당 유저의 주문이 아닙니다."),
 	ORDER_STATUS_ACCEPTED_DROP_INVALID(HttpStatus.BAD_REQUEST, "이미 주문이 접수되어 주문상태를 변경할 수 없습니다."),
 	ORDER_STATUS_DELIVERING_DROP_INVALID(HttpStatus.BAD_REQUEST, "이미 배달이 시작되어 주문상태를 변경할 수 없습니다."),
+	PRODUCT_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, "상품이 판매 가능한 상태가 아닙니다."),
+	INVALID_PRODUCT_STORE_RELATION(HttpStatus.BAD_REQUEST, "해당 매장에서 판매하는 상품이 아닙니다."),
+	PARTIALLY_NOT_FOUND_PRODUCT(HttpStatus.BAD_REQUEST, "일부 상품을 찾을 수 없습니다."),
 
 	/**
 	 * REVIEW
 	 */
 	NOT_FOUND_REVIEW(HttpStatus.BAD_REQUEST, "리뷰정보를 찾을 수 없습니다."),
-	EXISTING_REVIEW(HttpStatus.BAD_REQUEST, "이미 해당 매점에 작성한 리뷰가 있습니다.");
 	EXISTING_REVIEW(HttpStatus.BAD_REQUEST, "이미 해당 매점에 작성한 리뷰가 있습니다."),
 	INVALID_REVIEW(HttpStatus.BAD_REQUEST, "해당 리뷰에 접근 권한이 업습니다.");
 

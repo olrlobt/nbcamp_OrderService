@@ -10,24 +10,24 @@ public record OrderResponse(
 	UUID orderId,
 	UUID storeId,
 	UUID userId,
+	String storeName,
 	OrderStatus status,
 	OrderType type,
 	String deliveryAddress,
 	String content,
-	int totalPrice,
-	String storeName
+	int totalPrice
 ) {
 	public OrderResponse(Order order) {
 		this(
 			order.getId(),
 			order.getStore().getId(),
 			order.getUser().getId(),
+			order.getStore().getName(),
 			order.getOrderStatus(),
 			order.getOrderType(),
 			order.getDeliveryAddress(),
 			order.getRequest(),
-			order.getTotalPrice(),
-			order.getStore().getName()
+			order.getTotalPrice()
 		);
 	}
 }
