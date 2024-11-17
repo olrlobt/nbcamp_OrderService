@@ -9,10 +9,8 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import com.nbcamp.orderservice.domain.common.SortOption;
-import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.store.dto.StoreCursorResponse;
 import com.nbcamp.orderservice.domain.store.entity.QStore;
-import com.nbcamp.orderservice.domain.user.entity.User;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -34,7 +32,7 @@ public class StoreQueryRepository {
 		String address,
 		SortOption sortOption,
 		Pageable pageable,
-		User user
+		boolean includeDelete
 	) {
 
 		List<StoreCursorResponse> storeList = jpaQueryFactory.query()
@@ -51,7 +49,7 @@ public class StoreQueryRepository {
 				cursorIdFiltering(storeId),
 				categoryEquals(categoryId),
 				addressContains(address), // 특정 주소 기준
-				roleBasedDeleteFilter(user.getUserRole())
+				deleteFilter(includeDelete)
 				)
 			.orderBy(
 				getOrderSpecifier(sortOption))
@@ -79,11 +77,8 @@ public class StoreQueryRepository {
 		return address != null && !address.isEmpty() ? qStore.address.contains(address) : null;
 	}
 
-	private BooleanExpression roleBasedDeleteFilter(UserRole userRole) {
-		if (userRole == UserRole.MASTER) {
-			return null;
-		}
-		return qStore.deletedAt.isNull().and(qStore.deletedBy.isNull());
+	private BooleanExpression deleteFilter(boolean includeDelete){
+		return includeDelete ? null : qStore.deletedAt.isNull().and(qStore.deletedBy.isNull());
 	}
 
 	private OrderSpecifier<?> getOrderSpecifier(SortOption sortOption) {
