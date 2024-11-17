@@ -9,11 +9,13 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import com.nbcamp.orderservice.domain.common.SortOption;
+import com.nbcamp.orderservice.domain.order.entity.QOrder;
 import com.nbcamp.orderservice.domain.store.dto.StoreCursorResponse;
 import com.nbcamp.orderservice.domain.store.entity.QStore;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class StoreQueryRepository {
 	private final JPAQueryFactory jpaQueryFactory;
 
 	QStore qStore = QStore.store;
+	QOrder qOrder = QOrder.order;
 
 	public Slice<StoreCursorResponse> findAllByStorePageable(
 		UUID storeId,
@@ -86,9 +89,23 @@ public class StoreQueryRepository {
 			case CREATED_AT_DESC -> qStore.createdAt.desc();
 			case UPDATED_AT_ASC -> qStore.updatedAt.asc();
 			case UPDATED_AT_DESC -> qStore.updatedAt.desc();
+			case STORE_STAR_RATING -> qStore.storeGrade.desc();
+			case MOST_ORDERS -> orderByMostOrders();
 			default -> qStore.createdAt.asc();
 		};
 	}
+
+	private OrderSpecifier<Long> orderByMostOrders() {
+		return new OrderSpecifier<>(
+			com.querydsl.core.types.Order.DESC,
+			JPAExpressions.select(qOrder.id.count())
+				.from(qOrder)
+				.where(qOrder.store.id.eq(qStore.id))
+				.groupBy(qOrder.store.id)
+				.orderBy(qOrder.id.count().desc())
+		);
+	}
+
 }
 
 
