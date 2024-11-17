@@ -1,8 +1,10 @@
 package com.nbcamp.orderservice.domain.category.api;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,19 +31,20 @@ public class CategoryController {
 
 	private final CategoryService categoryService;
 
+
+	@PreAuthorize("hasAnyRole('MASTER')")
 	@PostMapping("/category")
 	public ResponseEntity<CommonResponse<CategoryResponse>> createCategory(
-		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@RequestBody CategoryRequest categoryRequest
 	) {
 		return CommonResponse.success(
 			SuccessCode.SUCCESS_INSERT, categoryService
-				.createCategory(categoryRequest, userDetails.getUser()));
+				.createCategory(categoryRequest));
 	}
 
 	@GetMapping("/category/{categoryId}")
 	public ResponseEntity<CommonResponse<CategoryResponse>> getCategory(
-		@PathVariable String categoryId) {
+		@PathVariable UUID categoryId) {
 		return CommonResponse.success(SuccessCode.SUCCESS, categoryService.getCategory(categoryId));
 	}
 
@@ -51,20 +54,22 @@ public class CategoryController {
 		return CommonResponse.success(SuccessCode.SUCCESS, categoryService.getAllCategory());
 	}
 
+	@PreAuthorize("hasAnyRole('MASTER')")
 	@PutMapping("/category/{categoryId}")
 	public ResponseEntity<CommonResponse<CategoryResponse>> updateCategory(
-		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable String categoryId,
+		@PathVariable UUID categoryId,
 		@RequestBody CategoryRequest categoryRequest) {
 		return CommonResponse
 			.success(SuccessCode.SUCCESS_UPDATE, categoryService
-				.updateCategory(categoryId, categoryRequest, userDetails.getUser()));
+				.updateCategory(categoryId, categoryRequest));
 	}
 
+	@PreAuthorize("hasAnyRole('MASTER')")
 	@DeleteMapping("/category/{categoryId}")
-	public ResponseEntity<CommonResponse<Void>> delete
-		(@AuthenticationPrincipal UserDetailsImpl userDetails,
-			@PathVariable String categoryId
+	public ResponseEntity<CommonResponse<Void>> deleteCategory
+		(
+			@AuthenticationPrincipal UserDetailsImpl userDetails,
+			@PathVariable UUID categoryId
 		) {
 		categoryService.deleteCategory(categoryId, userDetails.getUser());
 		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
