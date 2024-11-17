@@ -56,14 +56,26 @@ public class StoreService {
 	}
 
 	@Transactional(readOnly = true)
-	public Slice<StoreCursorResponse> getCursorStore(StoreCursorRequest request, Pageable pageable, User user) {
+	public Slice<StoreCursorResponse> getCursorStore(StoreCursorRequest request, Pageable pageable) {
 		return storeQueryRepository.findAllByStorePageable(
 			request.storeId(),
 			request.categoryId(),
 			extractAddress(request.address()),
 			request.sortOption(),
 			pageable,
-			user
+			false
+		);
+	}
+
+	@Transactional(readOnly = true)
+	public Slice<StoreCursorResponse> getCursorStoreAdmin(StoreCursorRequest request, Pageable pageable) {
+		return storeQueryRepository.findAllByStorePageable(
+			request.storeId(),
+			request.categoryId(),
+			extractAddress(request.address()),
+			request.sortOption(),
+			pageable,
+			true
 		);
 	}
 
@@ -98,12 +110,12 @@ public class StoreService {
 	}
 
 	private String extractAddress(String fullAddress) {
-		String addressPattern = "([가-힣]+[특별시|광역시|도])\\s([가-힣]+구)";
+		String addressPattern = "^([가-힣]+(특별시|광역시|도))\\s([가-힣]+(시|군|구))";
 		Pattern pattern = Pattern.compile(addressPattern);
 		Matcher matcher = pattern.matcher(fullAddress);
 
 		if (matcher.find()) {
-			return matcher.group(1) + " " + matcher.group(2);
+			return matcher.group(1) + " " + matcher.group(3);
 		}
 		throw new IllegalArgumentException(ErrorCode.ADDRESS_PATTERN_MISMATCH.getMessage());
 	}

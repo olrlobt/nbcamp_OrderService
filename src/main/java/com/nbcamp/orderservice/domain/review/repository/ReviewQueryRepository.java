@@ -33,7 +33,11 @@ public class ReviewQueryRepository {
 	QReview qReview = QReview.review;
 	QUser qUser = QUser.user;
 
-	public Slice<ReviewCursorResponse> getAllReviewInStore(Store store, Pageable pageable, SortOption sortOption, boolean includeDelete) {
+	public Slice<ReviewCursorResponse> getAllReviewInStore(
+		Store store,
+		Pageable pageable,
+		SortOption sortOption,
+		boolean includeDelete) {
 
 		List<ReviewCursorResponse> reviewList = jpaQueryFactory.query()
 			.select(
@@ -63,7 +67,7 @@ public class ReviewQueryRepository {
 		return new SliceImpl<>(reviewList, pageable, hasNext);
 	}
 
-	public Slice<ReviewDetailsCursorResponse> getAllReviewInUser(User user, Pageable pageable){
+	public Slice<ReviewDetailsCursorResponse> getAllReviewInUser(User user, Pageable pageable) {
 
 		List<ReviewDetailsCursorResponse> reviewList = jpaQueryFactory.query()
 			.select(
@@ -97,7 +101,7 @@ public class ReviewQueryRepository {
 		return new SliceImpl<>(reviewList, pageable, hasNext);
 	}
 
-	public Optional<Review> findByIdCustom(UUID reviewId){
+	public Optional<Review> findByIdCustom(UUID reviewId) {
 
 		Review review = jpaQueryFactory.query()
 			.select(qReview)
@@ -113,10 +117,9 @@ public class ReviewQueryRepository {
 
 	}
 
-	private BooleanExpression deleteFilter(boolean includeDelete){
+	private BooleanExpression deleteFilter(boolean includeDelete) {
 		return includeDelete ? null : qReview.deletedAt.isNull().and(qReview.deletedBy.isNull());
 	}
-
 
 	private OrderSpecifier<?> getOrderSpecifier(SortOption sortOption) {
 		return switch (sortOption) {

@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -25,7 +24,6 @@ import com.nbcamp.orderservice.domain.store.dto.StoreResponse;
 import com.nbcamp.orderservice.domain.store.service.StoreService;
 import com.nbcamp.orderservice.global.exception.code.SuccessCode;
 import com.nbcamp.orderservice.global.response.CommonResponse;
-import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -55,11 +53,20 @@ public class StoreController {
 	@GetMapping("/stores")
 	public ResponseEntity<CommonResponse<Slice<StoreCursorResponse>>> getCursorStore(
 		@Valid @ModelAttribute StoreCursorRequest storeCursorRequest,
-		Pageable pageable,
-		@AuthenticationPrincipal UserDetailsImpl userDetails
+		Pageable pageable
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS,
-			storeService.getCursorStore(storeCursorRequest, pageable, userDetails.getUser()));
+			storeService.getCursorStore(storeCursorRequest, pageable));
+	}
+
+	@PreAuthorize("hasAnyRole('MASTER')")
+	@GetMapping("/stores/admin")
+	public ResponseEntity<CommonResponse<Slice<StoreCursorResponse>>> getCursorStoreAdmin(
+		@Valid @ModelAttribute StoreCursorRequest storeCursorRequest,
+		Pageable pageable
+	) {
+		return CommonResponse.success(SuccessCode.SUCCESS,
+			storeService.getCursorStoreAdmin(storeCursorRequest, pageable));
 	}
 
 	@PreAuthorize("hasAnyRole('MASTER')")
