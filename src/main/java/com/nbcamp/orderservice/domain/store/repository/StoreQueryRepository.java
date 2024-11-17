@@ -8,10 +8,12 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
+import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.store.dto.StoreCursorResponse;
 import com.nbcamp.orderservice.domain.store.entity.QStore;
-import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -25,21 +27,13 @@ public class StoreQueryRepository {
 	QStore qStore = QStore.store;
 
 	public Slice<StoreCursorResponse> findAllByStorePageable(
-		String cursorId,
-		String category,
+		UUID storeId,
+		UUID categoryId,
 		String address,
-		Pageable pageable
+		SortOption sortOption,
+		Pageable pageable,
+		boolean includeDelete
 	) {
-		BooleanBuilder cursorFilter = new BooleanBuilder();
-
-		if (cursorId != null) {
-			UUID cursorUUID = UUID.fromString(cursorId);
-			cursorFilter.and(qStore.id.gt(cursorUUID));
-		}
-
-		if (category != null) {
-			cursorFilter.and(qStore.storeCategory.any().category.category.eq(category));
-		}
 
 		List<StoreCursorResponse> storeList = jpaQueryFactory.query()
 			.select(
@@ -52,14 +46,13 @@ public class StoreQueryRepository {
 			)
 			.from(qStore)
 			.where(
-				cursorFilter,
-				qStore.address.contains(address),
-				qStore.deletedAt.isNull().and(qStore.deletedBy.isNull())
+				cursorIdFiltering(storeId),
+				categoryEquals(categoryId),
+				addressContains(address), // 특정 주소 기준
+				deleteFilter(includeDelete)
 				)
 			.orderBy(
-				qStore.storeGrade.desc(),
-				qStore.createdAt.desc(),
-				qStore.updatedAt.desc())
+				getOrderSpecifier(sortOption))
 			.limit(pageable.getPageSize() + 1)
 			.fetch();
 
@@ -71,6 +64,31 @@ public class StoreQueryRepository {
 		return new SliceImpl<>(storeList, pageable, hasNext);
 	}
 
+
+	private BooleanExpression cursorIdFiltering(UUID storeId) {
+		return storeId != null ? qStore.id.gt(storeId) : null;
+	}
+
+	private BooleanExpression categoryEquals(UUID category) {
+		return category != null ? qStore.storeCategory.any().category.id.eq(category) : null;
+	}
+
+	private BooleanExpression addressContains(String address) {
+		return address != null && !address.isEmpty() ? qStore.address.contains(address) : null;
+	}
+
+	private BooleanExpression deleteFilter(boolean includeDelete){
+		return includeDelete ? null : qStore.deletedAt.isNull().and(qStore.deletedBy.isNull());
+	}
+
+	private OrderSpecifier<?> getOrderSpecifier(SortOption sortOption) {
+		return switch (sortOption) {
+			case CREATED_AT_DESC -> qStore.createdAt.desc();
+			case UPDATED_AT_ASC -> qStore.updatedAt.asc();
+			case UPDATED_AT_DESC -> qStore.updatedAt.desc();
+			default -> qStore.createdAt.asc();
+		};
+	}
 }
 
 

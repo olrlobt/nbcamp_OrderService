@@ -66,7 +66,7 @@ public enum ErrorCode {
 	ALREADY_UNBLOCK(HttpStatus.BAD_REQUEST, "해당 계정은 차단되어 있지 않습니다."),
 	INSUFFICIENT_PERMISSIONS(HttpStatus.FORBIDDEN, "해당 요청은 권한이 부족하여 수행할 수 없습니다."),
 	INVALID_UUID_FORMAT(HttpStatus.BAD_REQUEST, "잘못된 UUID 형식입니다."),
-
+	INVALID_ROLE(HttpStatus.BAD_REQUEST, "잘못된 ROLE 입니다."),
 	/**
 	 * Category
 	 */
@@ -83,6 +83,11 @@ public enum ErrorCode {
 	 * PRODUCT
 	 */
 	NOT_FOUND_PRODUCT(HttpStatus.BAD_REQUEST, "상품을 찾을 수 없습니다."),
+
+	/**
+	 * PAYMENT
+	 */
+	NOT_FOUND_PAYMENT(HttpStatus.BAD_REQUEST, "결제 정보를 찾을 수 없습니다."),
 
 	/**
 	 * ORDER
@@ -103,6 +108,8 @@ public enum ErrorCode {
 	 */
 	NOT_FOUND_REVIEW(HttpStatus.BAD_REQUEST, "리뷰정보를 찾을 수 없습니다."),
 	EXISTING_REVIEW(HttpStatus.BAD_REQUEST, "이미 해당 매점에 작성한 리뷰가 있습니다.");
+	EXISTING_REVIEW(HttpStatus.BAD_REQUEST, "이미 해당 매점에 작성한 리뷰가 있습니다."),
+	INVALID_REVIEW(HttpStatus.BAD_REQUEST, "해당 리뷰에 접근 권한이 업습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String message;
