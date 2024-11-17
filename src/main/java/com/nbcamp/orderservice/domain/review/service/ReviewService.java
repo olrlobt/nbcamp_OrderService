@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nbcamp.orderservice.domain.common.OrderStatus;
+import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.order.entity.Order;
 import com.nbcamp.orderservice.domain.order.repository.OrderJpaRepository;
@@ -52,9 +53,15 @@ public class ReviewService {
 	}
 
 	@Transactional(readOnly = true)
-	public Slice<ReviewCursorResponse> getCursorReview(UUID storeId, Pageable pageable) {
+	public Slice<ReviewCursorResponse> getCursorReview(UUID storeId, Pageable pageable, SortOption sortOption) {
 		Store store = findByStore (storeId);
-		return reviewQueryRepository.getAllReviewInStore(store, pageable);
+		return reviewQueryRepository.getAllReviewInStore(store, pageable, sortOption, false);
+	}
+
+	@Transactional(readOnly = true)
+	public Slice<ReviewCursorResponse> getCursorReviewAdmin(UUID storeId, Pageable pageable, SortOption sortOption) {
+		Store store = findByStore (storeId);
+		return reviewQueryRepository.getAllReviewInStore(store, pageable, sortOption, true);
 	}
 
 	@Transactional(readOnly = true)
@@ -66,7 +73,7 @@ public class ReviewService {
 	@Transactional
 	public ReviewResponse updateReview(User user, UUID reviewId, ReviewRequest request){
 		Review review = findByIdCustom(reviewId);
-		validateUserInReview(review, user.getId());
+		validateUserInReview(review.getId(), user.getId());
 		review.update(request);
 
 		return new ReviewResponse(review);
@@ -80,7 +87,7 @@ public class ReviewService {
 
 	public void deleteByRole(User user, Review review){
 		if(user.getUserRole() == UserRole.CUSTOMER){
-			validateUserInReview(review, user.getId());
+			validateUserInReview(review.getId(), user.getId());
 			deleteByCustomer(review, user);
 		} else {
 			deleteByAdmin(review, user);
@@ -115,8 +122,8 @@ public class ReviewService {
 		}
 	}
 
-	private void validateUserInReview(Review review, UUID userId){
-		if(Objects.equals(review.getUser().getId(),userId)){
+	private void validateUserInReview(UUID reviewId, UUID userId){
+		if(Objects.equals(reviewId,userId)){
 			throw new IllegalArgumentException(ErrorCode.INVALID_REVIEW.getMessage());
 		}
 	}

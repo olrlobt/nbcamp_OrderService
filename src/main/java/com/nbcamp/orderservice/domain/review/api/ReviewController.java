@@ -14,8 +14,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.review.dto.ReviewCursorResponse;
 import com.nbcamp.orderservice.domain.review.dto.ReviewDetailsCursorResponse;
 import com.nbcamp.orderservice.domain.review.dto.ReviewRequest;
@@ -49,9 +51,11 @@ public class ReviewController {
 	@GetMapping("/stores/{storeId}/orders/reviews")
 	public ResponseEntity<CommonResponse<Slice<ReviewCursorResponse>>> getCursorReview(
 		@PathVariable UUID storeId,
-		Pageable pageable
+		Pageable pageable,
+		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC") SortOption sortOption
 	) {
-		return CommonResponse.success(SuccessCode.SUCCESS, reviewService.getCursorReview(storeId, pageable));
+		return CommonResponse.success(SuccessCode.SUCCESS,
+			reviewService.getCursorReview(storeId, pageable, sortOption));
 	}
 
 	@GetMapping("/reviews/users/{userId}")
@@ -60,6 +64,17 @@ public class ReviewController {
 		Pageable pageable
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS, reviewService.getDetailsCursorUserReview(userId, pageable));
+	}
+
+	@PreAuthorize("hasAnyRole('MASTER')")
+	@GetMapping("/stores/{storeId}/orders/reviews/admin")
+	public ResponseEntity<CommonResponse<Slice<ReviewCursorResponse>>> getCursorReviewAdmin(
+		@PathVariable UUID storeId,
+		Pageable pageable,
+		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC") SortOption sortOption
+	) {
+		return CommonResponse.success(SuccessCode.SUCCESS,
+			reviewService.getCursorReviewAdmin(storeId, pageable, sortOption));
 	}
 
 	@PutMapping("/reviews/{reviewId}")

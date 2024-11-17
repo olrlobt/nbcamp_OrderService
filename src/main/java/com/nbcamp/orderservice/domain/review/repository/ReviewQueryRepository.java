@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
+import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.review.dto.ReviewCursorResponse;
 import com.nbcamp.orderservice.domain.review.dto.ReviewDetailsCursorResponse;
 import com.nbcamp.orderservice.domain.review.entity.QReview;
@@ -17,10 +17,9 @@ import com.nbcamp.orderservice.domain.review.entity.Review;
 import com.nbcamp.orderservice.domain.store.entity.Store;
 import com.nbcamp.orderservice.domain.user.entity.QUser;
 import com.nbcamp.orderservice.domain.user.entity.User;
-import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -34,9 +33,7 @@ public class ReviewQueryRepository {
 	QReview qReview = QReview.review;
 	QUser qUser = QUser.user;
 
-	public Slice<ReviewCursorResponse> getAllReviewInStore(Store store, Pageable pageable) {
-
-		Pageable validatedPageable = validatePageSize(pageable);
+	public Slice<ReviewCursorResponse> getAllReviewInStore(Store store, Pageable pageable, SortOption sortOption, boolean includeDelete) {
 
 		List<ReviewCursorResponse> reviewList = jpaQueryFactory.query()
 			.select(
@@ -52,16 +49,15 @@ public class ReviewQueryRepository {
 			.from(qReview)
 			.where(
 				qReview.order.store.id.eq(store.getId()),
-				qReview.deletedAt.isNull(),
-				qReview.deletedBy.isNull()
+				deleteFilter(includeDelete)
 			)
-			.orderBy(getOrderSpecifier(validatedPageable))
-			.limit(validatedPageable.getPageSize() + 1)
+			.orderBy(getOrderSpecifier(sortOption))
+			.limit(pageable.getPageSize() + 1)
 			.fetch();
 
 		boolean hasNext = reviewList.size() > pageable.getPageSize();
 		if (hasNext) {
-			reviewList.remove(validatedPageable.getPageSize());
+			reviewList.remove(pageable.getPageSize());
 		}
 
 		return new SliceImpl<>(reviewList, pageable, hasNext);
@@ -108,8 +104,8 @@ public class ReviewQueryRepository {
 			.from(qReview)
 			.where(
 				qReview.id.eq(reviewId),
-				qReview.deletedBy.isNotNull(),
-				qReview.deletedAt.isNotNull()
+				qReview.deletedBy.isNull(),
+				qReview.deletedAt.isNull()
 			)
 			.fetchOne();
 
@@ -117,27 +113,18 @@ public class ReviewQueryRepository {
 
 	}
 
-
-
-	private Pageable validatePageSize(Pageable pageable){
-		int pageSize = pageable.getPageSize();
-		if (pageSize == 10 || pageSize == 30 || pageSize == 50) {
-			return pageable;
-		} else {
-			return PageRequest.of(pageable.getPageNumber(), 10, pageable.getSort());
-		}
+	private BooleanExpression deleteFilter(boolean includeDelete){
+		return includeDelete ? null : qReview.deletedAt.isNull().and(qReview.deletedBy.isNull());
 	}
 
-	private OrderSpecifier<?>[] getOrderSpecifier(Pageable pageable){
-		return pageable
-			.getSort()
-			.stream()
-			.map(order -> {
-				PathBuilder pathBuilder = new PathBuilder<>(qReview.getType(), qReview.getMetadata());
-					return new OrderSpecifier(
-						order.isAscending() ? Order.ASC : Order.DESC,
-						pathBuilder.get(order.getProperty()));
-			}).toArray(OrderSpecifier[]::new);
+
+	private OrderSpecifier<?> getOrderSpecifier(SortOption sortOption) {
+		return switch (sortOption) {
+			case CREATED_AT_DESC -> qReview.createdAt.desc();
+			case UPDATED_AT_ASC -> qReview.updatedAt.asc();
+			case UPDATED_AT_DESC -> qReview.updatedAt.desc();
+			default -> qReview.createdAt.asc();
+		};
 	}
 
 }
