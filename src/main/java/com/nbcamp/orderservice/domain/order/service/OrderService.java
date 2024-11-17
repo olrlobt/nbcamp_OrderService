@@ -4,8 +4,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -47,12 +45,8 @@ public class OrderService {
 
 	@Transactional
 	public OrderInfoResponse createOrder(OrderRequest request, User user) {
-		validateUserRoleForCreateOrder(user);
-		if(request.address() != null){
-			validateAddressPattern(request.address());
-		}
-		Store store = getStoreById(request.storeId());
 
+		Store store = getStoreById(request.storeId());
 		Order order = Order.create(request, store, user);
 
 		List<OrderProduct> orderProducts = orderProductService.createOrderProducts(order, request.products());
@@ -63,12 +57,11 @@ public class OrderService {
 
 		List<OrderProductResponse> orderProductResponses =
 			orderProducts.stream()
-			.map(OrderProductResponse::new)
+				.map(OrderProductResponse::new)
 				.toList();
 
 		return new OrderInfoResponse(orderResponse, orderProductResponses);
 	}
-
 
 	@Transactional(readOnly = true)
 	public Page<OrderResponse> getOrdersAdmin(
@@ -77,7 +70,7 @@ public class OrderService {
 		OrderSearchAdminRequest request,
 		User user
 	) {
-		if(user.getUserRole() == UserRole.OWNER){
+		if (user.getUserRole() == UserRole.OWNER) {
 			existsByStore(storeId, user.getId());
 		}
 
@@ -90,7 +83,7 @@ public class OrderService {
 		User user,
 		OrderSearchCustomerRequest request
 	) {
-		if(request.categoryId() != null){
+		if (request.categoryId() != null) {
 			existsByCategory(request.categoryId());
 		}
 		return orderQueryRepository.findAllByUserOrder(
@@ -102,58 +95,45 @@ public class OrderService {
 
 	@Transactional(readOnly = true)
 	public List<OrderProductResponse> getOrderDetail(UUID orderId, User user) {
-		if(user.getUserRole() == UserRole.CUSTOMER){
+		if (user.getUserRole() == UserRole.CUSTOMER) {
 			validateOrderInCustomer(orderId, user);
 		}
 		return orderQueryRepository.findAllByOrderProductInOrder(orderId);
 	}
 
-
 	@Transactional
 	public OrderResponse updateOrderStatus(UUID orderId, OrderUpdateRequest orderUpdateRequest, User user) {
 		Order order = findByOrder(orderId);
-		if(user.getUserRole() == UserRole.OWNER){
+		if (user.getUserRole() == UserRole.OWNER) {
 			existsByStore(order.getStore().getId(), user.getId());
 		}
-		validateOrderStatus(order.getOrderStatus());
-
-		if(orderUpdateRequest.deliveryAddress() != null){
-			validateAddressPattern(orderUpdateRequest.deliveryAddress());
+		if (user.getUserRole() == UserRole.CUSTOMER) {
+			validateOrderStatusInCustomer(order.getOrderStatus());
 		}
+		validateOrderStatus(orderUpdateRequest.orderStatus(), order.getOrderStatus());
 
 		order.update(orderUpdateRequest);
 
 		return new OrderResponse(order);
 	}
 
-
 	@Transactional
 	public void cancelOrder(UUID orderId, User user) {
 		Order order = findByOrder(orderId);
 
-		if (order.getDeletedAt() != null) {
+		if (order.getDeletedAt() != null || order.getDeletedBy() != null) {
 			throw new IllegalStateException(ErrorCode.ALREADY_CANCELED.getMessage());
 		}
 
 		if (user.getUserRole() == UserRole.CUSTOMER) {
 			validateOrderCreateAtDuration(order.getCreatedAt(), LocalDateTime.now());
+			validateOrderInCustomer(orderId, user);
 		}
 
 		order.cancelOrder(user.getId());
 	}
 
-
-	private void validateAddressPattern(String fullAddress) {
-		String addressPattern = "([가-힣]+[특별시|광역시|도])\\s([가-힣]+구)";
-		Pattern pattern = Pattern.compile(addressPattern);
-		Matcher matcher = pattern.matcher(fullAddress);
-		if (matcher.find()) {
-			return;
-		}
-		throw new IllegalArgumentException(ErrorCode.ADDRESS_PATTERN_MISMATCH.getMessage());
-	}
-
-	private void validateOrderCreateAtDuration(LocalDateTime orderTime, LocalDateTime now){
+	private void validateOrderCreateAtDuration(LocalDateTime orderTime, LocalDateTime now) {
 		if (Duration.between(orderTime, now).toMinutes() > 5) {
 			throw new IllegalStateException(ErrorCode.CANCELLATION_TIME_EXCEEDED.getMessage());
 		}
@@ -164,38 +144,44 @@ public class OrderService {
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_STORE.getMessage()));
 	}
 
-	private void validateUserRoleForCreateOrder(User user) {
-		if (user.getUserRole() != UserRole.CUSTOMER && user.getUserRole() != UserRole.OWNER) {
-			throw new IllegalArgumentException(ErrorCode.NO_PERMISSION_TO_CREATE_ORDER.getMessage());
-		}
-	}
-
-
-	private void validateOrderInCustomer(UUID orderId, User user){
-		if(!orderJpaRepository.existsByIdAndUserId(orderId, user.getId())){
+	private void validateOrderInCustomer(UUID orderId, User user) {
+		if (!orderJpaRepository.existsByIdAndUserId(orderId, user.getId())) {
 			throw new IllegalArgumentException(ErrorCode.NOT_MATCH_CONFIRM.getMessage());
 		}
 	}
 
-	private void validateOrderStatus(OrderStatus currentStatus) {
+	private void validateOrderStatus(OrderStatus newStatus, OrderStatus currentStatus) {
+
+		if (currentStatus == OrderStatus.ACCEPTED && newStatus == OrderStatus.PENDING) {
+			throw new IllegalArgumentException(ErrorCode.ORDER_STATUS_ACCEPTED_DROP_INVALID.getMessage());
+		} else if (currentStatus == OrderStatus.DELIVERING) {
+			if (newStatus == OrderStatus.ACCEPTED || newStatus == OrderStatus.PENDING) {
+				throw new IllegalArgumentException(ErrorCode.ORDER_STATUS_DELIVERING_DROP_INVALID.getMessage());
+			}
+		} else if (currentStatus == OrderStatus.COMPLETED || currentStatus == OrderStatus.CANCELLED) {
+			throw new IllegalArgumentException(ErrorCode.INVALID_ORDER_STATUS.getMessage());
+		}
+	}
+
+	private void validateOrderStatusInCustomer(OrderStatus currentStatus) {
 		if (currentStatus == OrderStatus.COMPLETED || currentStatus == OrderStatus.CANCELLED) {
 			throw new IllegalArgumentException(ErrorCode.INVALID_ORDER_STATUS.getMessage());
 		}
 	}
 
-	private Order findByOrder(UUID orderId){
+	private Order findByOrder(UUID orderId) {
 		return orderJpaRepository.findById(orderId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
 	}
 
-	private void existsByStore(UUID storeId, UUID userId){
-		if(!storeJpaRepository.existsByIdAndUserId(storeId, userId)){
+	private void existsByStore(UUID storeId, UUID userId) {
+		if (!storeJpaRepository.existsByIdAndUserId(storeId, userId)) {
 			throw new IllegalArgumentException(ErrorCode.NOT_MATCH_CONFIRM.getMessage());
 		}
 	}
 
-	private void existsByCategory(UUID categoryId){
-		if(!categoryJpaRepository.existsById(categoryId)){
+	private void existsByCategory(UUID categoryId) {
+		if (!categoryJpaRepository.existsById(categoryId)) {
 			throw new IllegalArgumentException(ErrorCode.NOT_FOUND_CATEGORY.getMessage());
 		}
 	}

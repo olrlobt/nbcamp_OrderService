@@ -14,4 +14,16 @@ public record OrderSearchAdminRequest(
 	SortOption sortOption
 
 ) {
+	public OrderSearchAdminRequest(
+		OrderType orderType,
+		LocalDate startDate,
+		LocalDate endDate,
+		OrderStatus orderStatus,
+		SortOption sortOption) {
+		this.orderType = orderType;
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.orderStatus = orderStatus;
+		this.sortOption = sortOption != null ? sortOption : SortOption.CREATED_AT_ASC;
+	}
 }
