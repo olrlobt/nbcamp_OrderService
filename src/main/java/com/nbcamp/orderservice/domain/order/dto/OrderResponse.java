@@ -14,7 +14,8 @@ public record OrderResponse(
 	OrderType type,
 	String deliveryAddress,
 	String content,
-	int totalPrice
+	int totalPrice,
+	String storeName
 ) {
 	public OrderResponse(Order order) {
 		this(
@@ -25,7 +26,15 @@ public record OrderResponse(
 			order.getOrderType(),
 			order.getDeliveryAddress(),
 			order.getRequest(),
-			order.getTotalPrice()
+			order.getTotalPrice(),
+			order.getStore().getName()
 		);
 	}
 }
+
+
+
+
+
+
+
