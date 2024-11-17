@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,7 +37,7 @@ public class ReviewController {
 	@PostMapping("/orders/{orderId}/reviews")
 	public ResponseEntity<CommonResponse<ReviewResponse>> createReview(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable String orderId,
+		@PathVariable UUID orderId,
 		@RequestBody ReviewRequest reviewRequest
 	) {
 		return CommonResponse.success(
@@ -64,7 +65,7 @@ public class ReviewController {
 	@PutMapping("/reviews/{reviewId}")
 	public ResponseEntity<CommonResponse<ReviewResponse>> updateReview(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable String reviewId,
+		@PathVariable UUID reviewId,
 		@RequestBody ReviewRequest reviewRequest
 	) {
 		return CommonResponse.success(
@@ -73,10 +74,11 @@ public class ReviewController {
 		);
 	}
 
+	@PreAuthorize("hasAnyRole('CUSTOMER','MANAGER','MASTER')")
 	@DeleteMapping("/reviews/{reviewId}")
 	public ResponseEntity<CommonResponse<Void>> deleteReview(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable String reviewId
+		@PathVariable UUID reviewId
 	) {
 		reviewService.deleteReview(userDetails.getUser(), reviewId);
 		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);

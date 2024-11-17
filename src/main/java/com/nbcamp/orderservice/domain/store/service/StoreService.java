@@ -92,7 +92,7 @@ public class StoreService {
 	}
 
 
-	public Store findById(UUID storeId) {
+	private Store findById(UUID storeId) {
 		return storeJpaRepository.findById(storeId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_STORE.getMessage()));
 	}

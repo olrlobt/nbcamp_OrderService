@@ -1,6 +1,8 @@
 package com.nbcamp.orderservice.domain.review.repository;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import com.nbcamp.orderservice.domain.review.dto.ReviewCursorResponse;
 import com.nbcamp.orderservice.domain.review.dto.ReviewDetailsCursorResponse;
 import com.nbcamp.orderservice.domain.review.entity.QReview;
+import com.nbcamp.orderservice.domain.review.entity.Review;
 import com.nbcamp.orderservice.domain.store.entity.Store;
 import com.nbcamp.orderservice.domain.user.entity.QUser;
 import com.nbcamp.orderservice.domain.user.entity.User;
@@ -96,6 +99,22 @@ public class ReviewQueryRepository {
 		}
 
 		return new SliceImpl<>(reviewList, pageable, hasNext);
+	}
+
+	public Optional<Review> findByIdCustom(UUID reviewId){
+
+		Review review = jpaQueryFactory.query()
+			.select(qReview)
+			.from(qReview)
+			.where(
+				qReview.id.eq(reviewId),
+				qReview.deletedBy.isNotNull(),
+				qReview.deletedAt.isNotNull()
+			)
+			.fetchOne();
+
+		return Optional.ofNullable(review);
+
 	}
 
 

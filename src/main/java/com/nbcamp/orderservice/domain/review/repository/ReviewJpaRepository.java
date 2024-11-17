@@ -9,4 +9,6 @@ import com.nbcamp.orderservice.domain.review.entity.Review;
 public interface ReviewJpaRepository extends JpaRepository<Review, UUID> {
 
 	boolean existsByUserIdAndOrderId(UUID user_id, UUID order_id);
+
+	boolean existsByIdAndUserId(UUID id, UUID user_id);
 }
