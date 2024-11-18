@@ -27,36 +27,41 @@ import com.nbcamp.orderservice.global.exception.code.SuccessCode;
 import com.nbcamp.orderservice.global.response.CommonResponse;
 import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
+@Tag(name = "유저 관련 API")
 public class UserController {
 
 	private final UserService userService;
 
+	@Operation(summary = "회원가입")
 	@PostMapping("/users/signup")
 	public ResponseEntity<CommonResponse<UserResponse>> signup(@Valid @RequestBody SignupRequest signupRequest) {
 		UserResponse signup = userService.signup(signupRequest);
 		return CommonResponse.success(SuccessCode.SUCCESS_INSERT, signup);
 	}
 
+	@Operation(summary = "로그아웃")
 	@PostMapping("/users/logout")
 	public ResponseEntity<CommonResponse<Void>> logout(@AuthenticationPrincipal UserDetails userDetails) {
 		userService.logout(userDetails.getUsername());
 		return CommonResponse.success(SuccessCode.SUCCESS);
 	}
 
+	@Operation(summary = "회원 정보 조회")
 	@GetMapping("/users/{userId}")
 	public ResponseEntity<CommonResponse<UserResponse>> getUserDetail(@PathVariable UUID userId){
 		UserResponse userDetail = userService.getUserDetail(userId);
 		return CommonResponse.success(SuccessCode.SUCCESS, userDetail);
 	}
 
+	@Operation(summary = "회원 목록 조회")
 	@PreAuthorize("hasAnyRole('MASTER', 'MANAGER')")
 	@GetMapping("/users")
 	public ResponseEntity<CommonResponse<Page<UserResponse>>> getAllUsers(
@@ -67,6 +72,7 @@ public class UserController {
 		return CommonResponse.success(SuccessCode.SUCCESS, allUsers);
 	}
 
+	@Operation(summary = "회원 정보 수정")
 	@PutMapping("/users/{userId}")
 	public ResponseEntity<CommonResponse<UserResponse>> updateUser(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -76,6 +82,7 @@ public class UserController {
 		return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, userResponse);
 	}
 
+	@Operation(summary = "회원 정보 삭제")
 	@DeleteMapping("/users/{userId}")
 	public ResponseEntity<CommonResponse<Void>> deleteUser(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -84,6 +91,7 @@ public class UserController {
 		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
 	}
 
+	@Operation(summary = "회원 권한 수정")
 	@PreAuthorize("hasAnyRole('MASTER')")
 	@PutMapping("/users/{userId}/role")
 	public ResponseEntity<CommonResponse<Void>> updateUserRole(@PathVariable UUID userId, @RequestBody String role){

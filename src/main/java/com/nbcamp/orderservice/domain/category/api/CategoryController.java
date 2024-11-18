@@ -22,16 +22,19 @@ import com.nbcamp.orderservice.global.exception.code.SuccessCode;
 import com.nbcamp.orderservice.global.response.CommonResponse;
 import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1")
+@Tag(name = "카테고리 관련 API")
 public class CategoryController {
 
 	private final CategoryService categoryService;
 
-
+	@Operation(summary = "카테고리 생성")
 	@PreAuthorize("hasAnyRole('MASTER')")
 	@PostMapping("/category")
 	public ResponseEntity<CommonResponse<CategoryResponse>> createCategory(
@@ -42,18 +45,21 @@ public class CategoryController {
 				.createCategory(categoryRequest));
 	}
 
+	@Operation(summary = "카테고리 상세 조회")
 	@GetMapping("/category/{categoryId}")
 	public ResponseEntity<CommonResponse<CategoryResponse>> getCategory(
 		@PathVariable UUID categoryId) {
 		return CommonResponse.success(SuccessCode.SUCCESS, categoryService.getCategory(categoryId));
 	}
 
+	@Operation(summary = "카테고리 목록 조회")
 	@GetMapping("/category")
 	public ResponseEntity<CommonResponse<List<CategoryResponse>>> getAllCategory(
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS, categoryService.getAllCategory());
 	}
 
+	@Operation(summary = "카테고리 수정")
 	@PreAuthorize("hasAnyRole('MASTER')")
 	@PutMapping("/category/{categoryId}")
 	public ResponseEntity<CommonResponse<CategoryResponse>> updateCategory(
@@ -64,6 +70,7 @@ public class CategoryController {
 				.updateCategory(categoryId, categoryRequest));
 	}
 
+	@Operation(summary = "카테고리 삭제")
 	@PreAuthorize("hasAnyRole('MASTER')")
 	@DeleteMapping("/category/{categoryId}")
 	public ResponseEntity<CommonResponse<Void>> deleteCategory

@@ -52,6 +52,7 @@ public class SecurityConfig {
 				.requestMatchers(HttpMethod.GET, "/api/v1/stores/{storeId}/orders/reviews").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/v1/reviews/users/{userId}").permitAll()
 				.requestMatchers("/api/v1/users/login", "/api/v1/users/signup", "/h2/**").permitAll()
+				.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 				.anyRequest().authenticated())
 			.logout((logout) -> logout
 				.invalidateHttpSession(true))

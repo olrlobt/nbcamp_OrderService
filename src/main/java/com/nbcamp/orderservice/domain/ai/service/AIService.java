@@ -46,14 +46,14 @@ public class AIService {
 	private static final String MAX_LENGTH_HINT = "답변은 최대한 간결하게 50자 이하로 작성해줘.";
 
 	@Transactional
-	public AIResponse createProductDescription(String storeId, AIRequest request, User user) {
+	public AIResponse createProductDescription(UUID storeId, AIRequest request, User user) {
 		// Bucket을 사용한 요청 제한 체크
 		if (!bucket.tryConsume(1)) {
 			throw new IllegalStateException(ErrorCode.RATE_LIMIT_EXCEEDED.getMessage());
 		}
 
 		validateOwner(user.getUserRole());
-		Store store = storeJpaRepository.findById(UUID.fromString(storeId))
+		Store store = storeJpaRepository.findById(storeId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_STORE.getMessage()));
 
 		String requestText =

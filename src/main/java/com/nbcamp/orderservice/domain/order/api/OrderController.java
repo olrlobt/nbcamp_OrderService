@@ -30,16 +30,20 @@ import com.nbcamp.orderservice.global.exception.code.SuccessCode;
 import com.nbcamp.orderservice.global.response.CommonResponse;
 import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping(value = {"/api/v1"})
 @RequiredArgsConstructor
+@Tag(name = "주문 관련 API")
 public class OrderController {
 
 	private final OrderService orderService;
 
+	@Operation(summary = "주문 생성")
 	@PostMapping("/orders")
 	public ResponseEntity<CommonResponse<OrderInfoResponse>> createOrder(
 		@Valid @RequestBody OrderRequest request,
@@ -49,6 +53,7 @@ public class OrderController {
 			orderService.createOrder(request, userDetails.getUser()));
 	}
 
+	@Operation(summary = "관리자 전용 주문 목록 조회")
 	@PreAuthorize("hasAnyRole('OWNER','MANAGER','MASTER')")
 	@GetMapping("/stores/{storeId}/orders")
 	public ResponseEntity<CommonResponse<Page<OrderResponse>>> getAllOrdersAdmin(
@@ -66,6 +71,7 @@ public class OrderController {
 			));
 	}
 
+	@Operation(summary = "회원 전용 주문 목록 조회")
 	@PreAuthorize("hasAnyRole('CUSTOMER')")
 	@GetMapping("/orders")
 	public ResponseEntity<CommonResponse<Page<OrderResponse>>> getAllOrdersCustomer(
@@ -81,6 +87,7 @@ public class OrderController {
 			));
 	}
 
+	@Operation(summary = "주문 상세 조회")
 	@GetMapping("/orders/{orderId}")
 	public ResponseEntity<CommonResponse<List<OrderProductResponse>>> getOrderDetail(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -90,6 +97,7 @@ public class OrderController {
 			orderService.getOrderDetail(orderId, userDetails.getUser()));
 	}
 
+	@Operation(summary = "주문 정보 수정")
 	@PreAuthorize("hasAnyRole('OWNER','MANAGER','MASTER')")
 	@PutMapping("/orders/{orderId}")
 	public ResponseEntity<CommonResponse<OrderResponse>> updateOrderStatus(
@@ -101,6 +109,7 @@ public class OrderController {
 			orderService.updateOrderStatus(orderId, orderUpdateRequest, userDetails.getUser()));
 	}
 
+	@Operation(summary = "주문 취소")
 	@DeleteMapping("/orders/{orderId}")
 	public ResponseEntity<CommonResponse<Void>> cancelOrder(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
