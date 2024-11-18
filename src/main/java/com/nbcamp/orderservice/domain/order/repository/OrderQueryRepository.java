@@ -20,9 +20,6 @@ import com.nbcamp.orderservice.domain.order.dto.OrderSearchAdminRequest;
 import com.nbcamp.orderservice.domain.order.dto.OrderSearchCustomerRequest;
 import com.nbcamp.orderservice.domain.order.entity.QOrder;
 import com.nbcamp.orderservice.domain.order.entity.QOrderProduct;
-import com.nbcamp.orderservice.domain.product.entity.QProduct;
-import com.nbcamp.orderservice.domain.store.entity.QStore;
-import com.nbcamp.orderservice.domain.user.entity.QUser;
 import com.nbcamp.orderservice.domain.user.entity.User;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -40,10 +37,6 @@ public class OrderQueryRepository {
 	private final JPAQueryFactory jpaQueryFactory;
 	QOrder order = QOrder.order;
 	QOrderProduct orderProduct = QOrderProduct.orderProduct;
-	QStore store = QStore.store;
-	QUser user = QUser.user;
-	QProduct product = QProduct.product;
-
 
 	public Page<OrderResponse> findByStoreOrders(
 		Pageable pageable,
@@ -62,7 +55,8 @@ public class OrderQueryRepository {
 					order.orderType,
 					order.deliveryAddress,
 					order.request,
-					order.totalPrice
+					order.totalPrice,
+					order.store.name
 				)
 			)
 			.from(order)
@@ -91,7 +85,6 @@ public class OrderQueryRepository {
 				.fetchOne()
 		).orElse(0L);
 
-
 		return new PageImpl<>(orderResponseList, pageable, total);
 
 	}
@@ -101,7 +94,6 @@ public class OrderQueryRepository {
 		User user,
 		OrderSearchCustomerRequest request
 	) {
-
 		List<OrderResponse> orderResponseList = jpaQueryFactory.query()
 			.select(
 				Projections.constructor(
@@ -113,7 +105,8 @@ public class OrderQueryRepository {
 					order.orderType,
 					order.deliveryAddress,
 					order.request,
-					order.totalPrice
+					order.totalPrice,
+					order.store.name
 				)
 			)
 			.from(order)
@@ -130,7 +123,6 @@ public class OrderQueryRepository {
 			.limit(pageable.getPageSize())
 			.fetch();
 
-
 		long total = Optional.ofNullable(
 			jpaQueryFactory
 				.select(order.id.countDistinct())
@@ -146,11 +138,11 @@ public class OrderQueryRepository {
 				.fetchOne()
 		).orElse(0L);
 
-
 		return new PageImpl<>(orderResponseList, pageable, total);
 
 	}
-	public List<OrderProductResponse> findAllByOrderProductInOrder(UUID orderId){
+
+	public List<OrderProductResponse> findAllByOrderProductInOrder(UUID orderId) {
 
 		return jpaQueryFactory.query()
 			.select(
@@ -167,7 +159,6 @@ public class OrderQueryRepository {
 			.orderBy(orderProduct.totalPrice.desc())
 			.fetch();
 	}
-
 
 	private BooleanExpression storeNameContains(String storeName) {
 		return StringUtils.hasText(storeName) ? order.store.name.containsIgnoreCase(storeName) : null;
@@ -188,10 +179,9 @@ public class OrderQueryRepository {
 		return order.createdAt.between(startDate.atStartOfDay(), endDate.atTime(23, 59, 59));
 	}
 
-	private BooleanExpression orderStateEquals(OrderStatus orderStatus){
+	private BooleanExpression orderStateEquals(OrderStatus orderStatus) {
 		return orderStatus != null ? order.orderStatus.eq(orderStatus) : null;
 	}
-
 
 	private OrderSpecifier<?> getOrderSpecifier(SortOption sortOption) {
 		return switch (sortOption) {

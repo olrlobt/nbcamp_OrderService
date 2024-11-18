@@ -1,5 +1,6 @@
 package com.nbcamp.orderservice.domain.review.service;
 
+import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nbcamp.orderservice.domain.common.OrderStatus;
+import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.order.entity.Order;
 import com.nbcamp.orderservice.domain.order.repository.OrderJpaRepository;
@@ -19,7 +21,7 @@ import com.nbcamp.orderservice.domain.review.entity.Review;
 import com.nbcamp.orderservice.domain.review.repository.ReviewJpaRepository;
 import com.nbcamp.orderservice.domain.review.repository.ReviewQueryRepository;
 import com.nbcamp.orderservice.domain.store.entity.Store;
-import com.nbcamp.orderservice.domain.store.service.StoreService;
+import com.nbcamp.orderservice.domain.store.repository.StoreJpaRepository;
 import com.nbcamp.orderservice.domain.user.entity.User;
 import com.nbcamp.orderservice.domain.user.service.UserService;
 import com.nbcamp.orderservice.global.exception.code.ErrorCode;
@@ -35,30 +37,47 @@ public class ReviewService {
 	private final ReviewJpaRepository reviewJpaRepository;
 	private final ReviewQueryRepository reviewQueryRepository;
 	private final OrderJpaRepository orderJpaRepository;
-	private final StoreService storeService;
+	private final StoreJpaRepository storeJpaRepository;
 	private final UserService userService;
 
 	@Transactional
-	public ReviewResponse createReview(User user, String orderId, ReviewRequest request) {
-		checkCustomerUserRole(user);
+	public ReviewResponse createReview(User user, UUID orderId, ReviewRequest request) {
 		Order order = findByOrderId(orderId);
-		validateOrderComplete(order);
 		validateOrderAndReviewUser(order, user);
-		findExistingReview(order, user);
+		validateOrderComplete(order);
+		checkExistingReview(order, user);
 		Review review = reviewJpaRepository.save(Review.create(request, user, order));
 		order.getStore().addStoreGrade(review.getGrade());
 
-		return new ReviewResponse(
-			review.getId(),
-			review.getContent(),
-			review.getGrade());
+		return new ReviewResponse(review);
 	}
 
 	@Transactional(readOnly = true)
-	public Slice<ReviewCursorResponse> getCursorReview(String storeId, Pageable pageable) {
-		Store store = storeService.findById(storeId);
-		return reviewQueryRepository.getAllReviewInStore(store, pageable);
+	public Slice<ReviewCursorResponse> getCursorReview(
+		UUID storeId,
+		Pageable pageable,
+		SortOption sortOption
+	) {
+		Store store = findByStore(storeId);
+		return reviewQueryRepository.getAllReviewInStore(
+			store,
+			pageable,
+			sortOption,
+			false);
+	}
 
+	@Transactional(readOnly = true)
+	public Slice<ReviewCursorResponse> getCursorReviewAdmin(
+		UUID storeId,
+		Pageable pageable,
+		SortOption sortOption
+	) {
+		Store store = findByStore(storeId);
+		return reviewQueryRepository.getAllReviewInStore(
+			store,
+			pageable,
+			sortOption,
+			true);
 	}
 
 	@Transactional(readOnly = true)
@@ -68,90 +87,79 @@ public class ReviewService {
 	}
 
 	@Transactional
-	public ReviewResponse updateReview(User user, String reviewId, ReviewRequest request){
-		checkCustomerUserRole(user);
-		Review review = findById(reviewId);
-		validateOrderAndReviewUser(review.getOrder(), user);
+	public ReviewResponse updateReview(User user, UUID reviewId, ReviewRequest request) {
+		Review review = findByIdCustom(reviewId);
+		validateUserInReview(review.getId(), user.getId());
 		review.update(request);
 
-		return new ReviewResponse(
-			review.getId(),
-			review.getContent(),
-			review.getGrade());
+		return new ReviewResponse(review);
 	}
 
 	@Transactional
-	public void deleteReview(User user, String reviewId){
-		checkDeleteReviewUserRole(user);
-		Review review = findById(reviewId);
+	public void deleteReview(User user, UUID reviewId) {
+		Review review = findByIdCustom(reviewId);
 		deleteByRole(user, review);
-
 	}
 
-	public void deleteByRole(User user, Review review){
-		if(user.getUserRole() == UserRole.CUSTOMER){
-			validateOrderAndReviewUser(review.getOrder(), user);
+	public void deleteByRole(User user, Review review) {
+		if (user.getUserRole() == UserRole.CUSTOMER) {
+			validateUserInReview(review.getId(), user.getId());
 			deleteByCustomer(review, user);
 		} else {
 			deleteByAdmin(review, user);
 		}
 	}
 
-	public void deleteByCustomer(Review review, User user){
+	public void deleteByCustomer(Review review, User user) {
 		review.delete(user.getId());
 	}
 
-	public void deleteByAdmin(Review review, User user){
+	public void deleteByAdmin(Review review, User user) {
 		review.delete(user.getId());
 	}
 
-	public void checkCustomerUserRole(User user) {
-		if (user.getUserRole() != UserRole.CUSTOMER) {
-			throw new IllegalArgumentException(ErrorCode.INSUFFICIENT_PERMISSIONS.getMessage());
-		}
-	}
-
-	public void validateOrderComplete(Order order){
-		if(order.getOrderStatus() != OrderStatus.COMPLETED){
+	private void validateOrderComplete(Order order) {
+		if (order.getOrderStatus() != OrderStatus.COMPLETED) {
 			throw new IllegalArgumentException(ErrorCode.ORDER_INCOMPLETE_PROCESS.getMessage());
 		}
 	}
 
-	public void checkDeleteReviewUserRole(User user){
-		if(user.getUserRole() != UserRole.CUSTOMER
-			&& user.getUserRole() != UserRole.MANAGER
-			&& user.getUserRole() != UserRole.MASTER){
-			throw new IllegalArgumentException(ErrorCode.INSUFFICIENT_PERMISSIONS.getMessage());
-		}
-	}
-
-	public void validateOrderAndReviewUser(Order order, User user){
-		if(order.getUser().equals(user)){
+	private void validateOrderAndReviewUser(Order order, User user) {
+		if (order.getUser().equals(user)) {
 			throw new IllegalArgumentException(ErrorCode.NOT_MATCH_CONFIRM.getMessage());
 		}
 	}
 
-	public void findExistingReview(Order order, User user){
-		if(reviewJpaRepository.existsByUserIdAndOrderId(user.getId(), order.getId())){
+	private void checkExistingReview(Order order, User user) {
+		if (reviewJpaRepository.existsByUserIdAndOrderId(user.getId(), order.getId())) {
 			throw new IllegalArgumentException(ErrorCode.EXISTING_REVIEW.getMessage());
 		}
 	}
 
+	private void validateUserInReview(UUID reviewId, UUID userId) {
+		if (Objects.equals(reviewId, userId)) {
+			throw new IllegalArgumentException(ErrorCode.INVALID_REVIEW.getMessage());
+		}
+	}
 
-
-	private Order findByOrderId(String orderId) {
-		return orderJpaRepository.findById(UUID.fromString(orderId))
+	private Order findByOrderId(UUID orderId) {
+		return orderJpaRepository.findById(orderId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
 	}
 
-
-
-	public Review findById(String reviewId){
-		return reviewJpaRepository.findById(UUID.fromString(reviewId))
+	private Review findByIdCustom(UUID reviewId) {
+		return reviewQueryRepository.findByIdCustom(reviewId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_REVIEW.getMessage()));
 	}
 
+	private Review findById(UUID reviewId) {
+		return reviewJpaRepository.findById(reviewId)
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_REVIEW.getMessage()));
+	}
 
-
+	private Store findByStore(UUID storeId) {
+		return storeJpaRepository.findById(storeId)
+			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_STORE.getMessage()));
+	}
 
 }

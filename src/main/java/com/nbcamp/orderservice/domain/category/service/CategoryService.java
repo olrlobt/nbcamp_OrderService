@@ -11,8 +11,6 @@ import com.nbcamp.orderservice.domain.category.dto.CategoryRequest;
 import com.nbcamp.orderservice.domain.category.dto.CategoryResponse;
 import com.nbcamp.orderservice.domain.category.entity.Category;
 import com.nbcamp.orderservice.domain.category.repository.CategoryJpaRepository;
-import com.nbcamp.orderservice.domain.category.repository.CategoryQueryRepository;
-import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.user.entity.User;
 import com.nbcamp.orderservice.global.exception.code.ErrorCode;
 
@@ -23,11 +21,9 @@ import lombok.RequiredArgsConstructor;
 public class CategoryService {
 
 	private final CategoryJpaRepository categoryJpaRepository;
-	private final CategoryQueryRepository categoryQueryRepository;
 
 	@Transactional
-	public CategoryResponse createCategory(CategoryRequest request, User user) {
-		checkMasterUserRole(user);
+	public CategoryResponse createCategory(CategoryRequest request) {
 		checkCategoryDuplicate(request.category());
 		Category category = Category.create(request);
 		categoryJpaRepository.save(category);
@@ -35,7 +31,7 @@ public class CategoryService {
 	}
 
 	@Transactional(readOnly = true)
-	public CategoryResponse getCategory(String categoryId) {
+	public CategoryResponse getCategory(UUID categoryId) {
 		Category category = findById(categoryId);
 		return new CategoryResponse(category.getId(), category.getCategory());
 	}
@@ -49,8 +45,7 @@ public class CategoryService {
 	}
 
 	@Transactional
-	public CategoryResponse updateCategory(String categoryId, CategoryRequest request, User user) {
-		checkMasterUserRole(user);
+	public CategoryResponse updateCategory(UUID categoryId, CategoryRequest request) {
 		checkCategoryDuplicate(request.category());
 		Category category = findById(categoryId);
 		category.update(request);
@@ -59,8 +54,7 @@ public class CategoryService {
 	}
 
 	@Transactional
-	public void deleteCategory(String categoryId, User user) {
-		checkMasterUserRole(user);
+	public void deleteCategory(UUID categoryId, User user) {
 		Category category = findById(categoryId);
 		category.delete(user.getId());
 	}
@@ -71,23 +65,11 @@ public class CategoryService {
 		}
 	}
 
-	public Category findById(String uuid) {
-		return categoryJpaRepository.findById(UUID.fromString(uuid))
+	public Category findById(UUID categoryId) {
+		return categoryJpaRepository.findById(categoryId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_CATEGORY.getMessage()));
 	}
 
-	public List<Category> findCategoriesByNames(List<String> categoryList){
-		return categoryQueryRepository.findAllCategoryByCategoryId(categoryList)
-			.orElseThrow(()-> new IllegalArgumentException(ErrorCode.NOT_FOUND_CATEGORY.getMessage()));
-	}
-
-	private void checkMasterUserRole(User user) {
-		if (user.getUserRole().equals(UserRole.CUSTOMER)
-			|| user.getUserRole().equals(UserRole.OWNER)
-			|| user.getUserRole().equals(UserRole.MANAGER)) {
-			throw new IllegalArgumentException(ErrorCode.INSUFFICIENT_PERMISSIONS.getMessage());
-		}
-	}
 
 }
 

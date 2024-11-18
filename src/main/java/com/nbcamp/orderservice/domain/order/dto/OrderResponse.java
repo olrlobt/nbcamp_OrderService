@@ -10,6 +10,7 @@ public record OrderResponse(
 	UUID orderId,
 	UUID storeId,
 	UUID userId,
+	String storeName,
 	OrderStatus status,
 	OrderType type,
 	String deliveryAddress,
@@ -21,6 +22,7 @@ public record OrderResponse(
 			order.getId(),
 			order.getStore().getId(),
 			order.getUser().getId(),
+			order.getStore().getName(),
 			order.getOrderStatus(),
 			order.getOrderType(),
 			order.getDeliveryAddress(),
@@ -29,3 +31,10 @@ public record OrderResponse(
 		);
 	}
 }
+
+
+
+
+
+
+

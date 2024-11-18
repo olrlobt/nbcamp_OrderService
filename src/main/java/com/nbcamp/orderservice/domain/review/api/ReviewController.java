@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,8 +14,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.review.dto.ReviewCursorResponse;
 import com.nbcamp.orderservice.domain.review.dto.ReviewDetailsCursorResponse;
 import com.nbcamp.orderservice.domain.review.dto.ReviewRequest;
@@ -36,7 +39,7 @@ public class ReviewController {
 	@PostMapping("/orders/{orderId}/reviews")
 	public ResponseEntity<CommonResponse<ReviewResponse>> createReview(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable String orderId,
+		@PathVariable UUID orderId,
 		@RequestBody ReviewRequest reviewRequest
 	) {
 		return CommonResponse.success(
@@ -47,10 +50,12 @@ public class ReviewController {
 
 	@GetMapping("/stores/{storeId}/orders/reviews")
 	public ResponseEntity<CommonResponse<Slice<ReviewCursorResponse>>> getCursorReview(
-		@PathVariable String storeId,
-		Pageable pageable
+		@PathVariable UUID storeId,
+		Pageable pageable,
+		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC") SortOption sortOption
 	) {
-		return CommonResponse.success(SuccessCode.SUCCESS, reviewService.getCursorReview(storeId, pageable));
+		return CommonResponse.success(SuccessCode.SUCCESS,
+			reviewService.getCursorReview(storeId, pageable, sortOption));
 	}
 
 	@GetMapping("/reviews/users/{userId}")
@@ -61,10 +66,21 @@ public class ReviewController {
 		return CommonResponse.success(SuccessCode.SUCCESS, reviewService.getDetailsCursorUserReview(userId, pageable));
 	}
 
+	@PreAuthorize("hasAnyRole('MASTER')")
+	@GetMapping("/stores/{storeId}/orders/reviews/admin")
+	public ResponseEntity<CommonResponse<Slice<ReviewCursorResponse>>> getCursorReviewAdmin(
+		@PathVariable UUID storeId,
+		Pageable pageable,
+		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC") SortOption sortOption
+	) {
+		return CommonResponse.success(SuccessCode.SUCCESS,
+			reviewService.getCursorReviewAdmin(storeId, pageable, sortOption));
+	}
+
 	@PutMapping("/reviews/{reviewId}")
 	public ResponseEntity<CommonResponse<ReviewResponse>> updateReview(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable String reviewId,
+		@PathVariable UUID reviewId,
 		@RequestBody ReviewRequest reviewRequest
 	) {
 		return CommonResponse.success(
@@ -73,10 +89,11 @@ public class ReviewController {
 		);
 	}
 
+	@PreAuthorize("hasAnyRole('CUSTOMER','MANAGER','MASTER')")
 	@DeleteMapping("/reviews/{reviewId}")
 	public ResponseEntity<CommonResponse<Void>> deleteReview(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable String reviewId
+		@PathVariable UUID reviewId
 	) {
 		reviewService.deleteReview(userDetails.getUser(), reviewId);
 		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
