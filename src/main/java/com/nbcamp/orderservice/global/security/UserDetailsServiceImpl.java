@@ -1,7 +1,5 @@
 package com.nbcamp.orderservice.global.security;
 
-import java.util.UUID;
-
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,7 +20,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		try {
-			User user = usersRepository.findByUsername(username)
+			User user = usersRepository.findByUsernameAndDeletedAtIsNull(username)
 				.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
 			return new UserDetailsImpl(user);
 		} catch (IllegalArgumentException e) {

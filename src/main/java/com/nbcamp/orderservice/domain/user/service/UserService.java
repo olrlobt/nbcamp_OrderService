@@ -1,6 +1,13 @@
 package com.nbcamp.orderservice.domain.user.service;
 
-import com.nbcamp.orderservice.domain.user.dto.AllUserResponse;
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import com.nbcamp.orderservice.domain.common.SortOption;
+import com.nbcamp.orderservice.domain.user.dto.LoginRequest;
+import com.nbcamp.orderservice.domain.user.dto.LoginResponse;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
 import com.nbcamp.orderservice.domain.user.dto.UserResponse;
 import com.nbcamp.orderservice.domain.user.dto.UserUpdateRequest;
@@ -13,15 +20,19 @@ public interface UserService {
 
 	void logout(String username);
 
-	UserResponse getUserDetail(String userId);
+	UserResponse getUserDetail(UUID userId);
 
-	AllUserResponse getAllUsers();
+	Page<UserResponse> getAllUsers(SortOption sortOption, Pageable pageable);
 
-	UserResponse updateUser(UserDetailsImpl userDetails, String userId, UserUpdateRequest request);
+	UserResponse updateUser(UserDetailsImpl userDetails, UUID userId, UserUpdateRequest request);
 
-	void deleteUser(UserDetailsImpl userDetails, String userId);
+	void deleteUser(UserDetailsImpl userDetails, UUID userId);
 
 	void updateRefreshToken(String username, String refreshToken);
 
-	public User findById(String userId);
+	User findById(UUID userId);
+
+	void updateUserRole(UUID userId, String role);
+
+	LoginResponse login(LoginRequest loginRequest);
 }

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.common.UserRole;
 import com.nbcamp.orderservice.domain.product.dto.ProductRequest;
 import com.nbcamp.orderservice.domain.product.dto.ProductResponse;
@@ -30,7 +31,7 @@ public class ProductService {
 	private final StoreJpaRepository storeJpaRepository;
 
 	@Transactional
-	public ProductResponse createProduct(String storeId, ProductRequest request, User user) {
+	public ProductResponse createProduct(UUID storeId, ProductRequest request, User user) {
 		validateOwner(user.getUserRole());
 		Store store = getStoreById(storeId);
 		Product product = Product.create(request, store);
@@ -47,7 +48,7 @@ public class ProductService {
 	}
 
 	@Transactional(readOnly = true)
-	public ProductResponse getProduct(String storeId, String productId, User user) {
+	public ProductResponse getProduct(UUID storeId, UUID productId, User user) {
 		Store store = getStoreById(storeId);
 		Product product = getProductById(productId);
 
@@ -62,15 +63,24 @@ public class ProductService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<ProductResponse> getAllProduct(String storeId, int page, int size, User user) {
+	public Page<ProductResponse> getAllProducts(UUID storeId, int page, int size, SortOption sortOption, User user) {
 		UUID storeUuid = getStoreById(storeId).getId();
 		Pageable pageable = PageRequest.of(page, size);
 
-		return productQueryRepository.findAllProductResponsesByStoreId(storeUuid, pageable);
+		return productQueryRepository.findAllProductResponsesByStoreId(storeUuid, pageable, sortOption);
+	}
+
+	@Transactional(readOnly = true)
+	public Page<ProductResponse> searchProducts(UUID storeId, int page, int size, String keyword,
+		SortOption sortOption, User user) {
+		UUID storeUuid = getStoreById(storeId).getId();
+		Pageable pageable = PageRequest.of(page, size);
+
+		return productQueryRepository.searchProducts(storeUuid, pageable, keyword, sortOption);
 	}
 
 	@Transactional
-	public ProductResponse updateProduct(String storeId, String productId, ProductRequest request, User user) {
+	public ProductResponse updateProduct(UUID storeId, UUID productId, ProductRequest request, User user) {
 		validateOwner(user.getUserRole());
 		Store store = getStoreById(storeId);
 		Product product = getProductById(productId);
@@ -87,7 +97,7 @@ public class ProductService {
 	}
 
 	@Transactional
-	public void deleteProduct(String storeId, String productId, User user) {
+	public void deleteProduct(UUID storeId, UUID productId, User user) {
 		validateOwner(user.getUserRole());
 		getStoreById(storeId);
 		Product product = getProductById(productId);
@@ -100,13 +110,13 @@ public class ProductService {
 		}
 	}
 
-	private Product getProductById(String productId) {
-		return productJpaRepository.findById(UUID.fromString(productId))
+	private Product getProductById(UUID productId) {
+		return productJpaRepository.findById(productId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_PRODUCT.getMessage()));
 	}
 
-	private Store getStoreById(String storeId) {
-		return storeJpaRepository.findById(UUID.fromString(storeId))
+	private Store getStoreById(UUID storeId) {
+		return storeJpaRepository.findById(storeId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_STORE.getMessage()));
 	}
 

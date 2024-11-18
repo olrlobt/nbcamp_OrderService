@@ -70,7 +70,7 @@ public class JwtServiceImpl implements JwtService {
 
 	@Override
 	public void updateRefreshToken(String username, String refreshToken) {
-		usersRepository.findByUsername(username)
+		usersRepository.findByUsernameAndDeletedAtIsNull(username)
 			.ifPresentOrElse(
 				users -> users.updateRefreshToken(refreshToken),
 				() -> {
@@ -81,7 +81,7 @@ public class JwtServiceImpl implements JwtService {
 
 	@Override
 	public void destroyRefreshToken(String username) {
-		usersRepository.findByUsername(username)
+		usersRepository.findByUsernameAndDeletedAtIsNull(username)
 			.ifPresentOrElse(
 				User::destroyRefreshToken,
 				() -> {

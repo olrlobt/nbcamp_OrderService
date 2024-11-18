@@ -47,7 +47,6 @@ public enum ErrorCode {
 	EXPIRED_CREDENTIAL(HttpStatus.BAD_REQUEST, "사용자 인증 정보가 만료되었습니다."),
 	INSUFFICIENT_PERMISSION(HttpStatus.FORBIDDEN, "사용자에게 접근 권한이 없습니다."),
 
-
 	/**
 	 * Admin, Member
 	 */
@@ -67,7 +66,7 @@ public enum ErrorCode {
 	ALREADY_UNBLOCK(HttpStatus.BAD_REQUEST, "해당 계정은 차단되어 있지 않습니다."),
 	INSUFFICIENT_PERMISSIONS(HttpStatus.FORBIDDEN, "해당 요청은 권한이 부족하여 수행할 수 없습니다."),
 	INVALID_UUID_FORMAT(HttpStatus.BAD_REQUEST, "잘못된 UUID 형식입니다."),
-
+	INVALID_ROLE(HttpStatus.BAD_REQUEST, "잘못된 ROLE 입니다."),
 	/**
 	 * Category
 	 */
@@ -86,17 +85,33 @@ public enum ErrorCode {
 	NOT_FOUND_PRODUCT(HttpStatus.BAD_REQUEST, "상품을 찾을 수 없습니다."),
 
 	/**
+	 * PAYMENT
+	 */
+	NOT_FOUND_PAYMENT(HttpStatus.BAD_REQUEST, "결제 정보를 찾을 수 없습니다."),
+
+	/**
 	 * ORDER
 	 */
+	NO_PERMISSION_TO_CREATE_ORDER(HttpStatus.BAD_REQUEST, "주문 생성권한이 없습니다."),
 	NOT_FOUND_ORDER(HttpStatus.BAD_REQUEST, "주문정보를 찾을 수 없습니다."),
+	ALREADY_CANCELED(HttpStatus.BAD_REQUEST, "이미 취소된 주문정보입니다."),
+	CANCELLATION_TIME_EXCEEDED(HttpStatus.BAD_REQUEST, "주문 취소 가능 시간이 초과되었습니다. 주문 생성 후 5분 이내에만 취소할 수 있습니다."),
+	ACCESS_DENIED(HttpStatus.FORBIDDEN, "잘못된 접근입니다."),
+	INVALID_ORDER_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 주문 상태입니다."),
 	ORDER_INCOMPLETE_PROCESS(HttpStatus.BAD_REQUEST, "주문이 완료된 상태가 아닙니다."),
+	ORDER_NOT_BELONG_TO_USER(HttpStatus.BAD_REQUEST, "해당 유저의 주문이 아닙니다."),
+	ORDER_STATUS_ACCEPTED_DROP_INVALID(HttpStatus.BAD_REQUEST, "이미 주문이 접수되어 주문상태를 변경할 수 없습니다."),
+	ORDER_STATUS_DELIVERING_DROP_INVALID(HttpStatus.BAD_REQUEST, "이미 배달이 시작되어 주문상태를 변경할 수 없습니다."),
+	PRODUCT_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, "상품이 판매 가능한 상태가 아닙니다."),
+	INVALID_PRODUCT_STORE_RELATION(HttpStatus.BAD_REQUEST, "해당 매장에서 판매하는 상품이 아닙니다."),
+	PARTIALLY_NOT_FOUND_PRODUCT(HttpStatus.BAD_REQUEST, "일부 상품을 찾을 수 없습니다."),
 
 	/**
 	 * REVIEW
 	 */
 	NOT_FOUND_REVIEW(HttpStatus.BAD_REQUEST, "리뷰정보를 찾을 수 없습니다."),
-	EXISTING_REVIEW(HttpStatus.BAD_REQUEST,  "이미 해당 매점에 작성한 리뷰가 있습니다.");
-
+	EXISTING_REVIEW(HttpStatus.BAD_REQUEST, "이미 해당 매점에 작성한 리뷰가 있습니다."),
+	INVALID_REVIEW(HttpStatus.BAD_REQUEST, "해당 리뷰에 접근 권한이 업습니다.");
 
 	private final HttpStatus httpStatus;
 	private final String message;
