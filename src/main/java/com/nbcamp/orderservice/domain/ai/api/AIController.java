@@ -1,5 +1,7 @@
 package com.nbcamp.orderservice.domain.ai.api;
 
+import java.util.UUID;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,7 +20,7 @@ import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping(value = {"/v1/api"})
+@RequestMapping(value = {"/api/v1"})
 @RequiredArgsConstructor
 public class AIController {
 
@@ -27,7 +29,7 @@ public class AIController {
 	@PostMapping("/stores/{storeId}/products/description/ai")
 	public ResponseEntity<CommonResponse<AIResponse>> createProductDescription(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable("storeId") String storeId,
+		@PathVariable("storeId") UUID storeId,
 		@RequestBody AIRequest request
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS_INSERT,

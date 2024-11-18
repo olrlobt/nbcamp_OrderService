@@ -1,5 +1,7 @@
 package com.nbcamp.orderservice.domain.product.api;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,7 +26,7 @@ import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping(value = {"/v1/api"})
+@RequestMapping(value = {"/api/v1"})
 @RequiredArgsConstructor
 public class ProductController {
 
@@ -33,7 +35,7 @@ public class ProductController {
 	@PostMapping("/stores/{storeId}/products")
 	public ResponseEntity<CommonResponse<ProductResponse>> createProduct(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable("storeId") String storeId,
+		@PathVariable("storeId") UUID storeId,
 		@RequestBody ProductRequest request
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS_INSERT,
@@ -43,8 +45,8 @@ public class ProductController {
 	@GetMapping("/stores/{storeId}/products/{productId}")
 	public ResponseEntity<CommonResponse<ProductResponse>> getProduct(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable("storeId") String storeId,
-		@PathVariable("productId") String productId
+		@PathVariable("storeId") UUID storeId,
+		@PathVariable("productId") UUID productId
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS,
 			productService.getProduct(storeId, productId, userDetails.getUser()));
@@ -55,7 +57,7 @@ public class ProductController {
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@RequestParam("page") int page,
 		@RequestParam("size") int size,
-		@PathVariable("storeId") String storeId,
+		@PathVariable("storeId") UUID storeId,
 		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC") SortOption sortOption
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS,
@@ -67,7 +69,7 @@ public class ProductController {
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@RequestParam("page") int page,
 		@RequestParam("size") int size,
-		@PathVariable("storeId") String storeId,
+		@PathVariable("storeId") UUID storeId,
 		@RequestParam(value = "keyword", required = false) String keyword,
 		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC") SortOption sortOption
 	) {
@@ -78,8 +80,8 @@ public class ProductController {
 	@PutMapping("/stores/{storeId}/products/{productId}")
 	public ResponseEntity<CommonResponse<ProductResponse>> updateProduct(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable("storeId") String storeId,
-		@PathVariable("productId") String productId,
+		@PathVariable("storeId") UUID storeId,
+		@PathVariable("productId") UUID productId,
 		@RequestBody ProductRequest request
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS_INSERT,
@@ -89,8 +91,8 @@ public class ProductController {
 	@DeleteMapping("/stores/{storeId}/products/{productId}")
 	public ResponseEntity<CommonResponse<Void>> deleteProduct(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable("storeId") String storeId,
-		@PathVariable("productId") String productId
+		@PathVariable("storeId") UUID storeId,
+		@PathVariable("productId") UUID productId
 	) {
 		productService.deleteProduct(storeId, productId, userDetails.getUser());
 		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);

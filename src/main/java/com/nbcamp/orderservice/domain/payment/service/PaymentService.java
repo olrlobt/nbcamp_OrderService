@@ -30,7 +30,7 @@ public class PaymentService {
 	private final OrderJpaRepository orderJpaRepository;
 
 	@Transactional
-	public PaymentResponse createPayment(String orderId, PaymentRequest request, User user) {
+	public PaymentResponse createPayment(UUID orderId, PaymentRequest request, User user) {
 		Order order = getOrder(orderId);
 		// 외부 결제 연동 로직. 그에 따른 PaymentStatus 제어
 		Payment payment = Payment.create(order, user, request);
@@ -39,13 +39,13 @@ public class PaymentService {
 	}
 
 	@Transactional(readOnly = true)
-	public Slice<PaymentResponse> getAllPaymentsByOrderId(String orderId, User user, Pageable pageable,
+	public Slice<PaymentResponse> getAllPaymentsByOrderId(UUID orderId, User user, Pageable pageable,
 		SortOption sortOption) {
-		return paymentQueryRepository.getAllPaymentsByOrderId(UUID.fromString(orderId), user, pageable, sortOption);
+		return paymentQueryRepository.getAllPaymentsByOrderId(orderId, user, pageable, sortOption);
 	}
 
 	@Transactional(readOnly = true)
-	public PaymentResponse getPayment(String orderId, String paymentId, User user) {
+	public PaymentResponse getPayment(UUID orderId, UUID paymentId, User user) {
 		Order order = getOrder(orderId);
 		verifyUserOrder(order, user);
 		Payment payment = getPayment(paymentId);
@@ -53,7 +53,7 @@ public class PaymentService {
 	}
 
 	@Transactional
-	public void deleteProduct(String orderId, String paymentId, User user) {
+	public void deleteProduct(UUID orderId, UUID paymentId, User user) {
 		Order order = getOrder(orderId);
 		verifyUserOrder(order, user);
 		validateOwner(user.getUserRole());
@@ -67,8 +67,8 @@ public class PaymentService {
 		}
 	}
 
-	private Order getOrder(String orderId) {
-		return orderJpaRepository.findById(UUID.fromString(orderId))
+	private Order getOrder(UUID orderId) {
+		return orderJpaRepository.findById(orderId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_ORDER.getMessage()));
 	}
 
@@ -83,8 +83,8 @@ public class PaymentService {
 		}
 	}
 
-	private Payment getPayment(String paymentId) {
-		return paymentJpaRepository.findById(UUID.fromString(paymentId))
+	private Payment getPayment(UUID paymentId) {
+		return paymentJpaRepository.findById(paymentId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_PAYMENT.getMessage()));
 	}
 

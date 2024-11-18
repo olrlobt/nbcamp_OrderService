@@ -1,5 +1,7 @@
 package com.nbcamp.orderservice.domain.payment.api;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +26,7 @@ import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping(value = {"/v1/api/orders"})
+@RequestMapping(value = {"/api/v1/orders"})
 @RequiredArgsConstructor
 public class PaymentController {
 
@@ -33,7 +35,7 @@ public class PaymentController {
 	@PostMapping("/{orderId}/payments")
 	public ResponseEntity<CommonResponse<PaymentResponse>> createPayment(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable("orderId") String orderId,
+		@PathVariable("orderId") UUID orderId,
 		@RequestBody PaymentRequest request
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS_INSERT,
@@ -43,7 +45,7 @@ public class PaymentController {
 	@GetMapping("/{orderId}/payments")
 	public ResponseEntity<CommonResponse<Slice<PaymentResponse>>> getAllPaymentsByOrderId(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable("orderId") String orderId,
+		@PathVariable("orderId") UUID orderId,
 		@RequestParam(value = "sortOption", required = false, defaultValue = "CREATED_AT_ASC") SortOption sortOption,
 		Pageable pageable
 	) {
@@ -54,8 +56,8 @@ public class PaymentController {
 	@GetMapping("/{orderId}/payments/{paymentId}")
 	public ResponseEntity<CommonResponse<PaymentResponse>> getPayment(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable("orderId") String orderId,
-		@PathVariable("paymentId") String paymentId
+		@PathVariable("orderId") UUID orderId,
+		@PathVariable("paymentId") UUID paymentId
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS,
 			paymentService.getPayment(orderId, paymentId, userDetails.getUser()));
@@ -64,8 +66,8 @@ public class PaymentController {
 	@DeleteMapping("/{orderId}/payments/{paymentId}")
 	public ResponseEntity<CommonResponse<Void>> deleteProduct(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable("orderId") String orderId,
-		@PathVariable("paymentId") String paymentId
+		@PathVariable("orderId") UUID orderId,
+		@PathVariable("paymentId") UUID paymentId
 	) {
 		paymentService.deleteProduct(orderId, paymentId, userDetails.getUser());
 		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
