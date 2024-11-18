@@ -38,7 +38,7 @@ public class StoreService {
 	private final StoreCategoryService storeCategoryService;
 
 	@Transactional
-	public StoreResponse createStore(String userId, StoreRequest request) {
+	public StoreResponse createStore(UUID userId, StoreRequest request) {
 		User owner = userService.findById(userId);
 		Store store = Store.create(request, owner);
 

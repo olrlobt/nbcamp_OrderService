@@ -42,7 +42,7 @@ public class StoreController {
 	@PreAuthorize("hasAnyRole('MASTER')")
 	@PostMapping("/stores/users/{userId}")
 	public ResponseEntity<CommonResponse<StoreResponse>> createStore(
-		@PathVariable String userId,
+		@PathVariable UUID userId,
 		@Valid @RequestBody StoreRequest storeRequest
 	) {
 		return CommonResponse.success(

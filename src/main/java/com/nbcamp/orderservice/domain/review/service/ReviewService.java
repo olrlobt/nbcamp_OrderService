@@ -81,7 +81,7 @@ public class ReviewService {
 	}
 
 	@Transactional(readOnly = true)
-	public Slice<ReviewDetailsCursorResponse> getDetailsCursorUserReview(String userId, Pageable pageable) {
+	public Slice<ReviewDetailsCursorResponse> getDetailsCursorUserReview(UUID userId, Pageable pageable){
 		User user = userService.findById(userId);
 		return reviewQueryRepository.getAllReviewInUser(user, pageable);
 	}

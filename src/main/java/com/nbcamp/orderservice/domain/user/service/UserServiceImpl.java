@@ -40,14 +40,14 @@ public class UserServiceImpl implements UserService {
 		jwtService.destroyRefreshToken(username);
 	}
 
-	public User findById(String userId){
-		return userRepository.findById(UUID.fromString(userId))
+	public User findById(UUID userId){
+		return userRepository.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
 	}
 
 	@Transactional(readOnly = true)
-	public UserResponse getUserDetail(String userId) {
-		return userRepository.findUserResponseByUserId(UUID.fromString(userId))
+	public UserResponse getUserDetail(UUID userId) {
+		return userRepository.findUserResponseByUserId(userId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
 	}
 
@@ -57,19 +57,19 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Transactional
-	public UserResponse updateUser(UserDetailsImpl userDetails, String userId, UserUpdateRequest request) {
+	public UserResponse updateUser(UserDetailsImpl userDetails, UUID userId, UserUpdateRequest request) {
 		ignoreAuth(userDetails, userId);
 
-		User user = userRepository.findById(UUID.fromString(userId))
+		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
 		user.update(request, passwordEncoder);
 		return UserResponse.of(user);
 	}
 
 	@Transactional
-	public void deleteUser(UserDetailsImpl userDetails, String userId) {
+	public void deleteUser(UserDetailsImpl userDetails, UUID userId) {
 		ignoreAuth(userDetails, userId);
-		User user = userRepository.findById(UUID.fromString(userId))
+		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
 		user.delete();
 	}
@@ -82,8 +82,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Transactional
-	public void updateUserRole(String userId, String role) {
-		User user = userRepository.findById(UUID.fromString(userId))
+	public void updateUserRole(UUID userId, String role) {
+		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException(ErrorCode.NOT_FOUND_MEMBER.getMessage()));
 
 		try {
@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 
-	private void ignoreAuth(UserDetailsImpl userDetails, String userId) {
+	private void ignoreAuth(UserDetailsImpl userDetails, UUID userId) {
 		UserRole userRole = userDetails.getUserRole();
 		if((userRole == UserRole.CUSTOMER || userRole == UserRole.OWNER)
 			&& !Objects.equals(userDetails.getUserId(), userId)){

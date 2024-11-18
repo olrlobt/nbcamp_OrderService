@@ -1,5 +1,7 @@
 package com.nbcamp.orderservice.domain.user.service;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -16,17 +18,17 @@ public interface UserService {
 
 	void logout(String username);
 
-	UserResponse getUserDetail(String userId);
+	UserResponse getUserDetail(UUID userId);
 
 	Page<UserResponse> getAllUsers(SortOption sortOption, Pageable pageable);
 
-	UserResponse updateUser(UserDetailsImpl userDetails, String userId, UserUpdateRequest request);
+	UserResponse updateUser(UserDetailsImpl userDetails, UUID userId, UserUpdateRequest request);
 
-	void deleteUser(UserDetailsImpl userDetails, String userId);
+	void deleteUser(UserDetailsImpl userDetails, UUID userId);
 
 	void updateRefreshToken(String username, String refreshToken);
 
-	User findById(String userId);
+	User findById(UUID userId);
 
-	void updateUserRole(String userId, String role);
+	void updateUserRole(UUID userId, String role);
 }

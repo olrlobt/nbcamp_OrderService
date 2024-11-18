@@ -1,5 +1,7 @@
 package com.nbcamp.orderservice.domain.user.api;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -54,7 +56,7 @@ public class UserController {
 
 	@Operation(summary = "회원 정보 조회")
 	@GetMapping("/users/{userId}")
-	public ResponseEntity<CommonResponse<UserResponse>> getUserDetail(@PathVariable String userId) {
+	public ResponseEntity<CommonResponse<UserResponse>> getUserDetail(@PathVariable UUID userId){
 		UserResponse userDetail = userService.getUserDetail(userId);
 		return CommonResponse.success(SuccessCode.SUCCESS, userDetail);
 	}
@@ -74,7 +76,7 @@ public class UserController {
 	@PutMapping("/users/{userId}")
 	public ResponseEntity<CommonResponse<UserResponse>> updateUser(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable String userId,
+		@PathVariable UUID userId,
 		@RequestBody UserUpdateRequest request) {
 		UserResponse userResponse = userService.updateUser(userDetails, userId, request);
 		return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, userResponse);
@@ -84,7 +86,7 @@ public class UserController {
 	@DeleteMapping("/users/{userId}")
 	public ResponseEntity<CommonResponse<Void>> deleteUser(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable String userId) {
+		@PathVariable UUID userId){
 		userService.deleteUser(userDetails, userId);
 		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
 	}
@@ -92,7 +94,7 @@ public class UserController {
 	@Operation(summary = "회원 권한 수정")
 	@PreAuthorize("hasAnyRole('MASTER')")
 	@PutMapping("/users/{userId}/role")
-	public ResponseEntity<CommonResponse<Void>> updateUserRole(@PathVariable String userId, @RequestBody String role) {
+	public ResponseEntity<CommonResponse<Void>> updateUserRole(@PathVariable UUID userId, @RequestBody String role){
 		userService.updateUserRole(userId, role);
 		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
 	}

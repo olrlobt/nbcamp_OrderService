@@ -66,7 +66,7 @@ public class ReviewController {
 	@Operation(summary = "유저별 리뷰 목록 조회")
 	@GetMapping("/reviews/users/{userId}")
 	public ResponseEntity<CommonResponse<Slice<ReviewDetailsCursorResponse>>> getCursorDetailsReview(
-		@PathVariable String userId,
+		@PathVariable UUID userId,
 		Pageable pageable
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS, reviewService.getDetailsCursorUserReview(userId, pageable));
