@@ -23,15 +23,19 @@ import com.nbcamp.orderservice.global.exception.code.SuccessCode;
 import com.nbcamp.orderservice.global.response.CommonResponse;
 import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping(value = {"/api/v1/orders"})
 @RequiredArgsConstructor
+@Tag(name = "결제 관련 API")
 public class PaymentController {
 
 	private final PaymentService paymentService;
 
+	@Operation(summary = "결제 생성")
 	@PostMapping("/{orderId}/payments")
 	public ResponseEntity<CommonResponse<PaymentResponse>> createPayment(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -42,6 +46,7 @@ public class PaymentController {
 			paymentService.createPayment(orderId, request, userDetails.getUser()));
 	}
 
+	@Operation(summary = "주문별 결제 목록 조회")
 	@GetMapping("/{orderId}/payments")
 	public ResponseEntity<CommonResponse<Slice<PaymentResponse>>> getAllPaymentsByOrderId(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -53,6 +58,7 @@ public class PaymentController {
 			paymentService.getAllPaymentsByOrderId(orderId, userDetails.getUser(), pageable, sortOption));
 	}
 
+	@Operation(summary = "결제 상세 조회")
 	@GetMapping("/{orderId}/payments/{paymentId}")
 	public ResponseEntity<CommonResponse<PaymentResponse>> getPayment(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -63,6 +69,7 @@ public class PaymentController {
 			paymentService.getPayment(orderId, paymentId, userDetails.getUser()));
 	}
 
+	@Operation(summary = "결제 취소")
 	@DeleteMapping("/{orderId}/payments/{paymentId}")
 	public ResponseEntity<CommonResponse<Void>> deleteProduct(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,

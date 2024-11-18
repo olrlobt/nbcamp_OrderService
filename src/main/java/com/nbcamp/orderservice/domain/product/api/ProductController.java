@@ -23,15 +23,19 @@ import com.nbcamp.orderservice.global.exception.code.SuccessCode;
 import com.nbcamp.orderservice.global.response.CommonResponse;
 import com.nbcamp.orderservice.global.security.UserDetailsImpl;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping(value = {"/api/v1"})
 @RequiredArgsConstructor
+@Tag(name = "상품 관련 API")
 public class ProductController {
 
 	private final ProductService productService;
 
+	@Operation(summary = "상품 등록")
 	@PostMapping("/stores/{storeId}/products")
 	public ResponseEntity<CommonResponse<ProductResponse>> createProduct(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -42,6 +46,7 @@ public class ProductController {
 			productService.createProduct(storeId, request, userDetails.getUser()));
 	}
 
+	@Operation(summary = "상품 상세 조회")
 	@GetMapping("/stores/{storeId}/products/{productId}")
 	public ResponseEntity<CommonResponse<ProductResponse>> getProduct(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -52,6 +57,7 @@ public class ProductController {
 			productService.getProduct(storeId, productId, userDetails.getUser()));
 	}
 
+	@Operation(summary = "상품 목록 조회")
 	@GetMapping("/stores/{storeId}/products")
 	public ResponseEntity<CommonResponse<Page<ProductResponse>>> getAllProducts(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -64,6 +70,7 @@ public class ProductController {
 			productService.getAllProducts(storeId, page - 1, size, sortOption, userDetails.getUser()));
 	}
 
+	@Operation(summary = "상품 검색")
 	@GetMapping("/stores/{storeId}/products/search")
 	public ResponseEntity<CommonResponse<Page<ProductResponse>>> searchProducts(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -77,6 +84,7 @@ public class ProductController {
 			productService.searchProducts(storeId, page - 1, size, keyword, sortOption, userDetails.getUser()));
 	}
 
+	@Operation(summary = "상품 수정")
 	@PutMapping("/stores/{storeId}/products/{productId}")
 	public ResponseEntity<CommonResponse<ProductResponse>> updateProduct(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -88,6 +96,7 @@ public class ProductController {
 			productService.updateProduct(storeId, productId, request, userDetails.getUser()));
 	}
 
+	@Operation(summary = "상품 삭제")
 	@DeleteMapping("/stores/{storeId}/products/{productId}")
 	public ResponseEntity<CommonResponse<Void>> deleteProduct(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
