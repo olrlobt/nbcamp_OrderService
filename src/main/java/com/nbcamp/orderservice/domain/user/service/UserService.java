@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.nbcamp.orderservice.domain.common.SortOption;
+import com.nbcamp.orderservice.domain.user.dto.LoginRequest;
+import com.nbcamp.orderservice.domain.user.dto.LoginResponse;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
 import com.nbcamp.orderservice.domain.user.dto.UserResponse;
 import com.nbcamp.orderservice.domain.user.dto.UserUpdateRequest;
@@ -31,4 +33,6 @@ public interface UserService {
 	User findById(UUID userId);
 
 	void updateUserRole(UUID userId, String role);
+
+	LoginResponse login(LoginRequest loginRequest);
 }

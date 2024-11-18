@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nbcamp.orderservice.domain.common.SortOption;
+import com.nbcamp.orderservice.domain.user.dto.LoginRequest;
+import com.nbcamp.orderservice.domain.user.dto.LoginResponse;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
 import com.nbcamp.orderservice.domain.user.dto.UserResponse;
 import com.nbcamp.orderservice.domain.user.dto.UserUpdateRequest;
@@ -45,6 +47,13 @@ public class UserController {
 	public ResponseEntity<CommonResponse<UserResponse>> signup(@Valid @RequestBody SignupRequest signupRequest) {
 		UserResponse signup = userService.signup(signupRequest);
 		return CommonResponse.success(SuccessCode.SUCCESS_INSERT, signup);
+	}
+
+	@Operation(summary = "로그인")
+	@PostMapping("/users/login")
+	public ResponseEntity<CommonResponse<LoginResponse>> login(@RequestBody LoginRequest loginRequest) {
+		LoginResponse login = userService.login(loginRequest);
+		return CommonResponse.success(SuccessCode.SUCCESS, login);
 	}
 
 	@Operation(summary = "로그아웃")

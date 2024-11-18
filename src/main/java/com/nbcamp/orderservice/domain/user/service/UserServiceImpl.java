@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nbcamp.orderservice.domain.common.SortOption;
 import com.nbcamp.orderservice.domain.common.UserRole;
+import com.nbcamp.orderservice.domain.user.dto.LoginRequest;
+import com.nbcamp.orderservice.domain.user.dto.LoginResponse;
 import com.nbcamp.orderservice.domain.user.dto.SignupRequest;
 import com.nbcamp.orderservice.domain.user.dto.UserResponse;
 import com.nbcamp.orderservice.domain.user.dto.UserUpdateRequest;
@@ -92,6 +94,19 @@ public class UserServiceImpl implements UserService {
 		} catch (IllegalArgumentException e) {
 			throw new IllegalArgumentException(ErrorCode.INVALID_ROLE.getMessage());
 		}
+	}
+
+	@Override
+	public LoginResponse login(LoginRequest loginRequest) {
+		User user = userRepository.findByUsername(loginRequest.username())
+			.orElseThrow(() -> new RuntimeException("Invalid username or password"));
+
+		if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
+			throw new RuntimeException("Invalid username or password");
+		}
+
+		return new LoginResponse(user.getUsername(),
+			jwtService.createAccessToken(user.getUsername()));
 	}
 
 	private void ignoreAuth(UserDetailsImpl userDetails, UUID userId) {
