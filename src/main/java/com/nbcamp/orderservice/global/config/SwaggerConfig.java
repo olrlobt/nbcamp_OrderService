@@ -1,6 +1,7 @@
 package com.nbcamp.orderservice.global.config;
 
 import org.springdoc.core.models.GroupedOpenApi;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -15,12 +16,15 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 
 @OpenAPIDefinition(
 	servers = {
-		@Server(url = "http://3.37.116.58", description = "Server"),
+		@Server(url = "${swagger.server.url}", description = "Server"),
 		@Server(url = "http://localhost:8080", description = "Local")
 	}
 )
 @Configuration
 public class SwaggerConfig {
+
+	@Value("${swagger.server.url}")
+	private String serverUrl;
 
 	@Bean
 	public GroupedOpenApi publicApi() {
