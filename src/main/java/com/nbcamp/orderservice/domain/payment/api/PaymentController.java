@@ -69,14 +69,14 @@ public class PaymentController {
 			paymentService.getPayment(orderId, paymentId, userDetails.getUser()));
 	}
 
-	@Operation(summary = "결제 취소")
+	@Operation(summary = "결제 내역 삭제")
 	@DeleteMapping("/{orderId}/payments/{paymentId}")
-	public ResponseEntity<CommonResponse<Void>> deleteProduct(
+	public ResponseEntity<CommonResponse<Void>> deletePayment(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		@PathVariable("orderId") UUID orderId,
 		@PathVariable("paymentId") UUID paymentId
 	) {
-		paymentService.deleteProduct(orderId, paymentId, userDetails.getUser());
+		paymentService.deletePayment(orderId, paymentId, userDetails.getUser());
 		return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
 	}
 

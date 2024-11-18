@@ -53,7 +53,7 @@ public class PaymentService {
 	}
 
 	@Transactional
-	public void deleteProduct(UUID orderId, UUID paymentId, User user) {
+	public void deletePayment(UUID orderId, UUID paymentId, User user) {
 		Order order = getOrder(orderId);
 		verifyUserOrder(order, user);
 		validateOwner(user.getUserRole());
