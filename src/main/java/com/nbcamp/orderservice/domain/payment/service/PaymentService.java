@@ -46,17 +46,25 @@ public class PaymentService {
 
 	@Transactional(readOnly = true)
 	public PaymentResponse getPayment(String orderId, String paymentId, User user) {
-		getOrder(orderId);
+		Order order = getOrder(orderId);
+		verifyUserOrder(order, user);
 		Payment payment = getPayment(paymentId);
 		return getPaymentResponse(payment);
 	}
 
 	@Transactional
 	public void deleteProduct(String orderId, String paymentId, User user) {
-		getOrder(orderId);
+		Order order = getOrder(orderId);
+		verifyUserOrder(order, user);
 		validateOwner(user.getUserRole());
 		Payment payment = getPayment(paymentId);
 		payment.delete(user.getId());
+	}
+
+	private void verifyUserOrder(Order order, User user) {
+		if (!order.getUser().equals(user)) {
+			throw new IllegalArgumentException(ErrorCode.INSUFFICIENT_PERMISSION.getMessage());
+		}
 	}
 
 	private Order getOrder(String orderId) {
