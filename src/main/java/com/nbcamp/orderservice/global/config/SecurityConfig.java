@@ -1,7 +1,10 @@
 package com.nbcamp.orderservice.global.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -15,6 +18,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nbcamp.orderservice.domain.user.repository.UserRepository;
@@ -40,10 +46,17 @@ public class SecurityConfig {
 	private final UserService userService;
 	private final JwtService jwtService;
 
+	private static final String[] ALLOW_ORIGINS = {
+		"http://localhost:8080",
+		"http://3.37.116.58",
+		"ec2-3-37-116-58.ap-northeast-2.compute.amazonaws.com"
+	};
+
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.csrf(AbstractHttpConfigurer::disable)  // CSRF 비활성화
 			.httpBasic(AbstractHttpConfigurer::disable)
+			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.formLogin(AbstractHttpConfigurer::disable)
 			.authorizeHttpRequests((authorize) -> authorize
 				.requestMatchers(HttpMethod.GET, "/api/v1/category/**").permitAll()
@@ -68,6 +81,20 @@ public class SecurityConfig {
 			.addFilterAfter(jsonUsernamePasswordLoginFilter(), LogoutFilter.class)
 			.addFilterBefore(jwtAuthenticationFilter(), JsonUserAuthenticationFilter.class);
 		return http.build();
+	}
+
+	@Bean
+	CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration config = new CorsConfiguration();
+		config.addAllowedHeader("*");
+		config.addAllowedMethod("*");
+		config.setAllowedOrigins(List.of(ALLOW_ORIGINS));
+		config.addExposedHeader(HttpHeaders.AUTHORIZATION);
+		config.setAllowCredentials(true);
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", config);
+		return source;
 	}
 
 	@Bean
