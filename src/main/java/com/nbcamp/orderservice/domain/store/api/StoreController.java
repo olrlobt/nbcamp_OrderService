@@ -1,5 +1,7 @@
 package com.nbcamp.orderservice.domain.store.api;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +37,7 @@ public class StoreController {
 	@PostMapping("/stores/users/{userId}")
 	public ResponseEntity<CommonResponse<StoreResponse>> createStore(
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
-		@PathVariable String userId,
+		@PathVariable UUID userId,
 		@RequestBody StoreRequest storeRequest
 	) {
 		return CommonResponse.success(

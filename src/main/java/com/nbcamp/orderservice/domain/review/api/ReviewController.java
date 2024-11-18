@@ -1,5 +1,7 @@
 package com.nbcamp.orderservice.domain.review.api;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.http.ResponseEntity;
@@ -53,7 +55,7 @@ public class ReviewController {
 
 	@GetMapping("/reviews/users/{userId}")
 	public ResponseEntity<CommonResponse<Slice<ReviewDetailsCursorResponse>>> getCursorDetailsReview(
-		@PathVariable String userId,
+		@PathVariable UUID userId,
 		Pageable pageable
 	) {
 		return CommonResponse.success(SuccessCode.SUCCESS, reviewService.getDetailsCursorUserReview(userId, pageable));

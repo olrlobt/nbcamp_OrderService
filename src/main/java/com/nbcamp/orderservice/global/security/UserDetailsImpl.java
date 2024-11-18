@@ -2,6 +2,7 @@ package com.nbcamp.orderservice.global.security;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.UUID;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,8 +23,8 @@ public class UserDetailsImpl implements UserDetails {
 		return user;
 	}
 
-	public String getUserId(){
-		return user.getId().toString();
+	public UUID getUserId(){
+		return user.getId();
 	}
 
 	public UserRole getUserRole(){
