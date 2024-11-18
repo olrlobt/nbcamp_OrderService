@@ -86,11 +86,11 @@ public class SecurityConfig {
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
-		config.addAllowedHeader("*");
-		config.addAllowedMethod("*");
-		config.setAllowedOrigins(List.of(ALLOW_ORIGINS));
-		config.addExposedHeader(HttpHeaders.AUTHORIZATION);
-		config.setAllowCredentials(true);
+		config.addAllowedHeader("*"); // 모든 헤더 허용
+		config.addAllowedMethod("*"); // 모든 메서드 허용
+		config.setAllowedOriginPatterns(List.of(ALLOW_ORIGINS)); // 도메인 패턴
+		config.addExposedHeader(HttpHeaders.AUTHORIZATION); // 인증 헤더 노출
+		config.setAllowCredentials(true); // 인증 포함 허용
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", config);
